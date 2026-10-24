@@ -5,7 +5,7 @@ from authlib.integrations.flask_client import OAuth
 from werkzeug.utils import secure_filename
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 app.secret_key = 'harbor_secure_session_key'
 
 serializer = URLSafeTimedSerializer(app.secret_key)
