@@ -79,7 +79,7 @@ def index():
     
     cursor.execute('SELECT id, title, filename, votes FROM contest_photos ORDER BY votes DESC LIMIT 1')
     winner = cursor.fetchone()
-    conn.close()
+    conn.close()return render_template('harbour.html', users=users, photos=photos, winner=winner)
     
     logged_in_email = session.get('user_email')
     is_admin = session.get('is_admin', 0)
