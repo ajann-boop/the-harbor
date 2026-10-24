@@ -160,7 +160,7 @@ def join_network():
             ''', (name, email, group_category, is_donor, anonymous_donor, donation_amount, hide_amount, is_admin, status, is_verified, photo_filename, facebook_link))
             conn.commit()
             conn.close()
-            
+            return render_template('harbour.html', users=users, photos=photos, winner=winner)
             token = serializer.dumps(email, salt='email-verify-salt')
             verify_url = url_for('verify_email', token=token, _external=True)
             
