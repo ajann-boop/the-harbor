@@ -95,6 +95,57 @@
                 </div>
             </div>
         <!-- Streamlined Registration Form -->
+        <!-- Streamlined Harbor Form -->
+<div class="text-center mb-6">
+    <h2 class="text-2xl font-bold text-slate-800">The Harbor</h2>
+    <p class="text-sm text-slate-600 mt-1">Join if you already haven't, or Sign in to connect with your community.</p>
+</div>
+
+<form action="/join" method="POST" class="space-y-4">
+    <div>
+        <label class="block text-sm font-medium text-slate-700">Full Name</label>
+        <input type="text" name="name" required class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" placeholder="Your Name">
+    </div>
+    
+    <div>
+        <label class="block text-sm font-medium text-slate-700">Email Address</label>
+        <input type="email" name="email" required class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" placeholder="your@email.com">
+    </div>
+
+    <!-- Contributor Buttons -->
+    <div class="pt-2 flex flex-col sm:flex-row gap-3">
+        <button type="button" onclick="toggleContributionOptions()" class="flex-1 bg-slate-100 border border-slate-300 text-slate-700 font-medium py-2 px-4 rounded-md hover:bg-slate-200 transition text-sm">
+            Individual Contributors
+        </button>
+        <button type="button" onclick="toggleContributionOptions()" class="flex-1 bg-slate-100 border border-slate-300 text-slate-700 font-medium py-2 px-4 rounded-md hover:bg-slate-200 transition text-sm">
+            Business Contributors
+        </button>
+    </div>
+
+    <!-- Hidden / Toggleable Anonymity Section -->
+    <div id="contribution-options" class="hidden mt-4 p-4 bg-slate-50 rounded-md border border-slate-200 space-y-3">
+        <p class="text-xs text-slate-600 font-medium">Would you like your contribution to remain anonymous?</p>
+        <div class="flex items-center space-x-4">
+            <label class="flex items-center text-sm text-slate-700">
+                <input type="radio" name="is_anonymous" value="yes" class="mr-2"> Yes, stay anonymous
+            </label>
+            <label class="flex items-center text-sm text-slate-700">
+                <input type="radio" name="is_anonymous" value="no" checked class="mr-2"> No, display my name
+            </label>
+        </div>
+    </div>
+
+    <button type="submit" class="w-full bg-sky-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-sky-600 transition shadow-sm mt-4">
+        Join The Harbor
+    </button>
+</form>
+
+<script>
+function toggleContributionOptions() {
+    const box = document.getElementById('contribution-options');
+    box.classList.toggle('hidden');
+}
+</script>
         <!-- Updated Header & Form -->
 <div class="text-center mb-6">
     <h2 class="text-2xl font-bold text-slate-800">The Harbor</h2>
