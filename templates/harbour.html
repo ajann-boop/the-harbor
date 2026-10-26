@@ -6,15 +6,18 @@
     <title>The Harbor - Lewie and Marcus Network</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-slate-100 min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
 
-    <div class="max-w-md w-full bg-white rounded-xl shadow-md overflow-hidden p-6 space-y-6">
-        
-        <!-- Canva Ad / Header Photo Banner -->
-        <div class="rounded-lg overflow-hidden shadow-inner bg-slate-100 h-40 flex items-center justify-center">
-            <img src="{{ url_for('static', filename='canva_banner.jpg') }}" alt="The Harbor Community" class="w-full h-full object-cover">
-        </div>
+    <!-- Background Spread Photos (Positioned around the screen) -->
+    <div class="absolute inset-0 pointer-events-none z-0 opacity-20 hidden md:block">
+        <img src="{{ url_for('static', filename='photo1.jpg') }}" class="absolute top-10 left-12 w-32 h-32 object-cover rounded-lg shadow-md rotate-[-6deg]" alt="">
+        <img src="{{ url_for('static', filename='photo2.jpg') }}" class="absolute top-16 right-16 w-36 h-36 object-cover rounded-lg shadow-md rotate-[8deg]" alt="">
+        <img src="{{ url_for('static', filename='photo3.jpg') }}" class="absolute bottom-12 left-16 w-40 h-32 object-cover rounded-lg shadow-md rotate-[4deg]" alt="">
+        <img src="{{ url_for('static', filename='photo4.jpg') }}" class="absolute bottom-16 right-20 w-32 h-32 object-cover rounded-lg shadow-md rotate-[-4deg]" alt="">
+    </div>
 
+    <!-- Main Content Card -->
+    <div class="max-w-md w-full bg-white/95 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden p-6 space-y-6 relative z-10 border border-slate-200">
         <!-- Header -->
         <div class="text-center">
             <h2 class="text-2xl font-bold text-slate-800">The Harbor</h2>
