@@ -131,46 +131,27 @@ def google_authorize():
 
 @app.route('/join', methods=['POST'])
 def join_network():
-    name = request.form.get('name')
-    email = request.form.get('email').strip().lower()
-    group_category = request.form.get('group_category', 'Community')
-    is_donor = 1 if request.form.get('is_donor') else 0
-    anonymous_donor = 1 if request.form.get('anonymous_donor') else 0
-    donation_amount = float(request.form.get('donation_amount') or 0.0)
-    hide_amount = 1 if request.form.get('hide_amount') else 0
-    facebook_link = request.form.get('facebook_link')
+    name = request.form.get('name', '').strip()
+    email = request.form.get('email', '').strip()
+    is_anonymous = 1 if request.form.get('is_anonymous') == 'yes' else 0
     
+    # Check if admin (if you have an admin email defined)
     is_admin = 1 if email == ADMIN_EMAIL else 0
     status = 'approved' if is_admin else 'pending'
-    is_verified = 1 if is_admin else 0
     
-    photo_filename = None
-    file = request.files.get('photo')
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        photo_filename = filename
-
-    if name and email:
-        try:
-            conn = sqlite3.connect('harbor.db')
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO users (name, email, group_category, is_donor, anonymous_donor, donation_amount, hide_amount, is_admin, status, is_verified, photo_filename, facebook_link) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (name, email, group_category, is_donor, anonymous_donor, donation_amount, hide_amount, is_admin, status, is_verified, photo_filename, facebook_link))
-            conn.commit()
-            conn.close()
-            return render_template('harbour.html', users=users, photos=photos, winner=winner)
-            token = serializer.dumps(email, salt='email-verify-salt')
-            verify_url = url_for('verify_email', token=token, _external=True)
-            
-            flash(f'Registration successful! [Dev Mode Verification Link]: Click here to verify your email -> {verify_url}')
-        except sqlite3.IntegrityError:
-            flash('This email is already registered on the network.')
-
+    conn = sqlite3.connect('harbour.db')
+    cursor = conn.cursor()
+    
+    # Insert new streamlined member data
+    cursor.execute('''
+        INSERT INTO users (name, email, group_category, is_donor, anonymous_donor, status, is_admin)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (name, email, 'Community', 0, is_anonymous, status, is_admin))
+    
+    conn.commit()
+    conn.close()
+    
     return redirect(url_for('index'))
-
 @app.route('/verify/<token>')
 def verify_email(token):
     try:
