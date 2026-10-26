@@ -8,7 +8,7 @@
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col items-center justify-center p-4">
 
-    <div class="max-w-lg w-full bg-white rounded-xl shadow-md overflow-hidden p-6 space-y-6">
+    <div class="max-w-md w-full bg-white rounded-xl shadow-md overflow-hidden p-6 space-y-6">
         
         <!-- Canva Ad / Header Photo Banner -->
         <div class="rounded-lg overflow-hidden shadow-inner bg-slate-100 h-40 flex items-center justify-center">
@@ -19,20 +19,6 @@
         <div class="text-center">
             <h2 class="text-2xl font-bold text-slate-800">The Harbor</h2>
             <p class="text-sm text-slate-600 mt-1">Welcome to our community network.</p>
-        </div>
-
-        <!-- Learn More / Video Feature Section -->
-        <div class="bg-slate-50 rounded-lg p-4 border border-slate-200 space-y-3">
-            <div class="flex justify-between items-center">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Learn More About What We're Doing</span>
-                <button type="button" onclick="toggleVideoPlayer()" class="text-xs text-sky-600 hover:underline font-medium">Watch Video</button>
-            </div>
-            
-            <!-- Embed Video Container (hidden by default or toggleable) -->
-            <div id="video-container" class="hidden aspect-w-16 aspect-h-9 rounded-md overflow-hidden bg-black">
-                <!-- Replace src with your hosted video link or YouTube embed URL -->
-                <iframe class="w-full h-48 rounded" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="The Harbor Overview" frameborder="0" allowfullscreen></iframe>
-            </div>
         </div>
 
         <!-- Registration & Sign-In Form -->
@@ -86,10 +72,6 @@
     function toggleContributionOptions() {
         const box = document.getElementById('contribution-options');
         box.classList.toggle('hidden');
-    }
-    function toggleVideoPlayer() {
-        const videoBox = document.getElementById('video-container');
-        videoBox.classList.toggle('hidden');
     }
     </script>
 </body>
