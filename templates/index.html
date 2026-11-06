@@ -37,9 +37,8 @@
                 <p>The Lewie & Marcus Network</p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
-                <button onclick="openAdminLogin()" style="background: rgba(234, 179, 8, 0.2); border: 1px solid rgba(234, 179, 8, 0.4); color: #eab308; padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-shield-halved"></i> Admin</button>
                 <div class="profile-badge">
-                    <i class="fa-solid fa-user-gear"></i>
+                    <i class="fa-solid fa-anchor"></i>
                 </div>
             </div>
         </header>
@@ -61,8 +60,8 @@
                     <!-- Member Log In Form (Default Active View) -->
                     <div id="loginFormContainer" class="auth-form-wrapper">
                         <div class="auth-inner-form">
-                            <input type="text" id="loginMemberId" placeholder="Your Community ID (e.g., @Anthony)">
-                            <input type="password" placeholder="Password">
+                            <input type="text" id="loginMemberId" placeholder="Your Community ID or Admin ID (e.g., admin_1)">
+                            <input type="password" id="loginPasswordInput" placeholder="Password / Admin PIN">
                             <button type="button" onclick="handleLoginClick()" class="get-started-btn">Enter The Harbor</button>
                             
                             <!-- Guest & Membership Options Placed Below Enter Button -->
@@ -99,25 +98,12 @@
                 </div>
             </section>
 
-            <!-- ADMIN PIN LOGIN VIEW -->
-            <section class="connect-view-section" id="admin-login-view" style="display: none; text-align: center;">
-                <div class="connect-header">
-                    <h2><i class="fa-solid fa-shield-halved" style="color: #eab308;"></i> Admin Portal Access</h2>
-                    <p>Enter the administrator security PIN to access management tools.</p>
-                    <button class="back-btn" onclick="logoutToHome()"><i class="fa-solid fa-arrow-left"></i> Back to Home</button>
-                </div>
-                <div class="create-group-card" style="max-width: 360px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px;">
-                    <input type="password" id="adminPinInput" placeholder="Admin Security PIN (default: 1974)" required>
-                    <button type="button" onclick="verifyAdminPin()" class="get-started-btn" style="width: 100%; justify-content: center;">Authenticate Admin</button>
-                </div>
-            </section>
-
             <!-- MAIN ADMIN DASHBOARD VIEW (Dark Cyber Analytics Style) -->
             <section class="connect-view-section admin-cyber-theme" id="admin-dashboard-view" style="display: none;">
                 <div class="connect-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <div>
-                        <h2><i class="fa-solid fa-chart-line"></i> Sanctuary Admin Command Center</h2>
-                        <p style="color: #94a3b8; font-size: 0.85rem;">Manage member approvals, guest contributions, and media moderation.</p>
+                        <h2><i class="fa-solid fa-chart-line"></i> <span id="adminTitleRole">Sanctuary Admin Command Center</span></h2>
+                        <p style="color: #94a3b8; font-size: 0.85rem;" id="adminSubtitleRole">Full Root Access (admin_1)</p>
                     </div>
                     <button class="back-btn" onclick="logoutToHome()" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Exit Admin</button>
                 </div>
@@ -141,7 +127,8 @@
                     <button class="auth-tab-btn active" onclick="switchAdminTab('members')">👥 Members</button>
                     <button class="auth-tab-btn" onclick="switchAdminTab('guests')">🎁 Guest Offers</button>
                     <button class="auth-tab-btn" onclick="switchAdminTab('media')">🎬 Media Queue</button>
-                    <button class="auth-tab-btn" onclick="switchAdminTab('content')">🛡️ Moderation</button>
+                    <button class="auth-tab-btn" id="adminContentTabBtn" onclick="switchAdminTab('content')">🛡️ Moderation</button>
+                    <button class="auth-tab-btn" id="adminSecurityTabBtn" onclick="switchAdminTab('security')" style="background: rgba(234, 179, 8, 0.2); border-color: rgba(234, 179, 8, 0.4); color: #eab308;">🔒 Security & PIN</button>
                 </div>
 
                 <!-- Tab 1: Member Approvals -->
@@ -172,13 +159,13 @@
                     </div>
                 </div>
 
-                <!-- Tab 3: Media Approval Queue (New!) -->
+                <!-- Tab 3: Media Approval Queue -->
                 <div id="adminMediaTab" class="admin-tab-content" style="display: none;">
                     <div style="background: rgba(15, 12, 27, 0.8); padding: 16px; border-radius: 10px; border: 1px solid rgba(147, 51, 234, 0.3);">
                         <h3 style="font-size: 0.95rem; margin-bottom: 8px;">Pending Gallery Uploads (Pictures & Videos)</h3>
                         <p style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 10px;">Review member-submitted media before publishing to galleries.</p>
                         <div id="adminPendingMediaList" style="display: flex; flex-direction: column; gap: 10px;">
-                            <p style="font-size: 0.8rem; color: #94a3b8; text-align: center; padding: 20px;">No pending media submissions at this moment. Uploaded member posts will appear here for review.</p>
+                            <p style="font-size: 0.8rem; color: #94a3b8; text-align: center; padding: 20px;">No pending media submissions at this moment.</p>
                         </div>
                     </div>
                 </div>
@@ -194,6 +181,18 @@
                             </div>
                             <button onclick="alert('Post removed.')" style="background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.75rem;">Remove</button>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Tab 5: Security & PIN Management (admin_1 Root Only) -->
+                <div id="adminSecurityTab" class="admin-tab-content" style="display: none;">
+                    <div style="background: rgba(15, 12, 27, 0.8); padding: 16px; border-radius: 10px; border: 1px solid rgba(147, 51, 234, 0.3);">
+                        <h3 style="font-size: 0.95rem; margin-bottom: 8px;"><i class="fa-solid fa-key" style="color: #eab308;"></i> Master Admin PIN Management</h3>
+                        <p style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 12px;">Change the master security PIN used by <code>admin_1</code> at will.</p>
+                        <form onsubmit="updateAdminPin(event)" style="display: flex; flex-direction: column; gap: 10px; max-width: 320px;">
+                            <input type="password" id="newAdminPinInput" placeholder="Enter New Master Admin PIN" required style="padding: 10px; border-radius: 8px; background: rgba(30, 20, 56, 0.9); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 0.9rem;">
+                            <button type="submit" style="background: #16a34a; color: white; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem;">Update Master PIN</button>
+                        </form>
                     </div>
                 </div>
             </section>
@@ -653,6 +652,9 @@
             badges: []
         };
 
+        // Dynamic Master Admin PIN stored in localStorage (defaults to '1974')
+        let dynamicAdminPin = localStorage.getItem('harbor_admin_pin') || '1974';
+
         let currentSelectedColor = '#3b82f6';
         let activePageIndex = 0;
 
@@ -719,17 +721,60 @@
             }
         }
 
+        // Login Handler supporting admin_1 (dynamic master PIN check) and admin_2 (sub-admin)
         function handleLoginClick() {
             const memberIdInput = document.getElementById('loginMemberId');
-            const memberIdVal = memberIdInput ? memberIdInput.value.trim() : '';
+            const passwordInput = document.getElementById('loginPasswordInput');
+            const idVal = memberIdInput ? memberIdInput.value.trim().toLowerCase() : '';
+            const passVal = passwordInput ? passwordInput.value.trim() : '';
             
-            if (!memberIdVal) {
-                alert('Please enter your Community ID.');
+            if (!idVal) {
+                alert('Please enter your Community ID or Admin ID.');
                 return;
             }
 
-            const formattedId = memberIdVal.startsWith('@') ? memberIdVal : `@${memberIdVal}`;
-            
+            // Check if login is admin_1 (Full Root Access using dynamic PIN)
+            if (idVal === 'admin_1' || idVal === '@admin_1') {
+                if (passVal === dynamicAdminPin || passVal === 'admin123') {
+                    passwordInput.value = '';
+                    hideAllViews();
+                    document.getElementById('admin-dashboard-view').style.display = 'block';
+                    document.getElementById('adminTitleRole').innerText = 'Sanctuary Admin Command Center';
+                    document.getElementById('adminSubtitleRole').innerText = 'Full Root Access (admin_1)';
+                    document.getElementById('adminContentTabBtn').style.display = 'inline-block';
+                    document.getElementById('adminSecurityTabBtn').style.display = 'inline-block'; // Show security tab for admin_1
+                    renderAdminMediaQueue();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                } else {
+                    alert('Incorrect password for admin_1.');
+                    return;
+                }
+            }
+
+            // Check if login is admin_2 (Restricted Sub-Admin)
+            if (idVal === 'admin_2' || idVal === '@admin_2') {
+                if (passVal === 'subadmin123' || passVal === dynamicAdminPin) {
+                    passwordInput.value = '';
+                    hideAllViews();
+                    document.getElementById('admin-dashboard-view').style.display = 'block';
+                    document.getElementById('adminTitleRole').innerText = 'Sub-Admin Restricted Portal';
+                    document.getElementById('adminSubtitleRole').innerText = 'Restricted Duties (admin_2 - Media & Guest Queue)';
+                    // Hide root-only tabs for admin_2
+                    document.getElementById('adminContentTabBtn').style.display = 'none';
+                    document.getElementById('adminSecurityTabBtn').style.display = 'none';
+                    switchAdminTab('media'); // default sub-admin to media queue
+                    renderAdminMediaQueue();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                } else {
+                    alert('Incorrect password for admin_2.');
+                    return;
+                }
+            }
+
+            // Standard Member Login
+            const formattedId = idVal.startsWith('@') ? idVal : `@${idVal}`;
             currentMember.id = formattedId;
             currentMember.journey = 'Welcome back to your safe harbor.';
             currentMember.publicBio = 'Seasoned caregiver and community member navigating life with strength and grace.';
@@ -756,24 +801,17 @@
             showMemberDashboard();
         }
 
-        // Admin Portal Navigation & Security
-        function openAdminLogin() {
-            hideAllViews();
-            document.getElementById('admin-login-view').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        // Function for admin_1 to update the master PIN at will
+        function updateAdminPin(event) {
+            event.preventDefault();
+            const newPinInput = document.getElementById('newAdminPinInput');
+            const newPin = newPinInput.value.trim();
+            if (!newPin) return;
 
-        function verifyAdminPin() {
-            const pinVal = document.getElementById('adminPinInput').value.trim();
-            if (pinVal === '1974') {
-                document.getElementById('adminPinInput').value = '';
-                hideAllViews();
-                document.getElementById('admin-dashboard-view').style.display = 'block';
-                renderAdminMediaQueue();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-                alert('Incorrect Admin PIN. Access denied.');
-            }
+            dynamicAdminPin = newPin;
+            localStorage.setItem('harbor_admin_pin', newPin);
+            newPinInput.value = '';
+            alert('Master Admin PIN successfully updated! Future logins will require this new PIN.');
         }
 
         function switchAdminTab(tab) {
@@ -782,12 +820,14 @@
             const guestsTab = document.getElementById('adminGuestsTab');
             const mediaTab = document.getElementById('adminMediaTab');
             const contentTab = document.getElementById('adminContentTab');
+            const securityTab = document.getElementById('adminSecurityTab');
 
             buttons.forEach(btn => btn.classList.remove('active'));
             membersTab.style.display = 'none';
             guestsTab.style.display = 'none';
             mediaTab.style.display = 'none';
-            contentTab.style.display = 'none';
+            if (contentTab) contentTab.style.display = 'none';
+            if (securityTab) securityTab.style.display = 'none';
 
             if (tab === 'members') {
                 buttons[0].classList.add('active');
@@ -802,6 +842,9 @@
             } else if (tab === 'content') {
                 buttons[3].classList.add('active');
                 contentTab.style.display = 'block';
+            } else if (tab === 'security') {
+                document.getElementById('adminSecurityTabBtn').classList.add('active');
+                if (securityTab) securityTab.style.display = 'block';
             }
         }
 
@@ -870,7 +913,6 @@
             const views = [
                 'home-hero-section',
                 'presentation-section',
-                'admin-login-view',
                 'admin-dashboard-view',
                 'guest-entrance-view',
                 'guest-submission-view',
@@ -1068,7 +1110,7 @@
         // Render Admin Media Approval Queue
         function renderAdminMediaQueue() {
             const container = document.getElementById('adminPendingMediaList');
-            document.getElementById('pendingCountBadge').innerText = pendingMediaQueue.length + 3; // 3 members + pending media
+            document.getElementById('pendingCountBadge').innerText = pendingMediaQueue.length + 3;
             
             if (pendingMediaQueue.length === 0) {
                 container.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8; text-align: center; padding: 20px;">No pending media submissions at this moment.</p>`;
@@ -1323,7 +1365,7 @@
                     <p class="cg-location"><i class="fa-solid fa-user-tag"></i> Posted by ${currentMember.id}</p>
                     <p class="cg-focus">${escapeHtml(topicDesc)}</p>
                 </div>
-                <button class="connect-action-btn" onclick="openVillageChatRoom('${escapeHtml(topicTitle)}', 'In Search Of posted by ${currentMember.id}: ${escapeHtml(topicDesc)}')">Enter</button>
+                <button class="connect-action-btn" onclick="openVillageChatRoom('${escapeHtml(topicTitle)}', 'In SearchOf posted by ${currentMember.id}: ${escapeHtml(topicDesc)}')">Enter</button>
             `;
             listContainer.prepend(newCard);
             
