@@ -112,37 +112,31 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px;">
                     <div class="admin-stat-card">
                         <span style="font-size: 0.8rem; color: #94a3b8;">Active Sessions</span>
-                        <div style="font-size: 1.8rem; font-weight: 800; color: #38bdf8; margin: 4px 0;">75K</div>
-                        <span style="font-size: 0.72rem; color: #22c55e;">↑ 70% Growth</span>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #38bdf8; margin: 4px 0;">0</div>
+                        <span style="font-size: 0.72rem; color: #22c55e;">Live Network</span>
                     </div>
                     <div class="admin-stat-card">
                         <span style="font-size: 0.8rem; color: #94a3b8;">Pending Approvals</span>
-                        <div style="font-size: 1.8rem; font-weight: 800; color: #eab308; margin: 4px 0;" id="pendingCountBadge">3</div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #eab308; margin: 4px 0;" id="pendingCountBadge">0</div>
                         <span style="font-size: 0.72rem; color: #94a3b8;">Action Required</span>
                     </div>
                 </div>
 
                 <!-- Admin Tabs -->
                 <div class="auth-toggle-buttons" style="margin-bottom: 16px;">
-                    <button class="auth-tab-btn active" onclick="switchAdminTab('members')">👥 Members</button>
-                    <button class="auth-tab-btn" onclick="switchAdminTab('guests')">🎁 Guest Offers</button>
-                    <button class="auth-tab-btn" onclick="switchAdminTab('media')">🎬 Media Queue</button>
-                    <button class="auth-tab-btn" id="adminContentTabBtn" onclick="switchAdminTab('content')">🛡️ Moderation</button>
-                    <button class="auth-tab-btn" id="adminSecurityTabBtn" onclick="switchAdminTab('security')" style="background: rgba(234, 179, 8, 0.2); border-color: rgba(234, 179, 8, 0.4); color: #eab308;">🔒 Security & PIN</button>
+                    <button class="auth-tab-btn active" id="adminTabBtnMembers" onclick="switchAdminTab('members')">👥 Members</button>
+                    <button class="auth-tab-btn" id="adminTabBtnGuests" onclick="switchAdminTab('guests')">🎁 Guest Offers</button>
+                    <button class="auth-tab-btn" id="adminTabBtnMedia" onclick="switchAdminTab('media')">🎬 Media Queue</button>
+                    <button class="auth-tab-btn" id="adminTabBtnContent" onclick="switchAdminTab('content')">🛡️ Moderation</button>
+                    <button class="auth-tab-btn" id="adminSecurityTabBtn" onclick="switchAdminTab('security')" style="background: rgba(234, 179, 8, 0.2); border-color: rgba(234, 179, 8, 0.4); color: #eab308;">🔒 Security & Roles</button>
                 </div>
 
                 <!-- Tab 1: Member Approvals -->
                 <div id="adminMembersTab" class="admin-tab-content">
                     <div style="background: rgba(15, 12, 27, 0.8); padding: 16px; border-radius: 10px; border: 1px solid rgba(147, 51, 234, 0.3);">
                         <h3 style="font-size: 0.95rem; margin-bottom: 8px;">Pending Membership Applications</h3>
-                        <div style="background: rgba(30, 20, 56, 0.9); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-                            <h4 style="font-size: 0.9rem; color: #38bdf8; margin-bottom: 4px;">applicant@example.com</h4>
-                            <p style="font-size: 0.8rem; color: #f8fafc; margin-bottom: 6px;">"Looking for guidance on local sensory-friendly routines and adaptive equipment."</p>
-                            <div style="font-size: 0.75rem; color: #eab308; margin-bottom: 8px;">Badges: 💙 Autism Strong, 🌱 New to Caregiving</div>
-                            <div style="display: flex; gap: 8px;">
-                                <button onclick="alert('Member approved! Invitation email sent.')" style="background: #16a34a; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.78rem;">Approve</button>
-                                <button onclick="alert('Application archived.')" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.78rem;">Deny</button>
-                            </div>
+                        <div id="adminPendingMembersList" style="display: flex; flex-direction: column; gap: 10px;">
+                            <p style="font-size: 0.8rem; color: #94a3b8; text-align: center; padding: 20px;">No pending membership applications at this moment.</p>
                         </div>
                     </div>
                 </div>
@@ -151,10 +145,8 @@
                 <div id="adminGuestsTab" class="admin-tab-content" style="display: none;">
                     <div style="background: rgba(15, 12, 27, 0.8); padding: 16px; border-radius: 10px; border: 1px solid rgba(147, 51, 234, 0.3);">
                         <h3 style="font-size: 0.95rem; margin-bottom: 8px;">Incoming Guest Gifts & Support Offers</h3>
-                        <div style="background: rgba(30, 20, 56, 0.9); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-                            <h4 style="font-size: 0.9rem; color: #38bdf8; margin-bottom: 4px;">🎁 Local Equipment Supply Co. (Business Gift)</h4>
-                            <p style="font-size: 0.8rem; color: #f8fafc; margin-bottom: 6px;">"We would like to donate two gently used pediatric stander frames to families in Schuylkill County."</p>
-                            <button onclick="alert('Opening email client to reply to donor.')" style="background: #0284c7; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.78rem;">Contact Donor</button>
+                        <div id="adminPendingGuestsList" style="display: flex; flex-direction: column; gap: 10px;">
+                            <p style="font-size: 0.8rem; color: #94a3b8; text-align: center; padding: 20px;">No pending guest offers at this moment.</p>
                         </div>
                     </div>
                 </div>
@@ -174,25 +166,36 @@
                 <div id="adminContentTab" class="admin-tab-content" style="display: none;">
                     <div style="background: rgba(15, 12, 27, 0.8); padding: 16px; border-radius: 10px; border: 1px solid rgba(147, 51, 234, 0.3);">
                         <h3 style="font-size: 0.95rem; margin-bottom: 8px;">Community Content Moderation</h3>
-                        <div style="background: rgba(30, 20, 56, 0.9); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <h4 style="font-size: 0.85rem; color: #f8fafc;">Pediatric Stander Frame (Sharing Board)</h4>
-                                <p style="font-size: 0.75rem; color: #94a3b8;">General Area: Eastern PA</p>
-                            </div>
-                            <button onclick="alert('Post removed.')" style="background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.75rem;">Remove</button>
+                        <div id="adminModerationList" style="display: flex; flex-direction: column; gap: 10px;">
+                            <p style="font-size: 0.8rem; color: #94a3b8; text-align: center; padding: 20px;">No active community flags or items to moderate.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tab 5: Security & PIN Management (admin_1 Root Only) -->
+                <!-- Tab 5: Security & Role Delegation (admin_1 Root Only) -->
                 <div id="adminSecurityTab" class="admin-tab-content" style="display: none;">
                     <div style="background: rgba(15, 12, 27, 0.8); padding: 16px; border-radius: 10px; border: 1px solid rgba(147, 51, 234, 0.3);">
-                        <h3 style="font-size: 0.95rem; margin-bottom: 8px;"><i class="fa-solid fa-key" style="color: #eab308;"></i> Master Admin PIN Management</h3>
-                        <p style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 12px;">Change the master security PIN used by <code>admin_1</code> at will.</p>
-                        <form onsubmit="updateAdminPin(event)" style="display: flex; flex-direction: column; gap: 10px; max-width: 320px;">
-                            <input type="password" id="newAdminPinInput" placeholder="Enter New Master Admin PIN" required style="padding: 10px; border-radius: 8px; background: rgba(30, 20, 56, 0.9); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 0.9rem;">
-                            <button type="submit" style="background: #16a34a; color: white; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem;">Update Master PIN</button>
+                        <h3 style="font-size: 0.95rem; margin-bottom: 8px;"><i class="fa-solid fa-key" style="color: #eab308;"></i> Master PIN & admin_2 Access Delegation</h3>
+                        <p style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 14px;">Change master root PIN and assign specific duties to <code>admin_2</code>.</p>
+                        
+                        <!-- Change Master PIN Form -->
+                        <form onsubmit="updateAdminPin(event)" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; max-width: 340px;">
+                            <label style="font-size: 0.8rem; color: #38bdf8;">Change Master Admin PIN:</label>
+                            <input type="password" id="newAdminPinInput" placeholder="Enter New Master PIN" required style="padding: 10px; border-radius: 8px; background: rgba(30, 20, 56, 0.9); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 0.9rem;">
+                            <button type="submit" style="background: #16a34a; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.82rem;">Update Master PIN</button>
                         </form>
+
+                        <!-- Delegate admin_2 Permissions -->
+                        <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 14px;">
+                            <label style="font-size: 0.85rem; color: #38bdf8; display: block; margin-bottom: 8px;">Assign Permissions for admin_2:</label>
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+                                <label style="font-size: 0.8rem; display: flex; align-items: center; gap: 8px; cursor: pointer;"><input type="checkbox" id="permMembers"> 👥 Member Approvals</label>
+                                <label style="font-size: 0.8rem; display: flex; align-items: center; gap: 8px; cursor: pointer;"><input type="checkbox" id="permGuests"> 🎁 Guest Offers & Support</label>
+                                <label style="font-size: 0.8rem; display: flex; align-items: center; gap: 8px; cursor: pointer;"><input type="checkbox" id="permMedia"> 🎬 Media Queue Approval</label>
+                                <label style="font-size: 0.8rem; display: flex; align-items: center; gap: 8px; cursor: pointer;"><input type="checkbox" id="permContent"> 🛡️ Content Moderation</label>
+                            </div>
+                            <button type="button" onclick="saveAdmin2Permissions()" style="background: #0284c7; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.82rem;">Save admin_2 Permissions</button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -433,23 +436,7 @@
                     <h3>Community Reels</h3>
                 </div>
 
-                <div class="caregiver-cards-list" id="shortVideosList">
-                    <div class="caregiver-card" style="flex-direction: column; align-items: stretch; gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div class="cg-avatar"><span class="emoji-icon">🎥</span></div>
-                            <div class="cg-info">
-                                <h3>Vacuum Attachments Magic Show</h3>
-                                <p class="cg-location"><i class="fa-solid fa-user-tag"></i> Shared by @MarcusFan</p>
-                            </div>
-                        </div>
-                        <div style="background: #0f172a; border-radius: 8px; overflow: hidden; padding: 10px; text-align: center;">
-                            <video controls width="100%" style="max-height: 240px; border-radius: 6px;">
-                                <source src="{{ url_for('static', filename='lewieandmarcus.mp4') }}" type="video/mp4">
-                                Your browser does not support video.
-                            </video>
-                        </div>
-                    </div>
-                </div>
+                <div class="caregiver-cards-list" id="shortVideosList"></div>
             </section>
 
             <!-- FUNNY PICS GALLERY VIEW -->
@@ -474,20 +461,7 @@
                     <h3>Community Smiles & Memes</h3>
                 </div>
 
-                <div class="caregiver-cards-list" id="funnyPicsList">
-                    <div class="caregiver-card" style="flex-direction: column; align-items: stretch; gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div class="cg-avatar"><span class="emoji-icon">☕</span></div>
-                            <div class="cg-info">
-                                <h3>When you microwave your coffee for the 4th time</h3>
-                                <p class="cg-location"><i class="fa-solid fa-user-tag"></i> Shared by @SanctuaryGuide</p>
-                            </div>
-                        </div>
-                        <div style="background: #0f172a; border-radius: 8px; overflow: hidden; padding: 10px; text-align: center;">
-                            <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80" alt="Funny Coffee" style="width: 100%; max-height: 260px; object-fit: cover; border-radius: 6px;">
-                        </div>
-                    </div>
-                </div>
+                <div class="caregiver-cards-list" id="funnyPicsList"></div>
             </section>
 
             <!-- THE TEACHERS LOUNGE VIEW -->
@@ -584,34 +558,7 @@
                     </form>
                 </div>
 
-                <div class="caregiver-cards-list" id="sharedItemsList">
-                    <div class="caregiver-card">
-                        <div class="cg-avatar"><span class="emoji-icon">🦽</span></div>
-                        <div class="cg-info">
-                            <h3>Pediatric Stander Frame</h3>
-                            <p class="cg-location"><i class="fa-solid fa-location-dot"></i> General Area: Eastern PA</p>
-                            <p class="cg-focus">Lightly used, fully adjustable support frame.</p>
-                        </div>
-                        <button class="connect-action-btn" onclick="alert('Connecting... Please remember that all exchanges, transport, and arrangements are managed entirely at your own discretion and responsibility.')">Connect</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Learn More Presentation Section -->
-            <section class="learn-more-section" id="presentation-section">
-                <details class="learn-more-dropdown">
-                    <summary class="learn-more-btn">
-                        <span><i class="fa-solid fa-circle-info"></i> Learn More & View Presentation</span>
-                        <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
-                    </summary>
-                    <div class="video-container">
-                        <h3>Master Presentation Deck</h3>
-                        <video controls width="100%">
-                            <source src="{{ url_for('static', filename='lewieandmarcus.mp4') }}" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
-                </details>
+                <div class="caregiver-cards-list" id="sharedItemsList"></div>
             </section>
         </main>
 
@@ -642,8 +589,11 @@
 
     <!-- JavaScript Logic -->
     <script>
-        let pendingMemberData = null;
+        let pendingMemberQueue = [];
+        let pendingGuestQueue = [];
         let pendingMediaQueue = [];
+        let communityContentQueue = [];
+
         let currentMember = {
             id: '@Traveler',
             picUrl: '',
@@ -652,13 +602,12 @@
             badges: []
         };
 
-        // Dynamic Master Admin PIN stored in localStorage (defaults to '1974')
         let dynamicAdminPin = localStorage.getItem('harbor_admin_pin') || '1974';
+        let admin2Permissions = JSON.parse(localStorage.getItem('harbor_admin2_perms') || '{"members":true,"guests":true,"media":true,"content":false}');
 
         let currentSelectedColor = '#3b82f6';
         let activePageIndex = 0;
 
-        // Timed Trivia Game State
         let triviaScore = 0;
         let timeLeft = 30;
         let triviaTimer = null;
@@ -721,7 +670,6 @@
             }
         }
 
-        // Login Handler supporting admin_1 (dynamic master PIN check) and admin_2 (sub-admin)
         function handleLoginClick() {
             const memberIdInput = document.getElementById('loginMemberId');
             const passwordInput = document.getElementById('loginPasswordInput');
@@ -733,7 +681,6 @@
                 return;
             }
 
-            // Check if login is admin_1 (Full Root Access using dynamic PIN)
             if (idVal === 'admin_1' || idVal === '@admin_1') {
                 if (passVal === dynamicAdminPin || passVal === 'admin123') {
                     passwordInput.value = '';
@@ -741,9 +688,15 @@
                     document.getElementById('admin-dashboard-view').style.display = 'block';
                     document.getElementById('adminTitleRole').innerText = 'Sanctuary Admin Command Center';
                     document.getElementById('adminSubtitleRole').innerText = 'Full Root Access (admin_1)';
-                    document.getElementById('adminContentTabBtn').style.display = 'inline-block';
-                    document.getElementById('adminSecurityTabBtn').style.display = 'inline-block'; // Show security tab for admin_1
-                    renderAdminMediaQueue();
+                    
+                    document.getElementById('adminTabBtnMembers').style.display = 'inline-block';
+                    document.getElementById('adminTabBtnGuests').style.display = 'inline-block';
+                    document.getElementById('adminTabBtnMedia').style.display = 'inline-block';
+                    document.getElementById('adminTabBtnContent').style.display = 'inline-block';
+                    document.getElementById('adminSecurityTabBtn').style.display = 'inline-block';
+                    
+                    loadAdminData();
+                    switchAdminTab('members');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     return;
                 } else {
@@ -752,19 +705,29 @@
                 }
             }
 
-            // Check if login is admin_2 (Restricted Sub-Admin)
             if (idVal === 'admin_2' || idVal === '@admin_2') {
                 if (passVal === 'subadmin123' || passVal === dynamicAdminPin) {
                     passwordInput.value = '';
                     hideAllViews();
                     document.getElementById('admin-dashboard-view').style.display = 'block';
                     document.getElementById('adminTitleRole').innerText = 'Sub-Admin Restricted Portal';
-                    document.getElementById('adminSubtitleRole').innerText = 'Restricted Duties (admin_2 - Media & Guest Queue)';
-                    // Hide root-only tabs for admin_2
-                    document.getElementById('adminContentTabBtn').style.display = 'none';
+                    document.getElementById('adminSubtitleRole').innerText = 'Assigned Duties (admin_2)';
+                    
                     document.getElementById('adminSecurityTabBtn').style.display = 'none';
-                    switchAdminTab('media'); // default sub-admin to media queue
-                    renderAdminMediaQueue();
+
+                    document.getElementById('adminTabBtnMembers').style.display = admin2Permissions.members ? 'inline-block' : 'none';
+                    document.getElementById('adminTabBtnGuests').style.display = admin2Permissions.guests ? 'inline-block' : 'none';
+                    document.getElementById('adminTabBtnMedia').style.display = admin2Permissions.media ? 'inline-block' : 'none';
+                    document.getElementById('adminTabBtnContent').style.display = admin2Permissions.content ? 'inline-block' : 'none';
+
+                    loadAdminData();
+                    
+                    if (admin2Permissions.members) switchAdminTab('members');
+                    else if (admin2Permissions.media) switchAdminTab('media');
+                    else if (admin2Permissions.guests) switchAdminTab('guests');
+                    else if (admin2Permissions.content) switchAdminTab('content');
+                    else alert('No permissions have been granted to admin_2 by admin_1 yet.');
+
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     return;
                 } else {
@@ -773,7 +736,6 @@
                 }
             }
 
-            // Standard Member Login
             const formattedId = idVal.startsWith('@') ? idVal : `@${idVal}`;
             currentMember.id = formattedId;
             currentMember.journey = 'Welcome back to your safe harbor.';
@@ -801,50 +763,69 @@
             showMemberDashboard();
         }
 
-        // Function for admin_1 to update the master PIN at will
         function updateAdminPin(event) {
             event.preventDefault();
-            const newPinInput = document.getElementById('newAdminPinInput');
-            const newPin = newPinInput.value.trim();
+            const newPin = document.getElementById('newAdminPinInput').value.trim();
             if (!newPin) return;
 
             dynamicAdminPin = newPin;
             localStorage.setItem('harbor_admin_pin', newPin);
-            newPinInput.value = '';
-            alert('Master Admin PIN successfully updated! Future logins will require this new PIN.');
+            document.getElementById('newAdminPinInput').value = '';
+            alert('Master Admin PIN successfully updated!');
+        }
+
+        function saveAdmin2Permissions() {
+            admin2Permissions = {
+                members: document.getElementById('permMembers').checked,
+                guests: document.getElementById('permGuests').checked,
+                media: document.getElementById('permMedia').checked,
+                content: document.getElementById('permContent').checked
+            };
+            localStorage.setItem('harbor_admin2_perms', JSON.stringify(admin2Permissions));
+            alert('admin_2 permissions updated successfully!');
         }
 
         function switchAdminTab(tab) {
-            const buttons = document.querySelectorAll('#admin-dashboard-view .auth-tab-btn');
             const membersTab = document.getElementById('adminMembersTab');
             const guestsTab = document.getElementById('adminGuestsTab');
             const mediaTab = document.getElementById('adminMediaTab');
             const contentTab = document.getElementById('adminContentTab');
             const securityTab = document.getElementById('adminSecurityTab');
 
-            buttons.forEach(btn => btn.classList.remove('active'));
-            membersTab.style.display = 'none';
-            guestsTab.style.display = 'none';
-            mediaTab.style.display = 'none';
+            ['Members', 'Guests', 'Media', 'Content'].forEach(t => {
+                const btn = document.getElementById(`adminTabBtn${t}`);
+                if (btn) btn.classList.remove('active');
+            });
+            const secBtn = document.getElementById('adminSecurityTabBtn');
+            if (secBtn) secBtn.classList.remove('active');
+
+            if (membersTab) membersTab.style.display = 'none';
+            if (guestsTab) guestsTab.style.display = 'none';
+            if (mediaTab) mediaTab.style.display = 'none';
             if (contentTab) contentTab.style.display = 'none';
             if (securityTab) securityTab.style.display = 'none';
 
             if (tab === 'members') {
-                buttons[0].classList.add('active');
-                membersTab.style.display = 'block';
+                document.getElementById('adminTabBtnMembers').classList.add('active');
+                if (membersTab) membersTab.style.display = 'block';
             } else if (tab === 'guests') {
-                buttons[1].classList.add('active');
-                guestsTab.style.display = 'block';
+                document.getElementById('adminTabBtnGuests').classList.add('active');
+                if (guestsTab) guestsTab.style.display = 'block';
             } else if (tab === 'media') {
-                buttons[2].classList.add('active');
-                mediaTab.style.display = 'block';
-                renderAdminMediaQueue();
+                document.getElementById('adminTabBtnMedia').classList.add('active');
+                if (mediaTab) mediaTab.style.display = 'block';
             } else if (tab === 'content') {
-                buttons[3].classList.add('active');
-                contentTab.style.display = 'block';
+                document.getElementById('adminTabBtnContent').classList.add('active');
+                if (contentTab) contentTab.style.display = 'block';
             } else if (tab === 'security') {
-                document.getElementById('adminSecurityTabBtn').classList.add('active');
-                if (securityTab) securityTab.style.display = 'block';
+                if (secBtn) secBtn.classList.add('active');
+                if (securityTab) {
+                    securityTab.style.display = 'block';
+                    document.getElementById('permMembers').checked = admin2Permissions.members;
+                    document.getElementById('permGuests').checked = admin2Permissions.guests;
+                    document.getElementById('permMedia').checked = admin2Permissions.media;
+                    document.getElementById('permContent').checked = admin2Permissions.content;
+                }
             }
         }
 
@@ -876,12 +857,13 @@
 
         function handleGuestSubmission(event) {
             event.preventDefault();
-            const name = document.getElementById('guestNameInput').value;
-            const email = document.getElementById('guestEmailInput').value;
-            const message = document.getElementById('guestMessageInput').value;
+            const name = document.getElementById('guestNameInput').value.trim();
+            const email = document.getElementById('guestEmailInput').value.trim();
+            const message = document.getElementById('guestMessageInput').value.trim();
 
             if (!name || !email || !message) return;
 
+            pendingGuestQueue.push({ name, email, message });
             hideAllViews();
             document.getElementById('guest-success-view').style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -889,8 +871,8 @@
 
         function handleSignup(event) {
             event.preventDefault();
-            const email = document.getElementById('signupEmail').value;
-            const journey = document.getElementById('signupJourney').value;
+            const email = document.getElementById('signupEmail').value.trim();
+            const journey = document.getElementById('signupJourney').value.trim();
             
             const checkboxes = document.querySelectorAll('input[name="badges"]:checked');
             const selectedBadges = Array.from(checkboxes).map(cb => cb.value);
@@ -900,12 +882,7 @@
                 return;
             }
 
-            pendingMemberData = {
-                email: email,
-                journey: journey,
-                badges: selectedBadges
-            };
-
+            pendingMemberQueue.push({ email, journey, badges: selectedBadges });
             showPendingApproval();
         }
 
@@ -947,18 +924,19 @@
 
         function handlePostApprovalSetup(event) {
             event.preventDefault();
-            const memberId = document.getElementById('setupMemberId').value;
-            const publicBio = document.getElementById('setupPublicBio').value;
-            const picUrl = document.getElementById('setupPicUrl').value;
+            const memberId = document.getElementById('setupMemberId').value.trim();
+            const publicBio = document.getElementById('setupPublicBio').value.trim();
+            const picUrl = document.getElementById('setupPicUrl').value.trim();
             
             const formattedId = memberId.startsWith('@') ? memberId : `@${memberId}`;
+            const lastApp = pendingMemberQueue[pendingMemberQueue.length - 1] || {};
 
             currentMember = {
                 id: formattedId,
                 picUrl: picUrl,
-                journey: pendingMemberData ? pendingMemberData.journey : 'Welcome to our sanctuary network.',
+                journey: lastApp.journey || 'Welcome to our sanctuary network.',
                 publicBio: publicBio,
-                badges: pendingMemberData ? pendingMemberData.badges : ['💙 Autism Strong']
+                badges: lastApp.badges || ['💙 Autism Strong']
             };
 
             document.getElementById('memberNameDisplay').innerText = currentMember.id;
@@ -1046,7 +1024,6 @@
             if (triviaTimer) clearInterval(triviaTimer);
             hideAllViews();
             document.getElementById('home-hero-section').style.display = 'flex';
-            document.getElementById('presentation-section').style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1069,49 +1046,95 @@
             }
         }
 
-        // Post Short Video Logic (Sent to Admin Approval Queue)
         function postShortVideo(event) {
             event.preventDefault();
             const title = document.getElementById('videoTitleInput').value.trim();
             const url = document.getElementById('videoUrlInput').value.trim();
             if (!title || !url) return;
 
-            pendingMediaQueue.push({
-                type: 'video',
-                title: title,
-                url: url,
-                author: currentMember.id
-            });
-
+            pendingMediaQueue.push({ type: 'video', title, url, author: currentMember.id });
             document.getElementById('videoTitleInput').value = '';
             document.getElementById('videoUrlInput').value = '';
-            alert('Your short video has been submitted to sanctuary administrators for review and will appear in the gallery once approved!');
+            alert('Your short video has been submitted to sanctuary administrators for review!');
         }
 
-        // Post Funny Pic Logic (Sent to Admin Approval Queue)
         function postFunnyPic(event) {
             event.preventDefault();
             const title = document.getElementById('picTitleInput').value.trim();
             const url = document.getElementById('picUrlInput').value.trim();
             if (!title || !url) return;
 
-            pendingMediaQueue.push({
-                type: 'image',
-                title: title,
-                url: url,
-                author: currentMember.id
-            });
-
+            pendingMediaQueue.push({ type: 'image', title, url, author: currentMember.id });
             document.getElementById('picTitleInput').value = '';
             document.getElementById('picUrlInput').value = '';
-            alert('Your picture has been submitted to sanctuary administrators for review and will appear in the gallery once approved!');
+            alert('Your picture has been submitted to sanctuary administrators for review!');
         }
 
-        // Render Admin Media Approval Queue
+        function loadAdminData() {
+            const totalPending = pendingMemberQueue.length + pendingGuestQueue.length + pendingMediaQueue.length;
+            document.getElementById('pendingCountBadge').innerText = totalPending;
+
+            const memContainer = document.getElementById('adminPendingMembersList');
+            if (pendingMemberQueue.length === 0) {
+                memContainer.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8; text-align: center; padding: 20px;">No pending membership applications at this moment.</p>`;
+            } else {
+                memContainer.innerHTML = '';
+                pendingMemberQueue.forEach((app, idx) => {
+                    const card = document.createElement('div');
+                    card.style.cssText = 'background: rgba(30, 20, 56, 0.9); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);';
+                    card.innerHTML = `
+                        <h4 style="font-size: 0.9rem; color: #38bdf8; margin-bottom: 4px;">${escapeHtml(app.email)}</h4>
+                        <p style="font-size: 0.8rem; color: #f8fafc; margin-bottom: 6px;">"${escapeHtml(app.journey)}"</p>
+                        <div style="font-size: 0.75rem; color: #eab308; margin-bottom: 8px;">Badges: ${app.badges.join(', ')}</div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="approveMember(${idx})" style="background: #16a34a; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.78rem;">Approve</button>
+                            <button onclick="denyMember(${idx})" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.78rem;">Deny</button>
+                        </div>
+                    `;
+                    memContainer.appendChild(card);
+                });
+            }
+
+            const guestContainer = document.getElementById('adminPendingGuestsList');
+            if (pendingGuestQueue.length === 0) {
+                guestContainer.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8; text-align: center; padding: 20px;">No pending guest offers at this moment.</p>`;
+            } else {
+                guestContainer.innerHTML = '';
+                pendingGuestQueue.forEach((g, idx) => {
+                    const card = document.createElement('div');
+                    card.style.cssText = 'background: rgba(30, 20, 56, 0.9); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);';
+                    card.innerHTML = `
+                        <h4 style="font-size: 0.9rem; color: #38bdf8; margin-bottom: 4px;">🎁 ${escapeHtml(g.name)} (${escapeHtml(g.email)})</h4>
+                        <p style="font-size: 0.8rem; color: #f8fafc; margin-bottom: 8px;">"${escapeHtml(g.message)}"</p>
+                        <button onclick="removeGuest(${idx})" style="background: #0284c7; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.78rem;">Mark Handled / Clear</button>
+                    `;
+                    guestContainer.appendChild(card);
+                });
+            }
+
+            renderAdminMediaQueue();
+        }
+
+        function approveMember(idx) {
+            pendingMemberQueue.splice(idx, 1);
+            alert('Member approved!');
+            loadAdminData();
+        }
+
+        function denyMember(idx) {
+            pendingMemberQueue.splice(idx, 1);
+            alert('Application denied.');
+            loadAdminData();
+        }
+
+        function removeGuest(idx) {
+            pendingGuestQueue.splice(idx, 1);
+            alert('Guest offer cleared.');
+            loadAdminData();
+        }
+
         function renderAdminMediaQueue() {
             const container = document.getElementById('adminPendingMediaList');
-            document.getElementById('pendingCountBadge').innerText = pendingMediaQueue.length + 3;
-            
             if (pendingMediaQueue.length === 0) {
                 container.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8; text-align: center; padding: 20px;">No pending media submissions at this moment.</p>`;
                 return;
@@ -1182,16 +1205,15 @@
             }
 
             alert('Media approved and published to the gallery!');
-            renderAdminMediaQueue();
+            loadAdminData();
         }
 
         function rejectMediaItem(index) {
             pendingMediaQueue.splice(index, 1);
             alert('Media submission rejected.');
-            renderAdminMediaQueue();
+            loadAdminData();
         }
 
-        // Timed Trivia Game Logic
         function resetTriviaLounge() {
             if (triviaTimer) clearInterval(triviaTimer);
             document.getElementById('triviaStartScreen').style.display = 'block';
@@ -1254,16 +1276,12 @@
             document.getElementById('finalScoreText').innerText = `You answered ${triviaScore} questions correctly in 30 seconds! Great job! 🎉`;
         }
 
-        // Coloring Pages Logic
         function selectColoringPage(index) {
             activePageIndex = index;
             for (let i = 0; i < 3; i++) {
                 const btn = document.getElementById(`page${i+1}Btn`);
-                if (i === index) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+                if (i === index) btn.classList.add('active');
+                else btn.classList.remove('active');
             }
             loadColoringPage(index);
         }
@@ -1336,13 +1354,7 @@
         }
 
         function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
             return text.replace(/[&<>"']/g, function(m) { return map[m]; });
         }
 
@@ -1365,7 +1377,7 @@
                     <p class="cg-location"><i class="fa-solid fa-user-tag"></i> Posted by ${currentMember.id}</p>
                     <p class="cg-focus">${escapeHtml(topicDesc)}</p>
                 </div>
-                <button class="connect-action-btn" onclick="openVillageChatRoom('${escapeHtml(topicTitle)}', 'In SearchOf posted by ${currentMember.id}: ${escapeHtml(topicDesc)}')">Enter</button>
+                <button class="connect-action-btn" onclick="openVillageChatRoom('${escapeHtml(topicTitle)}', 'In Search Of posted by ${currentMember.id}: ${escapeHtml(topicDesc)}')">Enter</button>
             `;
             listContainer.prepend(newCard);
             
@@ -1376,8 +1388,8 @@
 
         function postSharingItem(event) {
             event.preventDefault();
-            const itemName = document.getElementById('itemNameInput').value;
-            const itemLocation = document.getElementById('itemLocationInput').value;
+            const itemName = document.getElementById('itemNameInput').value.trim();
+            const itemLocation = document.getElementById('itemLocationInput').value.trim();
             if (!itemName || !itemLocation) return;
 
             const listContainer = document.getElementById('sharedItemsList');
@@ -1386,8 +1398,8 @@
             newCard.innerHTML = `
                 <div class="cg-avatar"><span class="emoji-icon">🎁</span></div>
                 <div class="cg-info">
-                    <h3>${itemName}</h3>
-                    <p class="cg-location"><i class="fa-solid fa-location-dot"></i> General Area: ${itemLocation}</p>
+                    <h3>${escapeHtml(itemName)}</h3>
+                    <p class="cg-location"><i class="fa-solid fa-location-dot"></i> General Area: ${escapeHtml(itemLocation)}</p>
                     <p class="cg-focus">Recently posted by community member.</p>
                 </div>
                 <button class="connect-action-btn" onclick="alert('Connecting... Please remember that all exchanges, transport, and arrangements are managed entirely at your own discretion and responsibility.')">Connect</button>
