@@ -26,6 +26,70 @@
             padding: 16px;
             text-align: center;
         }
+
+        /* Cinematic Earth Background Showcase with Clickable Overlay */
+        .visual-showcase {
+            position: relative;
+            background: url("{{ url_for('static', filename='global_connection.jpg') }}") center/cover no-repeat;
+            min-height: 180px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding: 14px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .visual-showcase::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.8), rgba(0,0,0,0.2));
+            z-index: 1;
+        }
+        .visual-showcase > * {
+            position: relative;
+            z-index: 2;
+        }
+        .earth-learn-more-badge {
+            background: rgba(147, 51, 234, 0.85);
+            color: #f8fafc;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            transition: all 0.2s;
+        }
+        .earth-learn-more-badge:hover {
+            background: rgba(147, 51, 234, 1);
+            transform: scale(1.03);
+        }
+
+        /* Video Modal Overlay */
+        #videoModalOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.92);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .video-modal-content {
+            background: #1e1138;
+            border: 1px solid rgba(147, 51, 234, 0.4);
+            border-radius: 14px;
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -48,8 +112,12 @@
             
             <!-- Global Caregiver Sanctuary Welcome Card (Auth Screen) -->
             <section class="fuelpay-hero-card" id="home-hero-section">
-                <div class="visual-showcase">
+                <!-- Clickable Earth Background Banner -->
+                <div class="visual-showcase" onclick="openVideoModal()" title="Click to watch master presentation">
                     <div class="sanctuary-tag"><i class="fa-solid fa-anchor"></i> Sanctuary</div>
+                    <div class="earth-learn-more-badge">
+                        <i class="fa-solid fa-play-circle"></i> Learn More & Watch Video
+                    </div>
                 </div>
 
                 <div class="white-info-card">
@@ -889,7 +957,6 @@
         function hideAllViews() {
             const views = [
                 'home-hero-section',
-                'presentation-section',
                 'admin-dashboard-view',
                 'guest-entrance-view',
                 'guest-submission-view',
@@ -1214,6 +1281,37 @@
             loadAdminData();
         }
 
+        function openVideoModal() {
+            let modal = document.getElementById('videoModalOverlay');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'videoModalOverlay';
+                modal.innerHTML = `
+                    <div class="video-modal-content">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h3 style="color: #38bdf8; font-size: 1rem; margin: 0;"><i class="fa-solid fa-anchor"></i> The Harbor Master Presentation</h3>
+                            <button onclick="closeVideoModal()" style="background: none; border: none; color: #ef4444; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <video controls width="100%" style="border-radius: 8px; max-height: 320px;">
+                            <source src="{{ url_for('static', filename='lewieandmarcus.mp4') }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModalOverlay');
+            if (modal) {
+                const videoEl = modal.querySelector('video');
+                if (videoEl) videoEl.pause();
+                modal.style.display = 'none';
+            }
+        }
+
         function resetTriviaLounge() {
             if (triviaTimer) clearInterval(triviaTimer);
             document.getElementById('triviaStartScreen').style.display = 'block';
@@ -1412,4 +1510,3 @@
     </script>
 </body>
 </html>
-
