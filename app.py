@@ -1,17 +1,13 @@
 import os
+import urllib.parse
 import psycopg2
-from flask import Flask, render_template, request, redirect, url_for
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
-app = Flask(__name__)
-
-# Supabase Connection String pulled safely from Render environment variables
-DATABASE_URL = os.environ.get('DATABASE_URL', '')
+# 1. Database Connection (Pulls automatically from Render PostgreSQL or falls back)
+DATABASE_URL = os.environ.get('DATABASE_URL', 'your_copied_postgresql_connection_string_here')
 
 def init_db():
-    """Creates your structural database tables in Supabase if they don't exist yet"""
-    if not DATABASE_URL:
-        print("Warning: DATABASE_URL is not set.")
-        return
+    """Creates your structural database tables if they don't exist yet"""
     try:
         conn = psycopg2.connect(DATABASE_URL)
         cursor = conn.cursor()
@@ -29,17 +25,15 @@ def init_db():
         conn.commit()
         cursor.close()
         conn.close()
-        print("Supabase database initialized successfully.")
+        print("Database initialized successfully.")
     except Exception as e:
-        print(f"Database initialization error: {e}")
+        print(f"Database initialization note: {e}")
 
 # Run database setup on startup
 init_db()
 
 def fetch_pending_applications():
-    """Queries Supabase for all pending caregiver profiles and creates HTML list elements"""
-    if not DATABASE_URL:
-        return "<li>Database connection not configured.</li>"
+    """Queries PostgreSQL for all pending caregiver profiles and creates HTML list elements"""
     try:
         conn = psycopg2.connect(DATABASE_URL)
         cursor = conn.cursor()
@@ -57,7 +51,7 @@ def fetch_pending_applications():
         for row in rows:
             app_id = row[0]
             badges = row[1]
-            date_submitted = row[2].strftime('%Y-%m-%d %H:%M') if row[2] else "Recent"
+            date_submitted = row[2].strftime('%Y-%m-%d %H:%M')
             
             html_output += f"""
             <li style="padding: 10px; margin-bottom: 8px; background: #eef2f7; border-left: 4px solid #3498db; list-style: none;">
@@ -71,17 +65,11 @@ def fetch_pending_applications():
             """
         return html_output
     except Exception as e:
-        return f"<li>Error loading applications from Supabase: {e}</li>"
+        return f"<li>Error loading applications from database: {e}</li>"
 
-@app.route('/')
-def index():
-    # Renders your existing index.html template
-    return render_template('index.html')
-
-@app.route('/admin-login')
-def admin_login():
-    error = request.args.get('error', '')
-    error_html = f'<p style="color: red;">{error}</p>' if error else ''
+def render_admin_login(error_msg=""):
+    """Generates the secure login page for the Admin Command Center"""
+    error_html = f'<p style="color: red;">{error_msg}</p>' if error_msg else ''
     
     return f"""
     <!DOCTYPE html>
@@ -110,48 +98,107 @@ def admin_login():
     </html>
     """
 
-@app.route('/admin-verify', methods=['POST'])
-def admin_verify():
-    admin_pin_input = request.form.get('admin_pin', '')
-    MASTER_PIN = "4321"
-    
-    if admin_pin_input == MASTER_PIN:
-        return redirect(url_for('admin_command_center', pin=MASTER_PIN))
-    else:
-        return redirect(url_for('admin_login', error="Invalid Security PIN. Access Denied."))
+class HarborServerHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        parsed_path = urllib.parse.urlparse(self.path)
+        path = parsed_path.path
+        query_params = urllib.parse.parse_qs(parsed_path.query)
+        
+        if path == '/admin-login':
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(render_admin_login().encode('utf-8'))
+            
+        elif path == '/admin':
+            # Secure Admin PIN check via query parameter (?pin=4321)
+            user_pin = query_params.get('pin', [''])[0]
+            MASTER_PIN = "4321"  # Your secret master admin PIN
+            
+            if user_pin != MASTER_PIN:
+                self.send_response(302)
+                self.send_header('Location', '/admin-login')
+                self.end_headers()
+                return
+                
+            # Fetch live applications from PostgreSQL
+            live_apps_html = fetch_pending_applications()
+            
+            admin_html = f"""
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>Sanctuary Admin Command Center</title>
+            </head>
+            <body style="font-family: sans-serif; padding: 20px; background: #f9f9f9;">
+                <h2>Sanctuary Admin Command Center</h2>
+                <p>Welcome back, Administrator. Full root access granted.</p>
+                
+                <hr style="margin: 20px 0;">
+                
+                <h3>Pending Membership Applications</h3>
+                <ul>
+                    {live_apps_html}
+                </ul>
+                
+                <p style="margin-top: 30px;"><a href="/">[ Return to Public Home ]</a></p>
+            </body>
+            </html>
+            """
+            
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(admin_html.encode('utf-8'))
+            
+        else:
+            # Default Public Home Route
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.end_headers()
+            home_html = """
+            <!DOCTYPE html>
+            <html lang="en">
+            <head><title>The Harbor - Sanctuary Network</title></head>
+            <body style="font-family: sans-serif; text-align: center; padding-top: 50px;">
+                <h1>Welcome to The Harbor</h1>
+                <p>An All-Abilities & Inclusive Family Network</p>
+                <br>
+                <a href="/admin-login">Admin Portal</a>
+            </body>
+            </html>
+            """
+            self.wfile.write(home_html.encode('utf-8'))
 
-@app.route('/admin')
-def admin_command_center():
-    user_pin = request.args.get('pin', '')
-    MASTER_PIN = "4321"
-    
-    if user_pin != MASTER_PIN:
-        return redirect(url_for('admin_login'))
-        
-    live_apps_html = fetch_pending_applications()
-    
-    return f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Sanctuary Admin Command Center</title>
-    </head>
-    <body style="font-family: sans-serif; padding: 20px; background: #f9f9f9;">
-        <h2>Sanctuary Admin Command Center</h2>
-        <p>Welcome back, Administrator. Full root access granted (Powered by Supabase).</p>
-        
-        <hr style="margin: 20px 0;">
-        
-        <h3>Pending Membership Applications</h3>
-        <ul>
-            {live_apps_html}
-        </ul>
-        
-        <p style="margin-top: 30px;"><a href="/">[ Return to Public Home ]</a></p>
-    </body>
-    </html>
-    """
+    def do_POST(self):
+        if self.path == '/admin-verify':
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_body = self.rfile.read(content_length).decode('utf-8')
+            post_data = urllib.parse.parse_qs(post_body)
+            
+            admin_pin_input = post_data.get('admin_pin', [''])[0]
+            MASTER_PIN = "4321"
+            
+            if admin_pin_input == MASTER_PIN:
+                # Redirect securely with embedded PIN token
+                self.send_response(302)
+                self.send_header('Location', f'/admin?pin={MASTER_PIN}')
+                self.end_headers()
+            else:
+                self.send_response(200)
+                self.send_header('Content-Type', 'text/html; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(render_admin_login("Invalid Security PIN. Access Denied.").encode('utf-8'))
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+def run():
+    port = int(os.environ.get("PORT", 8000))
+    server = HTTPServer(("0.0.0.0", port), HarborServerHandler)
+    print(f"Server running on port {port}")
+    server.serve_forever()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    run()
