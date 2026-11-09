@@ -75,8 +75,28 @@ def fetch_pending_applications():
 
 @app.route('/')
 def index():
-    # Renders your existing index.html template
-    return render_template('index.html')
+    return render_template('harbour.html')
+
+@app.route('/submit-application', methods=['POST'])
+def submit_application():
+    """Captures caregiver badge submissions from the frontend and saves them to Supabase"""
+    badges_str = request.form.get('badges_text', 'General Caregiver')
+    
+    if DATABASE_URL:
+        try:
+            conn = psycopg2.connect(DATABASE_URL)
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO applications (situation_badges) VALUES (%s)",
+                (badges_str,)
+            )
+            conn.commit()
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            print(f"Error saving application to database: {e}")
+            
+    return redirect(url_for('index'))
 
 @app.route('/admin-login')
 def admin_login():
