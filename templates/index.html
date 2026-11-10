@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Lewie & Marcus Network - The Harbor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Video Modal Overlay */
+        #videoModalOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.92);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .video-modal-content {
+            background: #1e1138;
+            border: 1px solid rgba(147, 51, 234, 0.4);
+            border-radius: 14px;
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Header / Overview -->
+        <header class="app-header">
+            <div class="user-welcome">
+                <h1>The Harbor</h1>
+                <p>The Lewie & Marcus Network</p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <div class="profile-badge">
+                    <i class="fa-solid fa-anchor"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="dashboard-main">
+            
+            <!-- Global Caregiver Sanctuary Welcome Card (Auth Screen) -->
+            <section class="fuelpay-hero-card" id="home-hero-section">
+                <!-- Top Header Banner with Left Anchor and Centered Divider Video Badge -->
+                <div class="visual-showcase">
+                    <div class="sanctuary-tag"><i class="fa-solid fa-anchor"></i> Sanctuary</div>
+                    <div class="earth-learn-more-badge" onclick="openVideoModal()" title="Click to watch master presentation">
+                        <i class="fa-solid fa-play-circle"></i> Learn More & Watch Video
+                    </div>
+                </div>
+
+                <div class="white-info-card">
+                    <h2 class="card-main-title">Welcome to <span class="highlight-text">The Harbor</span></h2>
+                    <p class="card-subtitle">Connecting caregivers from all walks of life to the support network we all need.</p>
+                    <p class="refuge-quote">"You don't have to weather the storm by yourself. Come find that needed connection."</p>
+
+                    <!-- Member Log In Form (Default Active View) -->
+                    <div id="loginFormContainer" class="auth-form-wrapper">
+                        <div class="auth-inner-form">
+                            <input type="text" id="loginMemberId" placeholder="Member ID">
+                            <input type="password" id="loginPasswordInput" placeholder="Password">
+                            
+                            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #334155; margin: 4px 0;">
+                                <input type="checkbox" id="rememberMeCheck" style="width: auto; cursor: pointer;">
+                                <label for="rememberMeCheck" style="cursor: pointer;">Remember Me</label>
+                            </div>
+
+                            <button type="button" onclick="handleLoginClick()" class="get-started-btn">Enter The Harbor</button>
+                            
+                            <!-- Distinct Oval Pill Buttons for Guest Entrance & Join Us -->
+                            <div style="margin-top: 16px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 16px; display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                                <button type="button" onclick="openGuestEntrance()" style="width: 100%; background: #0284c7; color: #ffffff; border: none; border-radius: 50px; padding: 12px 24px; font-weight: 700; font-size: 0.88rem; cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); transition: transform 0.1s;">🌿 Guest Entrance (Donor & Support)</button>
+                                <button type="button" onclick="switchAuthTab('signup')" style="width: 100%; background: #16a34a; color: #ffffff; border: none; border-radius: 50px; padding: 12px 24px; font-weight: 700; font-size: 0.88rem; cursor: pointer; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3); transition: transform 0.1s;">✨ Join Us</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Become a Member: Create Account Form (Initially Hidden) -->
+                    <div id="signupFormContainer" class="auth-form-wrapper" style="display: none;">
+                        <form onsubmit="handleSignup(event)" class="auth-inner-form">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <h3 style="font-size: 0.95rem; color: #2563eb; margin: 0;">Membership Application</h3>
+                                <button type="button" onclick="switchAuthTab('login')" style="background: none; border: none; color: #64748b; cursor: pointer; font-size: 0.8rem;"><i class="fa-solid fa-arrow-left"></i> Back to Login</button>
+                            </div>
+                            <input type="text" id="signupMemberIdInput" placeholder="Choose Community ID / Name" required>
+                            <input type="password" id="signupPasswordInput" placeholder="Create Password" required>
+                            <input type="url" id="signupPicUrlInput" placeholder="Photo / Image URL for Profile" required>
+                            <textarea id="signupJourney" placeholder="Short description of your journey..." rows="2" required></textarea>
+                            <input type="text" id="signupConditionsInput" placeholder="Conditions / Diagnoses (e.g., DMD, Autism, Cancer Survivor)" required>
+                            
+                            <div style="text-align: left; margin-top: 4px;">
+                                <label style="font-size: 0.75rem; font-weight: 600; color: #334155;">Milestone Badges:</label>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px;">
+                                    <label style="font-size: 0.72rem; color: #1e293b; display: flex; gap: 6px;"><input type="checkbox" name="badges" value="💙 Autism Strong"> 💙 Autism Strong</label>
+                                    <label style="font-size: 0.72rem; color: #1e293b; display: flex; gap: 6px;"><input type="checkbox" name="badges" value="⚓ Seasoned (10 Years+)"> ⚓ Seasoned (10 Years+)</label>
+                                </div>
+                            </div>
+
+                            <button type="submit" style="width: 100%; background: #16a34a; color: #ffffff; border: none; border-radius: 50px; padding: 12px 24px; font-weight: 700; font-size: 0.88rem; cursor: pointer; margin-top: 6px;">Submit Application</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- GUEST ENTRANCE SELECTION PAGE -->
+            <section class="connect-view-section" id="guest-entrance-view" style="display: none;">
+                <div class="connect-header">
+                    <h2>🌿 Guest Entrance</h2>
+                    <p>Choose how you would like to connect and share your support.</p>
+                    <button class="back-btn" onclick="logoutToHome()"><i class="fa-solid fa-arrow-left"></i> Back to Home</button>
+                </div>
+                <div class="create-group-card" style="display: flex; flex-direction: column; gap: 10px;">
+                    <button type="button" onclick="openGuestOption('gift')" style="width: 100%; background: rgba(56, 189, 248, 0.2); color: #f8fafc; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 50px; padding: 12px 20px; text-align: left; font-weight: 700; cursor: pointer;">🎁 I Want to Gift</button>
+                    <button type="button" onclick="openGuestOption('anonymous')" style="width: 100%; background: rgba(148, 163, 184, 0.2); color: #f8fafc; border: 1px solid rgba(148, 163, 184, 0.4); border-radius: 50px; padding: 12px 20px; text-align: left; font-weight: 700; cursor: pointer;">🕵️ Anonymous Support</button>
+                    <button type="button" onclick="openGuestOption('business')" style="width: 100%; background: rgba(234, 179, 8, 0.2); color: #f8fafc; border: 1px solid rgba(234, 179, 8, 0.4); border-radius: 50px; padding: 12px 20px; text-align: left; font-weight: 700; cursor: pointer;">🏢 Business Gift</button>
+                </div>
+            </section>
+
+            <!-- GUEST CONTACT FORM -->
+            <section class="connect-view-section" id="guest-submission-view" style="display: none;">
+                <div class="connect-header">
+                    <h2 id="guestFormTitle">🎁 Guest Contribution</h2>
+                    <p id="guestFormSubtitle">Send your support offer to administrators.</p>
+                    <button class="back-btn" onclick="openGuestEntrance()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                </div>
+                <form onsubmit="handleGuestSubmission(event)" class="create-group-card" style="display: flex; flex-direction: column; gap: 10px;">
+                    <input type="text" id="guestNameInput" placeholder="Your Name / Organization" required>
+                    <input type="email" id="guestEmailInput" placeholder="Contact Email" required>
+                    <textarea id="guestMessageInput" placeholder="Describe your offer..." rows="4" required></textarea>
+                    <button type="submit" class="create-group-btn" style="width: 100%;">Send Request</button>
+                </form>
+            </section>
+
+            <!-- APPROVED MEMBER DASHBOARD WITH ACTIVITY FEED & ROLODEX -->
+            <section class="connect-view-section" id="member-dashboard-view" style="display: none;">
+                <div class="connect-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h2>Welcome Home, <span id="memberNameDisplay">Traveler</span></h2>
+                        <p id="memberJourneyDisplay">Your personal sanctuary dashboard.</p>
+                    </div>
+                    <button onclick="logoutToHome()" style="background: none; border: none; color: #ef4444; font-size: 1.1rem; cursor: pointer;" title="Log Out"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+                </div>
+
+                <!-- Approved Member Profile Card with Thought of the Day & Photo Upload -->
+                <div class="member-profile-card">
+                    <div class="member-avatar-container" id="memberAvatarContainer">
+                        <i class="fa-solid fa-user-astronaut"></i>
+                    </div>
+                    <div class="member-info-text" style="flex: 1;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 id="profileCardName" style="margin: 0; color: #f8fafc;">Member Profile</h3>
+                            <button onclick="openStatusPrompt()" style="background: rgba(56,189,248,0.2); border: none; color: #38bdf8; font-size: 0.72rem; padding: 3px 8px; border-radius: 8px; cursor: pointer;"><i class="fa-solid fa-pen"></i> Status</button>
+                        </div>
+                        <p id="profileCardStatus" style="font-size: 0.78rem; font-style: italic; color: #38bdf8; margin: 3px 0;">"Taking it one day at a time, guys."</p>
+                        <p id="profileCardBio" style="font-size: 0.8rem; color: #94a3b8; margin: 2px 0 6px 0;">Your public bio appears here.</p>
+                        <div id="assignedBadgesContainer" class="badge-pills-row"></div>
+                    </div>
+                </div>
+
+                <!-- Rolodex Rotary Navigation Wheel -->
+                <div class="channels-section-title" style="margin-bottom: 6px;">
+                    <h3 style="font-size: 0.9rem; color: #cbd5e1;"><i class="fa-solid fa-compass"></i> Rolodex Navigation</h3>
+                </div>
+                <div class="rolodex-wheel">
+                    <div class="rolodex-card" onclick="openCommunityHub()">
+                        <div class="rolodex-icon">💬</div>
+                        <div class="rolodex-title">Community Hub</div>
+                    </div>
+                    <div class="rolodex-card" onclick="openKidsHarborHub()" style="background: rgba(234, 179, 8, 0.2); border-color: rgba(234, 179, 8, 0.4);">
+                        <div class="rolodex-icon">🎨</div>
+                        <div class="rolodex-title">Kids' Harbor</div>
+                    </div>
+                    <div class="rolodex-card" onclick="openSharingBoard()">
+                        <div class="rolodex-icon">📦</div>
+                        <div class="rolodex-title">Sharing Board</div>
+                    </div>
+                    <div class="rolodex-card" onclick="openTeachersLounge()">
+                        <div class="rolodex-icon">☕</div>
+                        <div class="rolodex-title">Teachers Lounge</div>
+                    </div>
+                    <div class="rolodex-card" onclick="openShortVideosGallery()">
+                        <div class="rolodex-icon">🎬</div>
+                        <div class="rolodex-title">Short Videos</div>
+                    </div>
+                    <div class="rolodex-card" onclick="openFunnyPicsGallery()">
+                        <div class="rolodex-icon">😂</div>
+                        <div class="rolodex-title">Funny Pics</div>
+                    </div>
+                </div>
+
+                <!-- Live Social-Style Community Feed -->
+                <div class="channels-section-title" style="margin-top: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <h3 style="font-size: 0.9rem; color: #cbd5e1;"><i class="fa-solid fa-bolt"></i> Live Community Feed</h3>
+                        <span style="font-size: 0.72rem; color: #22c55e;"><i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i> 142 Online</span>
+                    </div>
+                </div>
+
+                <div class="caregiver-cards-list" id="liveFeedList">
+                    <div class="caregiver-card">
+                        <div class="cg-avatar"><span class="emoji-icon">🏡</span></div>
+                        <div class="cg-info" onclick="openVillageChatRoom('Village Chat', 'General community feed and support.')" style="cursor: pointer;">
+                            <h3>Village Chat</h3>
+                            <p class="cg-location"><i class="fa-solid fa-users"></i> Active Discussion</p>
+                            <p class="cg-focus">"Whatever storm you walked through today, you are safe here. 💙"</p>
+                        </div>
+                        <button class="connect-action-btn" onclick="openVillageChatRoom('Village Chat', 'General community feed and support.')">View</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- KIDS' CONNECTION HUB -->
+            <section class="connect-view-section" id="kids-harbor-view" style="display: none;">
+                <div class="connect-header">
+                    <h2>🎨 Kids' Harbor Connection</h2>
+                    <p>A safe, supervised peer space for children to connect, chat, and join live video meetups.</p>
+                    <button class="back-btn" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+                </div>
+
+                <div class="create-group-card" style="background: rgba(234, 179, 8, 0.15); border-color: rgba(234, 179, 8, 0.4);">
+                    <h3 style="color: #facc15;"><i class="fa-solid fa-video"></i> Safe Live Video Kids' Room</h3>
+                    <p style="font-size: 0.8rem; color: #fef08a; margin-bottom: 10px;">Connect face-to-face with other kids in a secure, structured room.</p>
+                    <button onclick="alert('Starting secure kids video connection room...')" class="create-group-btn" style="background: #eab308; color: #0f172a; width: 100%;">Start Kids Video Room</button>
+                </div>
+
+                <div class="channels-section-title">
+                    <h3>Kids' Peer Chat Rooms</h3>
+                </div>
+                <div class="caregiver-cards-list">
+                    <div class="caregiver-card" onclick="openVillageChatRoom('Kids Creative Corner', 'Supervised chat for kids to share drawings and fun.')" style="cursor: pointer;">
+                        <div class="cg-avatar"><span class="emoji-icon">🚀</span></div>
+                        <div class="cg-info">
+                            <h3>Kids Creative Corner</h3>
+                            <p class="cg-location"><i class="fa-solid fa-gamepad"></i> Fun & Games</p>
+                            <p class="cg-focus">Share artwork, Lego builds, and positive energy!</p>
+                        </div>
+                        <button class="connect-action-btn">Enter</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Community Hub View -->
+            <section class="connect-view-section" id="connect-view" style="display: none;">
+                <div class="connect-header">
+                    <h2>Village Chat & Hub</h2>
+                    <p>Open discussions and support topics.</p>
+                    <button class="back-btn" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+                </div>
+                <div class="caregiver-cards-list" id="groupChatsList">
+                    <div class="caregiver-card">
+                        <div class="cg-avatar"><span class="emoji-icon">🏡</span></div>
+                        <div class="cg-info" onclick="openVillageChatRoom('Village Chat Room', 'Support space for caregivers.')" style="cursor: pointer;">
+                            <h3>Village Chat</h3>
+                            <p class="cg-location"><i class="fa-solid fa-comments"></i> Open Discussion</p>
+                            <p class="cg-focus">Daily support & conversations</p>
+                        </div>
+                        <button class="connect-action-btn" onclick="openVillageChatRoom('Village Chat Room', 'Support space for caregivers.')">Enter</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LIVE VILLAGE CHAT ROOM VIEW -->
+            <section class="connect-view-section" id="village-chat-room-view" style="display: none;">
+                <div class="connect-header">
+                    <h2 id="chatRoomTitle">🏡 Village Chat Room</h2>
+                    <p id="chatRoomSubtitle">A safe, supportive space.</p>
+                    <button class="back-btn" onclick="openCommunityHub()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                </div>
+                <div class="chat-messages-container" id="chatMessagesContainer">
+                    <div class="chat-message-row">
+                        <div class="chat-avatar-sm"><i class="fa-solid fa-anchor"></i></div>
+                        <div class="chat-bubble">
+                            <div class="chat-user-handle">@SanctuaryGuide</div>
+                            <div class="chat-text">Welcome! You are safe and welcome here. 💙</div>
+                        </div>
+                    </div>
+                </div>
+                <form onsubmit="sendChatMessage(event)" class="chat-input-form">
+                    <input type="text" id="chatInputText" placeholder="Type a message..." autocomplete="off" required>
+                    <button type="submit" class="chat-send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+                </form>
+            </section>
+
+            <!-- SHORT VIDEOS GALLERY -->
+            <section class="connect-view-section" id="short-videos-view" style="display: none;">
+                <div class="connect-header">
+                    <h2>🎬 Short Videos Gallery</h2>
+                    <p>Clips and reels from the community.</p>
+                    <button class="back-btn" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                </div>
+                <div class="caregiver-cards-list" id="shortVideosList"></div>
+            </section>
+
+            <!-- FUNNY PICS GALLERY -->
+            <section class="connect-view-section" id="funny-pics-view" style="display: none;">
+                <div class="connect-header">
+                    <h2>😂 Funny Pics Gallery</h2>
+                    <p>Memes, snapshots, and smiles.</p>
+                    <button class="back-btn" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                </div>
+                <div class="caregiver-cards-list" id="funnyPicsList"></div>
+            </section>
+
+            <!-- SHARING BOARD -->
+            <section class="connect-view-section" id="sharing-board-view" style="display: none;">
+                <div class="connect-header">
+                    <h2>The Sharing Board</h2>
+                    <p>Equipment and resource exchange.</p>
+                    <button class="back-btn" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                </div>
+                <div class="caregiver-cards-list" id="sharedItemsList"></div>
+            </section>
+
+            <!-- TEACHERS LOUNGE -->
+            <section class="connect-view-section" id="teachers-lounge-view" style="display: none;">
+                <div class="connect-header">
+                    <h2>☕ The Teachers Lounge</h2>
+                    <p>Relax, rapid trivia, and coloring.</p>
+                    <button class="back-btn" onclick="backToDashboard()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Fixed Bottom Navigation Bar -->
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active" onclick="backToDashboard()">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+            <a href="#" class="nav-item" onclick="openCommunityHub()">
+                <i class="fa-solid fa-comments"></i>
+                <span>Community</span>
+            </a>
+            <a href="#" class="nav-item" onclick="openKidsHarborHub()">
+                <i class="fa-solid fa-palette"></i>
+                <span>Kids</span>
+            </a>
+            <a href="#" class="nav-item" onclick="openSharingBoard()">
+                <i class="fa-solid fa-box-open"></i>
+                <span>Board</span>
+            </a>
+            <a href="#" class="nav-item" onclick="openShortVideosGallery()">
+                <i class="fa-solid fa-film"></i>
+                <span>Videos</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        let currentMember = {
+            id: '@AJan',
+            picUrl: '',
+            journey: 'Seasoned caregiver navigating life with strength.',
+            publicBio: 'Caregiver to family and children.',
+            status: 'Taking it one day at a time, guys.',
+            conditions: ['DMD', 'Autism'],
+            badges: ['⚓ Seasoned (10 Years+)', '💙 Autism Strong']
+        };
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('loginFormContainer');
+            const signupForm = document.getElementById('signupFormContainer');
+            if (tab === 'signup') {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+            } else {
+                signupForm.style.display = 'none';
+                loginForm.style.display = 'block';
+            }
+        }
+
+        function handleLoginClick() {
+            const memberIdInput = document.getElementById('loginMemberId');
+            const idVal = memberIdInput ? memberIdInput.value.trim() : '';
+            if (idVal) {
+                currentMember.id = idVal.startsWith('@') ? idVal : `@${idVal}`;
+            }
+            applyMemberProfileToUI();
+            showMemberDashboard();
+        }
+
+        function handleSignup(event) {
+            event.preventDefault();
+            const memberId = document.getElementById('signupMemberIdInput').value.trim();
+            const picUrl = document.getElementById('signupPicUrlInput').value.trim();
+            const journey = document.getElementById('signupJourney').value.trim();
+            const conditions = document.getElementById('signupConditionsInput').value.split(',').map(s => s.trim()).filter(Boolean);
+            
+            const checkboxes = document.querySelectorAll('input[name="badges"]:checked');
+            const selectedBadges = Array.from(checkboxes).map(cb => cb.value);
+
+            currentMember.id = memberId.startsWith('@') ? memberId : `@${memberId}`;
+            currentMember.picUrl = picUrl;
+            currentMember.journey = journey;
+            currentMember.conditions = conditions;
+            currentMember.badges = selectedBadges.length > 0 ? selectedBadges : ['💙 Autism Strong'];
+            
+            alert('Membership profile created successfully! Entering dashboard.');
+            applyMemberProfileToUI();
+            showMemberDashboard();
+        }
+
+        function applyMemberProfileToUI() {
+            document.getElementById('memberNameDisplay').innerText = currentMember.id;
+            document.getElementById('profileCardName').innerText = currentMember.id;
+            document.getElementById('profileCardBio').innerText = currentMember.journey;
+            document.getElementById('profileCardStatus').innerText = `"${currentMember.status}"`;
+            document.getElementById('memberJourneyDisplay').innerText = currentMember.journey;
+
+            const avatarContainer = document.getElementById('memberAvatarContainer');
+            if (currentMember.picUrl) {
+                avatarContainer.innerHTML = `<img src="${currentMember.picUrl}" alt="${currentMember.id}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            } else {
+                avatarContainer.innerHTML = `<i class="fa-solid fa-user-astronaut"></i>`;
+            }
+
+            const badgesContainer = document.getElementById('assignedBadgesContainer');
+            badgesContainer.innerHTML = '';
+            
+            currentMember.conditions.forEach(cond => {
+                const pill = document.createElement('span');
+                pill.className = 'badge-pill';
+                pill.style.background = 'rgba(234, 179, 8, 0.2)';
+                pill.style.borderColor = 'rgba(234, 179, 8, 0.4)';
+                pill.innerText = `❤️ ${cond}`;
+                badgesContainer.appendChild(pill);
+            });
+
+            currentMember.badges.forEach(badge => {
+                const pill = document.createElement('span');
+                pill.className = 'badge-pill';
+                pill.innerText = badge;
+                pill.onclick = () => {
+                    alert(`${badge} Profile Details:\nCaregiver journey managing conditions: ${currentMember.conditions.join(', ')}.\nExperience summary: Seasoned active member.`);
+                };
+                badgesContainer.appendChild(pill);
+            });
+        }
+
+        function openStatusPrompt() {
+            const newStatus = prompt("Update your Thought of the Day / Status:", currentMember.status);
+            if (newStatus !== null) {
+                currentMember.status = newStatus.trim();
+                document.getElementById('profileCardStatus').innerText = `"${currentMember.status}"`;
+            }
+        }
+
+        function hideAllViews() {
+            const views = [
+                'home-hero-section',
+                'guest-entrance-view',
+                'guest-submission-view',
+                'member-dashboard-view',
+                'kids-harbor-view',
+                'connect-view',
+                'village-chat-room-view',
+                'short-videos-view',
+                'funny-pics-view',
+                'sharing-board-view',
+                'teachers-lounge-view'
+            ];
+            views.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+        }
+
+        function showMemberDashboard() {
+            hideAllViews();
+            document.getElementById('member-dashboard-view').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function backToDashboard() { showMemberDashboard(); }
+        function openCommunityHub() { hideAllViews(); document.getElementById('connect-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function openKidsHarborHub() { hideAllViews(); document.getElementById('kids-harbor-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function openSharingBoard() { hideAllViews(); document.getElementById('sharing-board-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function openTeachersLounge() { hideAllViews(); document.getElementById('teachers-lounge-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function openShortVideosGallery() { hideAllViews(); document.getElementById('short-videos-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function openFunnyPicsGallery() { hideAllViews(); document.getElementById('funny-pics-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+        function openGuestEntrance() {
+            hideAllViews();
+            document.getElementById('guest-entrance-view').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openGuestOption(type) {
+            hideAllViews();
+            document.getElementById('guest-submission-view').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function handleGuestSubmission(event) {
+            event.preventDefault();
+            alert('Guest support request sent successfully!');
+            logoutToHome();
+        }
+
+        function logoutToHome() {
+            hideAllViews();
+            document.getElementById('home-hero-section').style.display = 'flex';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openVideoModal() {
+            let modal = document.getElementById('videoModalOverlay');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'videoModalOverlay';
+                modal.innerHTML = `
+                    <div class="video-modal-content">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h3 style="color: #38bdf8; font-size: 1rem; margin: 0;"><i class="fa-solid fa-anchor"></i> The Harbor Master Presentation</h3>
+                            <button onclick="closeVideoModal()" style="background: none; border: none; color: #ef4444; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <video controls width="100%" style="border-radius: 8px; max-height: 320px;">
+                            <source src="{{ url_for('static', filename='lewieandmarcus.mp4') }}" type="video/mp4">
+                        </video>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModalOverlay');
+            if (modal) {
+                modal.querySelector('video').pause();
+                modal.style.display = 'none';
+            }
+        }
+
+        function openVillageChatRoom(title, subtitle) {
+            hideAllViews();
+            document.getElementById('chatRoomTitle').innerText = title;
+            document.getElementById('chatRoomSubtitle').innerText = subtitle;
+            document.getElementById('village-chat-room-view').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function sendChatMessage(event) {
+            event.preventDefault();
+            const textInput = document.getElementById('chatInputText');
+            if (!textInput.value.trim()) return;
+
+            const container = document.getElementById('chatMessagesContainer');
+            const msgRow = document.createElement('div');
+            msgRow.className = 'chat-message-row';
+            msgRow.innerHTML = `
+                <div class="chat-avatar-sm"><i class="fa-solid fa-user"></i></div>
+                <div class="chat-bubble">
+                    <div class="chat-user-handle">${currentMember.id}</div>
+                    <div class="chat-text">${textInput.value}</div>
+                </div>
+            `;
+            container.appendChild(msgRow);
+            textInput.value = '';
+            container.scrollTop = container.scrollHeight;
+        }
+    </script>
+</body>
+</html>
