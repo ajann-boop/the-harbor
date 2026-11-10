@@ -241,7 +241,7 @@
                         <div class="cg-info">
                             <h3>Kids Creative Corner</h3>
                             <p class="cg-location"><i class="fa-solid fa-gamepad"></i> Fun & Games</p>
-                            <p class="cg-focus">Share artwork, Lego builds, and positive energy!</p>
+                            <p class="cg-focus">Share artwork, photos, and positive energy!</p>
                         </div>
                         <button class="connect-action-btn">Enter</button>
                     </div>
@@ -268,7 +268,7 @@
                 </div>
             </section>
 
-            <!-- LIVE VILLAGE CHAT ROOM VIEW -->
+            <!-- LIVE VILLAGE CHAT ROOM VIEW (Universal with Media Attachments) -->
             <section class="connect-view-section" id="village-chat-room-view" style="display: none;">
                 <div class="connect-header">
                     <h2 id="chatRoomTitle">🏡 Village Chat Room</h2>
@@ -280,13 +280,19 @@
                         <div class="chat-avatar-sm"><i class="fa-solid fa-anchor"></i></div>
                         <div class="chat-bubble">
                             <div class="chat-user-handle">@SanctuaryGuide</div>
-                            <div class="chat-text">Welcome! You are safe and welcome here. 💙</div>
+                            <div class="chat-text">Welcome! You are safe and welcome here. Feel free to share messages and photos! 💙📸</div>
                         </div>
                     </div>
                 </div>
-                <form onsubmit="sendChatMessage(event)" class="chat-input-form">
-                    <input type="text" id="chatInputText" placeholder="Type a message..." autocomplete="off" required>
-                    <button type="submit" class="chat-send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+                <form onsubmit="sendChatMessage(event)" class="chat-input-form" style="flex-direction: column; gap: 8px;">
+                    <div style="display: flex; gap: 8px; width: 100%;">
+                        <input type="text" id="chatInputText" placeholder="Type a message..." autocomplete="off" style="flex: 1;">
+                        <button type="submit" class="chat-send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                    <div style="display: flex; gap: 8px; width: 100%; align-items: center;">
+                        <input type="url" id="universalMediaUrlInput" placeholder="Paste picture/image URL to attach..." style="flex: 1; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; padding: 8px 12px; color: #ffffff; font-size: 0.8rem; outline: none;">
+                        <span style="font-size: 0.75rem; color: #38bdf8;"><i class="fa-solid fa-image"></i> Media Link</span>
+                    </div>
                 </form>
             </section>
 
@@ -553,20 +559,31 @@
         function sendChatMessage(event) {
             event.preventDefault();
             const textInput = document.getElementById('chatInputText');
-            if (!textInput.value.trim()) return;
+            const mediaInput = document.getElementById('universalMediaUrlInput');
+            
+            if (!textInput.value.trim() && (!mediaInput || !mediaInput.value.trim())) return;
 
             const container = document.getElementById('chatMessagesContainer');
             const msgRow = document.createElement('div');
             msgRow.className = 'chat-message-row';
+            
+            let mediaHtml = '';
+            if (mediaInput && mediaInput.value.trim()) {
+                mediaHtml = `<div style="margin-top: 6px;"><img src="${mediaInput.value.trim()}" alt="Attached media" style="max-width: 100%; border-radius: 8px; max-height: 200px; object-fit: cover;"></div>`;
+            }
+
             msgRow.innerHTML = `
                 <div class="chat-avatar-sm"><i class="fa-solid fa-user"></i></div>
                 <div class="chat-bubble">
                     <div class="chat-user-handle">${currentMember.id}</div>
                     <div class="chat-text">${textInput.value}</div>
+                    ${mediaHtml}
                 </div>
             `;
             container.appendChild(msgRow);
+            
             textInput.value = '';
+            if (mediaInput) mediaInput.value = '';
             container.scrollTop = container.scrollHeight;
         }
     </script>
