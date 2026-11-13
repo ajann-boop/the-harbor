@@ -66,7 +66,7 @@
                     <!-- Member Log In Form (Default Active View) -->
                     <div id="loginFormContainer" class="auth-form-wrapper">
                         <div class="auth-inner-form">
-                            <input type="text" id="loginMemberId" placeholder="Member ID">
+                            <input type="email" id="loginMemberId" placeholder="Member ID">
                             <input type="password" id="loginPasswordInput" placeholder="Password">
                             
                             <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #334155; margin: 4px 0;">
@@ -92,7 +92,8 @@
                                 <button type="button" onclick="switchAuthTab('login')" style="background: none; border: none; color: #64748b; cursor: pointer; font-size: 0.8rem;"><i class="fa-solid fa-arrow-left"></i> Back to Login</button>
                             </div>
                             <input type="text" id="signupMemberIdInput" placeholder="Choose Community ID / Name" required>
-                            <input type="password" id="signupPasswordInput" placeholder="Create Password" required>
+                            <input type="email" id="signupEmailInput" placeholder="Email Address" required>
+                    <input type="password" id="signupPasswordInput" placeholder="Create Password" required>
                             <input type="url" id="signupPicUrlInput" placeholder="Photo / Image URL for Profile" required>
                             <textarea id="signupJourney" placeholder="Short description of your journey..." rows="2" required></textarea>
                             <input type="text" id="signupConditionsInput" placeholder="Conditions / Diagnoses (e.g., DMD, Autism, Cancer Survivor)" required>
@@ -385,35 +386,70 @@
             }
         }
 
-        function handleLoginClick() {
-            const memberIdInput = document.getElementById('loginMemberId');
-            const idVal = memberIdInput ? memberIdInput.value.trim() : '';
-            if (idVal) {
-                currentMember.id = idVal.startsWith('@') ? idVal : `@${idVal}`;
+        async function handleLoginClick() {
+            const emailInput = document.getElementById('loginMemberId');
+            const passInput = document.getElementById('loginPasswordInput');
+            const email = emailInput ? emailInput.value.trim() : '';
+            const password = passInput ? passInput.value : '';
+            if (!email || !password) {
+                alert('Please enter both your email and password.');
+                return;
             }
-            applyMemberProfileToUI();
-            showMemberDashboard();
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Sign-in failed. Please check your email and password.');
+                    return;
+                }
+                const handle = data.user.display_name || email.split('@')[0];
+                currentMember.id = handle.startsWith('@') ? handle : `@${handle}`;
+                applyMemberProfileToUI();
+                showMemberDashboard();
+            } catch (err) {
+                alert('Network error signing in. Please try again.');
+            }
         }
 
-        function handleSignup(event) {
+        async function handleSignup(event) {
             event.preventDefault();
+            const email = document.getElementById('signupEmailInput').value.trim();
+            const password = document.getElementById('signupPasswordInput').value;
             const memberId = document.getElementById('signupMemberIdInput').value.trim();
             const picUrl = document.getElementById('signupPicUrlInput').value.trim();
             const journey = document.getElementById('signupJourney').value.trim();
             const conditions = document.getElementById('signupConditionsInput').value.split(',').map(s => s.trim()).filter(Boolean);
-            
+
             const checkboxes = document.querySelectorAll('input[name="badges"]:checked');
             const selectedBadges = Array.from(checkboxes).map(cb => cb.value);
 
-            currentMember.id = memberId.startsWith('@') ? memberId : `@${memberId}`;
-            currentMember.picUrl = picUrl;
-            currentMember.journey = journey;
-            currentMember.conditions = conditions;
-            currentMember.badges = selectedBadges.length > 0 ? selectedBadges : ['💙 Autism Strong'];
-            
-            alert('Membership profile created successfully! Entering dashboard.');
-            applyMemberProfileToUI();
-            showMemberDashboard();
+            try {
+                const res = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, display_name: memberId })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Sign-up failed. Please try again.');
+                    return;
+                }
+                currentMember.id = memberId.startsWith('@') ? memberId : `@${memberId}`;
+                currentMember.picUrl = picUrl;
+                currentMember.journey = journey;
+                currentMember.conditions = conditions;
+                currentMember.badges = selectedBadges.length > 0 ? selectedBadges : ['Heart of the Harbor'];
+
+                alert(data.message || 'Membership profile created successfully!');
+                applyMemberProfileToUI();
+                showMemberDashboard();
+            } catch (err) {
+                alert('Network error creating account. Please try again.');
+            }
         }
 
         function applyMemberProfileToUI() {
@@ -513,7 +549,7 @@
             logoutToHome();
         }
 
-        function logoutToHome() {
+        async function logoutToHome() { try { await fetch('/api/logout', { method: 'POST' }); } catch (e) {}
             hideAllViews();
             document.getElementById('home-hero-section').style.display = 'flex';
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -576,7 +612,7 @@
                 <div class="chat-avatar-sm"><i class="fa-solid fa-user"></i></div>
                 <div class="chat-bubble">
                     <div class="chat-user-handle">${currentMember.id}</div>
-                    <div class="chat-text">${textInput.value}</div>
+                    <div class="chat-text">${textInput.value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
                     ${mediaHtml}
                 </div>
             `;
@@ -586,6 +622,18 @@
             if (mediaInput) mediaInput.value = '';
             container.scrollTop = container.scrollHeight;
         }
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/api/me');
+                const data = await res.json();
+                if (data.user) {
+                    const handle = data.user.display_name || data.user.email.split('@')[0];
+                    currentMember.id = handle.startsWith('@') ? handle : `@${handle}`;
+                    applyMemberProfileToUI();
+                    showMemberDashboard();
+                }
+            } catch (e) {}
+        });
     </script>
 </body>
 </html>
