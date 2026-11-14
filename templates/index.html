@@ -519,13 +519,13 @@
                         <div style="max-width:300px; margin:0 auto;">
                             <div class="harbor-underline-group" style="display:flex; flex-direction:column; gap:6px; margin:0 0 14px;">
                                 <label for="loginMemberId" style="font-size:0.84rem; font-weight:700; color:#e2e8f0; text-align:left;">Member Email or ID</label>
-                                <input type="email" id="loginMemberId" class="harbor-underline-input" placeholder="you@example.com" name="email" autocomplete="username" onkeydown="if(event.key==='Enter'){event.preventDefault();document.querySelector('#loginFormContainer button[type=submit], #loginFormContainer .harbor-submit-btn, #memberLoginBtn')?.click();}" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:10px; font-size:0.92rem; background:#ffffff; color:#0f172a; border:1px solid rgba(148,163,184,0.45);">
+                                <input type="email" id="loginMemberId" class="harbor-underline-input" placeholder="you@example.com" name="email" autocomplete="username" onkeydown="if(event.key==='Enter'){event.preventDefault();if(typeof handleLoginClick==='function'){handleLoginClick();}else{document.querySelector('.harbor-primary-btn')?.click();}}" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:10px; font-size:0.92rem; background:#ffffff; color:#0f172a; border:1px solid rgba(148,163,184,0.45);">
                             </div>
 
                             <div class="harbor-underline-group" style="display:flex; flex-direction:column; gap:6px; margin:0 0 12px;">
                                 <label for="loginPasswordInput" style="font-size:0.84rem; font-weight:700; color:#e2e8f0; text-align:left;">Password</label>
                                 <div style="position:relative; display:flex; align-items:center; width:100%;">
-                                    <input type="password" id="loginPasswordInput" class="harbor-underline-input" placeholder="••••••••" name="password" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();document.querySelector('#loginFormContainer button[type=submit], #loginFormContainer .harbor-submit-btn, #memberLoginBtn')?.click();}" style="width:100%; box-sizing:border-box; padding:10px 66px 10px 14px; border-radius:10px; font-size:0.92rem; background:#ffffff; color:#0f172a; border:1px solid rgba(148,163,184,0.45);">
+                                    <input type="password" id="loginPasswordInput" class="harbor-underline-input" placeholder="••••••••" name="password" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();if(typeof handleLoginClick==='function'){handleLoginClick();}else{document.querySelector('.harbor-primary-btn')?.click();}}" style="width:100%; box-sizing:border-box; padding:10px 66px 10px 14px; border-radius:10px; font-size:0.92rem; background:#ffffff; color:#0f172a; border:1px solid rgba(148,163,184,0.45);">
                                     <button type="button" onclick="togglePwVisibility('loginPasswordInput', this)" aria-label="Show password" style="position:absolute; right:7px; top:50%; transform:translateY(-50%); background:#0f2930; border:1px solid rgba(20,184,166,0.55); border-radius:7px; color:#5eead4; font-size:0.75rem; font-weight:700; cursor:pointer; padding:4px 9px; z-index:5;">Show</button>
                                 </div>
                             </div>
@@ -1840,6 +1840,49 @@
             if (!res.ok) { alert(data.error || 'Invalid PIN'); return; }
             loadCorkBoard();
         }
+    </script>
+
+
+    <style>
+        /* Auto-adapt to Landscape Orientation & Wide Desktop Screens */
+        @media (orientation: landscape), (min-width: 768px) {
+            body.mode-website .app-header,
+            body.mode-website .dashboard-main,
+            body.mode-website .connect-view-section {
+                max-width: 1180px !important;
+                width: 94% !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
+            body.mode-website .harbor-auth-grid,
+            body.mode-website .dashboard-grid {
+                display: grid !important;
+                grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)) !important;
+                gap: 20px !important;
+                align-items: start !important;
+            }
+        }
+
+        /* Resizable Floating Overlay Window in Overlay View */
+        body.mode-overlay .connect-view-section:not(#member-dashboard-view):not(#guest-entrance-view) {
+            resize: both !important;
+            overflow: auto !important;
+            min-width: 320px !important;
+            min-height: 360px !important;
+            max-width: 95vw !important;
+            max-height: 85vh !important;
+        }
+    </style>
+
+    <script>
+        window.togglePwVisibility = function(inputId, btn) {
+            const inp = document.getElementById(inputId);
+            if (!inp) return;
+            const isHidden = (inp.type === 'password');
+            inp.type = isHidden ? 'text' : 'password';
+            if (btn) btn.textContent = isHidden ? 'Hide' : 'Show';
+            inp.focus();
+        };
     </script>
 
 </body>
