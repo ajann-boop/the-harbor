@@ -187,6 +187,54 @@
         }
     </style>
 
+
+    <style id="harbor-layout-polish">
+        /* Pin Under Construction Banner right at the top */
+        .harbor-construction-banner {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 9999 !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Allow landing & donor screens to expand cleanly beyond narrow mobile wrapper */
+        main.dashboard-main:has(#home-hero-section[style*="flex"]),
+        main.dashboard-main:has(#home-hero-section:not([style*="none"])),
+        main.dashboard-main:has(#guest-submission-view[style*="block"]) {
+            max-width: 1040px !important;
+            width: 96% !important;
+            margin: 0 auto !important;
+            padding: 16px 0 90px !important;
+        }
+
+        #home-hero-section.harbor-chat-pattern-bg,
+        #guest-submission-view.harbor-chat-pattern-bg {
+            width: 100% !important;
+            max-width: 1020px !important;
+            margin: 10px auto !important;
+            padding: 32px 24px !important;
+            box-sizing: border-box !important;
+        }
+
+        .harbor-split-shell {
+            width: 100% !important;
+            max-width: 960px !important;
+            gap: 28px !important;
+        }
+
+        .harbor-welcome-pane,
+        .harbor-glass-card {
+            padding: 32px 28px !important;
+        }
+
+        .harbor-donor-btn,
+        .harbor-primary-btn {
+            white-space: nowrap !important;
+            padding: 13px 22px !important;
+        }
+    </style>
+
 </head>
 <body>
     <div class="app-container">
