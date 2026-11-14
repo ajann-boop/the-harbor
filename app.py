@@ -211,5 +211,29 @@ def api_guest_inquiry():
     }), 200
 
 
+
+@app.route("/api/founder-recovery", methods=["POST"])
+def founder_recovery():
+    if not supabase:
+        return jsonify({"error": "Auth service not configured"}), 500
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").strip().lower()
+    pin = str(data.get("pin") or "").strip()
+    expected_pin = os.environ.get("ADMIN_PIN", "")
+    founder_email = os.environ.get("ADMIN_NOTIFY_EMAIL", "a.s.jannuzzi@gmail.com").strip().lower()
+    if not expected_pin or pin != expected_pin:
+        return jsonify({"error": "Invalid Founder Recovery Key"}), 403
+    if email != founder_email:
+        return jsonify({"error": "Email does not match founder account"}), 403
+    try:
+        supabase.auth.reset_password_for_email(
+            email,
+            {"redirect_to": "https://www.shareyourwalk.com/"}
+        )
+        return jsonify({"ok": True, "message": f"Password reset email sent to {email}!"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
 if __name__ == "__main__":
     app.run(debug=True)

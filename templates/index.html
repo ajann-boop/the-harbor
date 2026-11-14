@@ -1267,6 +1267,29 @@
                 }
             } catch (e) {}
         });
+    
+        async function triggerTrustedBackupRecovery() {
+            const email = prompt("Founder Recovery — Enter your founder email:", "a.s.jannuzzi@gmail.com");
+            if (!email) return;
+            const pin = prompt("Enter your Founder Recovery Key (Admin PIN):");
+            if (!pin) return;
+            try {
+                const res = await fetch('/api/founder-recovery', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email.trim(), pin: pin.trim() })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || "Recovery verification failed.");
+                } else {
+                    alert(data.message || "Password reset email sent! Check your inbox.");
+                }
+            } catch (err) {
+                alert("Network error triggering recovery: " + err.message);
+            }
+        }
+
     </script>
 
     
