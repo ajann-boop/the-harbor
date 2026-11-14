@@ -495,7 +495,8 @@
                         </form>
 
                         <div style="text-align:center; margin-top:14px; font-size:0.86rem; color:#e2e8f0;">
-                            Already a member?
+                            <button type="button" onclick="openOtpModalDirectly()" style="background:none; border:none; color:#5eead4; font-size:0.82rem; font-weight:600; text-decoration:underline; cursor:pointer; display:block; margin:0 auto 10px;">Already have a 6-digit code? Enter it here</button>
+                        Already a member?
                             <button type="button" onclick="switchAuthTab('login')" style="background:none; border:none; color:#5eead4; font-weight:700; text-decoration:underline; cursor:pointer; padding:0 2px; font-size:0.86rem;">
                                 Back to Member Login
                             </button>
@@ -887,6 +888,64 @@
 
         let pendingSignupState = null;
 
+        
+        function openOtpModalDirectly() {
+            const emailInput = document.getElementById('signupEmailInput');
+            let email = emailInput && emailInput.value ? emailInput.value.trim() : '';
+            if (!email || !email.includes('@')) {
+                const entered = prompt('Enter the email address you signed up with:');
+                if (!entered) return;
+                email = entered.trim();
+                if (emailInput) emailInput.value = email;
+            }
+            if (typeof pendingSignupState === 'object' && pendingSignupState) {
+                pendingSignupState.email = email;
+            } else {
+                window.pendingSignupState = { email };
+            }
+            document.getElementById('otpVerifySubtitle').textContent = `Enter the 6-digit verification code sent to ${email}:`;
+            document.getElementById('otpCodeInput').value = '';
+            document.getElementById('otpVerifyOverlay').style.display = 'flex';
+            setTimeout(() => document.getElementById('otpCodeInput').focus(), 80);
+        }
+
+        async function resendSignupOtp() {
+            const email = (typeof pendingSignupState !== 'undefined' && pendingSignupState && pendingSignupState.email)
+                || (document.getElementById('signupEmailInput') && document.getElementById('signupEmailInput').value.trim());
+            if (!email) {
+                alert('Please enter your email address first.');
+                return;
+            }
+            try {
+                if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                    const { error } = await supabaseClient.auth.resend({ type: 'signup', email });
+                    if (error) { alert(error.message); return; }
+                    alert('A fresh 6-digit code was sent to ' + email + '!');
+                }
+            } catch (e) {
+                alert('Could not resend code right now. Please try again.');
+            }
+        }
+
+        async function verifySignupOtpFallback() {
+            const code = (document.getElementById('otpCodeInput').value || '').trim();
+            const email = (typeof pendingSignupState !== 'undefined' && pendingSignupState && pendingSignupState.email)
+                || (document.getElementById('signupEmailInput') && document.getElementById('signupEmailInput').value.trim());
+            if (code.length < 6) {
+                alert('Please enter the full 6-digit code from your email.');
+                return;
+            }
+            try {
+                const { data, error } = await supabaseClient.auth.verifyOtp({ email, token: code, type: 'signup' });
+                if (error) { alert(error.message || 'Invalid or expired code.'); return; }
+                document.getElementById('otpVerifyOverlay').style.display = 'none';
+                alert('Email verified! Welcome to The Harbor.');
+                window.location.reload();
+            } catch (e) {
+                alert('Verification failed. Please check the code and try again.');
+            }
+        }
+
         async function handleSignup(event) {
             event.preventDefault();
             const email = document.getElementById('signupEmailInput').value.trim();
@@ -1196,17 +1255,29 @@
         });
     </script>
 
-    <div id="otpVerifyOverlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.78); z-index:9999; align-items:center; justify-content:center; padding:16px;">
-        <div style="background:#ffffff; color:#0f172a; max-width:400px; width:100%; border-radius:16px; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,0.35); text-align:center;">
-            <h3 style="margin:0 0 8px; font-size:1.25rem;">Verify Your Email</h3>
-            <p id="otpVerifySubtitle" style="margin:0 0 16px; font-size:0.9rem; color:#475569;">Enter the 6-digit code sent to your email to activate your account.</p>
-            <input type="text" id="otpCodeInput" inputmode="numeric" maxlength="6" placeholder="000000" style="width:100%; box-sizing:border-box; text-align:center; font-size:1.6rem; letter-spacing:8px; font-family:monospace; padding:12px; border:2px solid #cbd5e1; border-radius:10px; margin-bottom:14px;">
-            <button type="button" onclick="submitOtpVerification()" style="width:100%; padding:12px; background:#16a34a; color:#fff; border:none; border-radius:10px; font-weight:700; font-size:1rem; cursor:pointer; margin-bottom:10px;">Verify & Enter The Harbor</button>
-            <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
-                <button type="button" onclick="resendOtpCode()" style="background:none; border:none; color:#2563eb; cursor:pointer; text-decoration:underline; padding:0;">Resend code</button>
-                <button type="button" onclick="document.getElementById('otpVerifyOverlay').style.display='none'" style="background:none; border:none; color:#64748b; cursor:pointer; padding:0;">Cancel</button>
+    
+
+    <!-- 6-DIGIT EMAIL VERIFICATION MODAL OVERLAY -->
+    <div id="otpVerifyOverlay" style="display:none; position:fixed; inset:0; background:rgba(6, 24, 28, 0.84); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:9999; align-items:center; justify-content:center; padding:18px;">
+        <div style="width:100%; max-width:410px; background:linear-gradient(155deg, rgba(15, 58, 64, 0.96), rgba(11, 38, 43, 0.98)); border:1px solid rgba(94, 234, 212, 0.35); border-radius:20px; padding:28px 24px; text-align:center; color:#ffffff; box-shadow:0 24px 60px rgba(0,0,0,0.55);">
+            <div style="width:52px; height:52px; margin:0 auto 12px; border-radius:50%; background:rgba(20, 184, 166, 0.2); border:1px solid rgba(94, 234, 212, 0.4); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">✉️</div>
+            <h3 style="margin:0 0 6px; font-size:1.35rem; font-weight:800; color:#ffffff;">Verify Your Email</h3>
+            <p id="otpVerifySubtitle" style="margin:0 0 18px; font-size:0.86rem; color:#cbd5e1; line-height:1.45;">Enter the 6-digit verification code sent to your email:</p>
+
+            <input type="text" id="otpCodeInput" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="000000"
+                   style="width:100%; box-sizing:border-box; text-align:center; font-size:1.75rem; font-weight:800; letter-spacing:10px; padding:14px 12px; border-radius:12px; border:1.5px solid rgba(94, 234, 212, 0.45); background:rgba(6, 20, 24, 0.7); color:#5eead4; outline:none; margin-bottom:16px;">
+
+            <button type="button" id="verifyOtpBtn" onclick="typeof confirmSignupOtp === 'function' ? confirmSignupOtp() : verifySignupOtpFallback()"
+                    style="width:100%; padding:13px 18px; border:none; border-radius:12px; background:linear-gradient(135deg, #14b8a6, #0d9488); color:#ffffff; font-weight:700; font-size:0.96rem; cursor:pointer; box-shadow:0 8px 20px rgba(20, 184, 166, 0.35);">
+                Verify &amp; Enter The Harbor
+            </button>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; font-size:0.8rem;">
+                <button type="button" onclick="resendSignupOtp()" style="background:none; border:none; color:#99f6e4; text-decoration:underline; cursor:pointer; padding:0;">Resend code</button>
+                <button type="button" onclick="document.getElementById('otpVerifyOverlay').style.display='none'" style="background:none; border:none; color:#94a3b8; text-decoration:underline; cursor:pointer; padding:0;">Cancel</button>
             </div>
         </div>
     </div>
+
 </body>
 </html>
