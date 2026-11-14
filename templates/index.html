@@ -276,7 +276,85 @@
     </style>
 
 </head>
-<body>
+<body class="mode-website">
+
+    <style>
+        #layoutModeSwitcher {
+            position: fixed;
+            top: 14px;
+            right: 16px;
+            z-index: 9500;
+            display: inline-flex;
+            background: rgba(7, 23, 28, 0.88);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(45, 212, 191, 0.35);
+            border-radius: 999px;
+            padding: 4px;
+            gap: 4px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        }
+        .mode-pill-btn {
+            border: none;
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            background: transparent;
+            color: #94a3b8;
+        }
+        .mode-pill-btn.active {
+            background: #14b8a6;
+            color: #042f2e;
+            box-shadow: 0 2px 8px rgba(20, 184, 166, 0.45);
+        }
+        body.mode-website .connect-view-section {
+            position: relative;
+            z-index: 10;
+            max-width: 1080px;
+            margin: 68px auto 95px !important;
+            padding: 20px 18px 90px !important;
+        }
+        body.mode-overlay .connect-view-section {
+            position: fixed !important;
+            inset: 58px 16px 76px 16px !important;
+            max-width: 980px !important;
+            margin: 0 auto !important;
+            background: rgba(9, 28, 34, 0.96) !important;
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(45, 212, 191, 0.38);
+            border-radius: 22px;
+            box-shadow: 0 24px 65px rgba(0, 0, 0, 0.78), 0 0 0 9999px rgba(4, 14, 18, 0.65);
+            overflow-y: auto !important;
+            z-index: 9000 !important;
+            padding: 22px 20px 40px !important;
+        }
+        #overlayCloseBtn {
+            display: none;
+            position: sticky;
+            top: 0;
+            float: right;
+            z-index: 9100;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(248, 113, 113, 0.45);
+            color: #fecaca;
+            border-radius: 999px;
+            padding: 5px 12px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        body.mode-overlay #overlayCloseBtn {
+            display: inline-block;
+        }
+    </style>
+
+    <div id="layoutModeSwitcher" title="Switch between Full Website View and Floating Overlay View">
+        <button type="button" id="btnWebsiteView" class="mode-pill-btn active" onclick="setLayoutViewMode('website')">🌐 Website View</button>
+        <button type="button" id="btnOverlayView" class="mode-pill-btn" onclick="setLayoutViewMode('overlay')">🪟 Overlay View</button>
+    </div>
+
     <div class="app-container">
         <!-- Top Header / Overview -->
         <header class="app-header">
