@@ -42,7 +42,7 @@ def google_verification():
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("index.html", mosaic_images=get_mosaic_images())
 
 
 @app.route("/api/me", methods=["GET"])

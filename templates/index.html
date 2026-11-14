@@ -235,6 +235,46 @@
         }
     </style>
 
+
+    <style id="harbor-photo-mosaic-style">
+        #home-hero-section.harbor-chat-pattern-bg,
+        #guest-submission-view.harbor-chat-pattern-bg {
+            position: relative !important;
+            overflow: hidden !important;
+        }
+        .harbor-mosaic-grid {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+            gap: 8px;
+            padding: 8px;
+            opacity: 0.28;
+            filter: saturate(1.05) contrast(1.02);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .harbor-mosaic-grid img {
+            width: 100%;
+            height: 145px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+        .harbor-teal-wash {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(145deg, rgba(14, 59, 64, 0.80), rgba(19, 78, 84, 0.84));
+            pointer-events: none;
+            z-index: 1;
+        }
+        #home-hero-section .harbor-split-shell,
+        #guest-submission-view .harbor-glass-card {
+            position: relative;
+            z-index: 2;
+        }
+    </style>
+
 </head>
 <body>
     <div class="app-container">
