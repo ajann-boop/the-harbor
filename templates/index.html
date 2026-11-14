@@ -306,6 +306,20 @@
     </style>
 
 <style>#layoutModeSwitcher { display: none !important; }</style>
+
+<style>
+.harbor-glass-card {
+    background: rgba(7, 26, 32, 0.42) !important;
+    backdrop-filter: blur(14px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+#loginFormContainer {
+    padding-bottom: 18px !important;
+}
+</style>
+
 </head>
 <body class="mode-website">
 
@@ -539,7 +553,10 @@
                             </div>
                         </div>
 
-                        <button type="button" onclick="handleForgotPassword()" style="background:none; border:none; color:#99f6e4; font-size:0.83rem; font-weight:600; text-decoration:underline; cursor:pointer; padding:0;">Forgot password?</button></div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:4px 0 6px;">
+                                <button type="button" onclick="handleForgotPassword()" style="background:none; border:none; color:#99f6e4; font-size:0.81rem; font-weight:600; text-decoration:underline; cursor:pointer; padding:0;">Forgot password?</button>
+                                <span style="font-size:0.81rem; color:#e2e8f0;">Not a member? <button type="button" onclick="switchAuthTab('signup')" style="background:none; border:none; color:#5eead4; font-weight:700; text-decoration:underline; cursor:pointer; padding:0; font-size:0.81rem;">Click here</button></span>
+                            </div></div>
                         </div>
 
                         <div style="margin: 18px auto 12px; max-width: 315px; text-align: center;">
@@ -589,12 +606,7 @@
                             </div>
                         </div>
 
-                        <div style="text-align:center; margin-top:16px; font-size:0.88rem; color:#e2e8f0;">
-                            Not a member?
-                            <button type="button" onclick="switchAuthTab('signup')" style="background:none; border:none; color:#5eead4; font-weight:700; text-decoration:underline; cursor:pointer; padding:0 2px; font-size:0.88rem;">
-                                Click here
-                            </button>
-                        </div>
+                        
 
                         <!-- Donor & Visitor Entrance Card Action -->
                         <div style="margin-top:20px; padding-top:18px; border-top:1px solid rgba(255,255,255,0.16); text-align:center;">
