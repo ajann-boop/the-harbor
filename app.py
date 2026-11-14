@@ -235,5 +235,24 @@ def founder_recovery():
         return jsonify({"error": str(e)}), 400
 
 
+
+@app.route("/api/update-password", methods=["POST"])
+def update_password():
+    if not supabase:
+        return jsonify({"error": "Auth service not configured"}), 500
+    data = request.get_json(silent=True) or {}
+    access_token = (data.get("access_token") or "").strip()
+    refresh_token = (data.get("refresh_token") or "").strip()
+    new_password = data.get("new_password") or ""
+    if not access_token or len(new_password) < 8:
+        return jsonify({"error": "Valid recovery session and password (8+ chars) required"}), 400
+    try:
+        supabase.auth.set_session(access_token, refresh_token or access_token)
+        res = supabase.auth.update_user({"password": new_password})
+        return jsonify({"ok": True, "message": "Password updated! You can now sign in."})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
 if __name__ == "__main__":
     app.run(debug=True)

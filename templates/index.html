@@ -1316,5 +1316,65 @@
         </div>
     </div>
 
+
+    <!-- Set New Password Modal (for Supabase Password Recovery links) -->
+    <div id="newPasswordModal" style="display:none; position:fixed; inset:0; background:rgba(7,23,28,0.88); backdrop-filter:blur(8px); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+        <div style="background:#0f2930; border:1px solid rgba(45,212,191,0.35); border-radius:18px; max-width:400px; width:100%; padding:28px; color:#f8fafc; box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+            <h3 style="margin:0 0 8px; font-size:1.35rem; color:#2dd4bf;">Set Your New Password</h3>
+            <p style="margin:0 0 18px; font-size:0.88rem; color:#cbd5e1;">Enter a new password (at least 8 characters) for your Share Your Walk account.</p>
+            <input id="newRecoveryPassword" type="password" placeholder="New password (8+ characters)" style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid rgba(148,163,184,0.35); background:#081a1f; color:#fff; font-size:1rem; margin-bottom:14px; box-sizing:border-box;">
+            <button type="button" onclick="submitNewRecoveryPassword()" style="width:100%; padding:12px; border-radius:10px; border:none; background:#14b8a6; color:#042f2e; font-weight:700; font-size:1rem; cursor:pointer;">Save New Password</button>
+            <button type="button" onclick="document.getElementById('newPasswordModal').style.display='none'" style="width:100%; margin-top:10px; padding:8px; background:transparent; border:none; color:#94a3b8; cursor:pointer; font-size:0.85rem;">Cancel</button>
+        </div>
+    </div>
+    <script>
+        let recoveryAccessToken = "";
+        let recoveryRefreshToken = "";
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.substring(1);
+            if (!hash) return;
+            const params = new URLSearchParams(hash);
+            if (params.get('error_description')) {
+                alert("Reset link issue: " + params.get('error_description').replace(/\+/g, ' ') + "\n\nClick 'Forgot password?' to send a fresh link.");
+                history.replaceState(null, '', window.location.pathname);
+                return;
+            }
+            if (params.get('type') === 'recovery' && params.get('access_token')) {
+                recoveryAccessToken = params.get('access_token');
+                recoveryRefreshToken = params.get('refresh_token') || "";
+                const modal = document.getElementById('newPasswordModal');
+                if (modal) modal.style.display = 'flex';
+                history.replaceState(null, '', window.location.pathname);
+            }
+        });
+        async function submitNewRecoveryPassword() {
+            const pw = document.getElementById('newRecoveryPassword').value;
+            if (!pw || pw.length < 8) {
+                alert("Please enter at least 8 characters.");
+                return;
+            }
+            try {
+                const res = await fetch('/api/update-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        access_token: recoveryAccessToken,
+                        refresh_token: recoveryRefreshToken,
+                        new_password: pw
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || "Could not update password.");
+                } else {
+                    document.getElementById('newPasswordModal').style.display = 'none';
+                    alert("Password updated! You can now log in with your new password.");
+                }
+            } catch (err) {
+                alert("Error updating password: " + err.message);
+            }
+        }
+    </script>
+
 </body>
 </html>
