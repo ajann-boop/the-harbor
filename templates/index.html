@@ -255,7 +255,10 @@
         <main class="dashboard-main">
             
             <!-- Global Caregiver Sanctuary Welcome Card (Auth Screen) -->
-            <section class="fuelpay-hero-card harbor-chat-pattern-bg" id="home-hero-section">
+            <div class="harbor-construction-banner" style="border-radius:12px; margin:0 auto 14px; max-width:1020px; position:relative; z-index:50;">
+            🚧 We're currently building &amp; polishing Share Your Walk! Pardon our dust while we welcome founding caregivers &amp; supporters.
+        </div>
+        <section class="fuelpay-hero-card harbor-chat-pattern-bg" id="home-hero-section">
             <div class="harbor-split-shell">
                 <!-- Left Panel: Welcome & Caregiver Mission -->
                 <div class="harbor-welcome-pane">
@@ -721,10 +724,6 @@
                 loginBox.style.display = 'block';
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-                signupForm.style.display = 'none';
-                loginForm.style.display = 'block';
-            }
         }
 
         async function handleLoginClick() {
