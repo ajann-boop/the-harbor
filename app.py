@@ -40,6 +40,14 @@ def google_verification():
     return render_template("google155e5a17fdae6bf2.html")
 
 
+def get_mosaic_images():
+    folder = os.path.join(app.static_folder or 'static', 'images', 'mosaic')
+    if not os.path.isdir(folder):
+        return []
+    exts = ('.jpg', '.jpeg', '.png', '.webp', '.gif')
+    files = sorted([f for f in os.listdir(folder) if f.lower().endswith(exts)])
+    return [f"/static/images/mosaic/{f}" for f in files]
+
 @app.route("/")
 def home():
     return render_template("index.html", mosaic_images=get_mosaic_images())
