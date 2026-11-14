@@ -1,5 +1,3 @@
-import psycopg2
-from psycopg2.extras import RealDictCursor
 import os
 from functools import wraps
 from flask import Flask, render_template, request, jsonify, session
@@ -257,42 +255,18 @@ def update_password():
 
 
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
 
-def get_db_conn():
-    return psycopg2.connect(DATABASE_URL) if DATABASE_URL else None
+from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 
-def init_chat_tables():
-    conn = get_db_conn()
-    if not conn:
-        return
+def fmt_est(iso_str):
+    if not iso_str:
+        return ""
     try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS chat_messages (
-                    id SERIAL PRIMARY KEY,
-                    room_name TEXT NOT NULL,
-                    sender_handle TEXT NOT NULL,
-                    sender_email TEXT,
-                    message_text TEXT NOT NULL,
-                    created_at TIMESTAMPTZ DEFAULT NOW()
-                );
-            """)
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS chat_presence (
-                    session_token TEXT PRIMARY KEY,
-                    room_name TEXT NOT NULL,
-                    member_handle TEXT NOT NULL,
-                    last_seen TIMESTAMPTZ DEFAULT NOW()
-                );
-            """)
-        conn.commit()
-    except Exception as e:
-        print("Chat DB init error:", e)
-    finally:
-        conn.close()
-
-init_chat_tables()
+        dt = datetime.fromisoformat(iso_str.replace("Z", "+00:00")).astimezone(ZoneInfo("America/New_York"))
+        return dt.strftime("%I:%M %p").lstrip("0")
+    except Exception:
+        return ""
 
 @app.route("/api/chat/state", methods=["GET", "POST"])
 def chat_state():
@@ -301,35 +275,32 @@ def chat_state():
     client_id = (request.args.get("client_id") or data.get("client_id") or "").strip()
     user = session.get("user") or {}
     handle = (data.get("handle") or user.get("handle") or (user.get("email", "").split("@")[0] if user.get("email") else "CaregiverGuest")).strip()
-    conn = get_db_conn()
-    if not conn:
+    if not supabase:
         return jsonify({"messages": [], "room_active": 1, "total_active": 1})
     try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            if client_id:
-                cur.execute("""
-                    INSERT INTO chat_presence (session_token, room_name, member_handle, last_seen)
-                    VALUES (%s, %s, %s, NOW())
-                    ON CONFLICT (session_token)
-                    DO UPDATE SET room_name = EXCLUDED.room_name, member_handle = EXCLUDED.member_handle, last_seen = NOW();
-                """, (client_id, room, handle))
-            cur.execute("DELETE FROM chat_presence WHERE last_seen < NOW() - INTERVAL '20 seconds';")
-            cur.execute("SELECT COUNT(DISTINCT session_token) AS cnt FROM chat_presence WHERE room_name = %s;", (room,))
-            room_active = max(1, int(cur.fetchone()["cnt"] or 1))
-            cur.execute("SELECT COUNT(DISTINCT session_token) AS cnt FROM chat_presence;")
-            total_active = max(1, int(cur.fetchone()["cnt"] or 1))
-            cur.execute("""
-                SELECT id, room_name, sender_handle, message_text,
-                       TO_CHAR(created_at AT TIME ZONE 'America/New_York', 'HH12:MI AM') AS time_str
-                FROM chat_messages WHERE room_name = %s ORDER BY id DESC LIMIT 60;
-            """, (room,))
-            rows = list(reversed(cur.fetchall()))
-        conn.commit()
+        now_utc = datetime.now(timezone.utc)
+        if client_id:
+            supabase.table("chat_presence").upsert({
+                "session_token": client_id,
+                "room_name": room,
+                "member_handle": handle,
+                "last_seen": now_utc.isoformat()
+            }).execute()
+        cutoff = (now_utc - timedelta(seconds=20)).isoformat()
+        supabase.table("chat_presence").delete().lt("last_seen", cutoff).execute()
+
+        pres_res = supabase.table("chat_presence").select("session_token, room_name").execute()
+        pres_rows = pres_res.data or []
+        total_active = max(1, len(pres_rows))
+        room_active = max(1, sum(1 for r in pres_rows if r.get("room_name") == room))
+
+        msg_res = supabase.table("chat_messages").select("*").eq("room_name", room).order("id", desc=True).limit(60).execute()
+        rows = list(reversed(msg_res.data or []))
+        for r in rows:
+            r["time_str"] = fmt_est(r.get("created_at"))
         return jsonify({"messages": rows, "room_active": room_active, "total_active": total_active})
     except Exception as e:
-        return jsonify({"error": str(e), "messages": [], "room_active": 1, "total_active": 1}), 500
-    finally:
-        conn.close()
+        return jsonify({"error": str(e), "messages": [], "room_active": 1, "total_active": 1})
 
 @app.route("/api/chat/send", methods=["POST"])
 def chat_send():
@@ -341,132 +312,57 @@ def chat_send():
     user = session.get("user") or {}
     sender_email = user.get("email", "")
     sender_handle = (data.get("handle") or user.get("handle") or (sender_email.split("@")[0] if sender_email else "CaregiverMember")).strip()
-    conn = get_db_conn()
-    if not conn:
+    if not supabase:
         return jsonify({"error": "Database not connected"}), 500
     try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("""
-                INSERT INTO chat_messages (room_name, sender_handle, sender_email, message_text)
-                VALUES (%s, %s, %s, %s)
-                RETURNING id, room_name, sender_handle, message_text,
-                          TO_CHAR(created_at AT TIME ZONE 'America/New_York', 'HH12:MI AM') AS time_str;
-            """, (room, sender_handle, sender_email, text))
-            msg = cur.fetchone()
-        conn.commit()
+        res = supabase.table("chat_messages").insert({
+            "room_name": room,
+            "sender_handle": sender_handle,
+            "sender_email": sender_email,
+            "message_text": text
+        }).execute()
+        msg = (res.data or [{}])[0]
+        msg["time_str"] = fmt_est(msg.get("created_at"))
         return jsonify({"ok": True, "message": msg})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    finally:
-        conn.close()
 
 @app.route("/api/chat/leave", methods=["POST"])
 def chat_leave():
     data = request.get_json(silent=True) or {}
     client_id = (data.get("client_id") or "").strip()
-    conn = get_db_conn()
-    if conn and client_id:
+    if supabase and client_id:
         try:
-            with conn.cursor() as cur:
-                cur.execute("DELETE FROM chat_presence WHERE session_token = %s;", (client_id,))
-            conn.commit()
-        finally:
-            conn.close()
+            supabase.table("chat_presence").delete().eq("session_token", client_id).execute()
+        except Exception:
+            pass
     return jsonify({"ok": True})
-
-
-
-# --- COMMUNITY CORK BOARD (ADVICE & ZERO-PROFIT GIFT/LOAN BOARD) ---
-def init_corkboard_tables():
-    conn = get_db_conn()
-    if not conn:
-        return
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS corkboard_notes (
-                    id SERIAL PRIMARY KEY,
-                    note_type TEXT NOT NULL DEFAULT 'advice',
-                    author_handle TEXT NOT NULL,
-                    author_email TEXT,
-                    title TEXT NOT NULL,
-                    body TEXT NOT NULL,
-                    zip_code TEXT DEFAULT '',
-                    photo_data TEXT DEFAULT '',
-                    pin_color TEXT DEFAULT '#ef4444',
-                    note_color TEXT DEFAULT '#fef08a',
-                    tilt_deg NUMERIC(4,1) DEFAULT 0.0,
-                    is_claimed BOOLEAN DEFAULT FALSE,
-                    is_flagged BOOLEAN DEFAULT FALSE,
-                    flag_reason TEXT DEFAULT '',
-                    created_at TIMESTAMPTZ DEFAULT NOW()
-                );
-            """)
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS corkboard_replies (
-                    id SERIAL PRIMARY KEY,
-                    note_id INTEGER REFERENCES corkboard_notes(id) ON DELETE CASCADE,
-                    author_handle TEXT NOT NULL,
-                    reply_text TEXT NOT NULL,
-                    created_at TIMESTAMPTZ DEFAULT NOW()
-                );
-            """)
-        conn.commit()
-    except Exception as e:
-        print("Corkboard DB init error:", e)
-    finally:
-        conn.close()
-
-init_corkboard_tables()
 
 @app.route("/api/corkboard", methods=["GET"])
 def get_corkboard():
     filter_type = (request.args.get("type") or "all").strip().lower()
-    zip_q = (request.args.get("zip") or "").strip()
-    conn = get_db_conn()
-    if not conn:
+    zip_q = (request.args.get("zip") or "").strip().lower()
+    if not supabase:
         return jsonify({"notes": []})
     try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            query = """
-                SELECT id, note_type, author_handle, title, body, zip_code, photo_data,
-                       pin_color, note_color, tilt_deg, is_claimed, is_flagged, flag_reason,
-                       TO_CHAR(created_at AT TIME ZONE 'America/New_York', 'Mon DD, HH12:MI AM') AS time_str
-                FROM corkboard_notes
-                WHERE 1=1
-            """
-            params = []
-            if filter_type in ("advice", "item"):
-                query += " AND note_type = %s"
-                params.append(filter_type)
-            if zip_q:
-                query += " AND zip_code ILIKE %s"
-                params.append(f"%{zip_q}%")
-            query += " ORDER BY is_claimed ASC, id DESC LIMIT 60;"
-            cur.execute(query, params)
-            notes = cur.fetchall()
-
-            note_ids = [n["id"] for n in notes]
-            replies_map = {nid: [] for nid in note_ids}
-            if note_ids:
-                cur.execute("""
-                    SELECT id, note_id, author_handle, reply_text,
-                           TO_CHAR(created_at AT TIME ZONE 'America/New_York', 'Mon DD, HH12:MI AM') AS time_str
-                    FROM corkboard_replies
-                    WHERE note_id = ANY(%s)
-                    ORDER BY id ASC;
-                """, (note_ids,))
-                for r in cur.fetchall():
-                    replies_map[r["note_id"]].append(r)
-
-            for n in notes:
-                n["tilt_deg"] = float(n["tilt_deg"] or 0.0)
-                n["replies"] = replies_map.get(n["id"], [])
+        q = supabase.table("corkboard_notes").select("*").order("is_claimed", desc=False).order("id", desc=True).limit(60)
+        if filter_type in ("advice", "item"):
+            q = q.eq("note_type", filter_type)
+        notes = q.execute().data or []
+        if zip_q:
+            notes = [n for n in notes if zip_q in (n.get("zip_code") or "").lower()]
+        note_ids = [n["id"] for n in notes]
+        replies_map = {nid: [] for nid in note_ids}
+        if note_ids:
+            rep_res = supabase.table("corkboard_replies").select("*").in_("note_id", note_ids).order("id", desc=False).execute()
+            for r in (rep_res.data or []):
+                replies_map.setdefault(r["note_id"], []).append(r)
+        for n in notes:
+            n["tilt_deg"] = float(n.get("tilt_deg") or 0.0)
+            n["replies"] = replies_map.get(n["id"], [])
         return jsonify({"notes": notes})
     except Exception as e:
-        return jsonify({"error": str(e), "notes": []}), 500
-    finally:
-        conn.close()
+        return jsonify({"error": str(e), "notes": []})
 
 @app.route("/api/corkboard/pin", methods=["POST"])
 def pin_corkboard_note():
@@ -478,40 +374,27 @@ def pin_corkboard_note():
     zip_code = (data.get("zip_code") or "").strip()[:25]
     photo_data = (data.get("photo_data") or "").strip()
     free_pledge = bool(data.get("free_pledge"))
-
     if not title or not body:
         return jsonify({"error": "Please include a headline and note message."}), 400
     if note_type == "item" and not free_pledge:
         return jsonify({"error": "You must check the 100% Free Gift/Loan Pledge before pinning an item."}), 400
     if len(photo_data) > 650000:
         return jsonify({"error": "Photo is too large. Please pick a smaller image."}), 400
-
     user = session.get("user") or {}
     email = user.get("email", "")
     handle = (data.get("handle") or user.get("handle") or (email.split("@")[0] if email else "CaregiverMember")).strip()
-
-    pin_colors = ["#ef4444", "#3b82f6", "#22c55e", "#f59e0b", "#ec4899", "#a855f7", "#06b6d4"]
-    note_colors = ["#fef08a", "#bae6fd", "#fecdd3", "#bbf7d0", "#fed7aa", "#e9d5ff"]
-    pin_color = random.choice(pin_colors)
-    note_color = random.choice(note_colors)
+    pin_color = random.choice(["#ef4444", "#3b82f6", "#22c55e", "#f59e0b", "#ec4899", "#a855f7", "#06b6d4"])
+    note_color = random.choice(["#fef08a", "#bae6fd", "#fecdd3", "#bbf7d0", "#fed7aa", "#e9d5ff"])
     tilt_deg = round(random.uniform(-2.2, 2.2), 1)
-
-    conn = get_db_conn()
-    if not conn:
-        return jsonify({"error": "Database not connected"}), 500
     try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                INSERT INTO corkboard_notes
-                (note_type, author_handle, author_email, title, body, zip_code, photo_data, pin_color, note_color, tilt_deg)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-            """, (note_type, handle, email, title, body, zip_code, photo_data, pin_color, note_color, tilt_deg))
-        conn.commit()
+        supabase.table("corkboard_notes").insert({
+            "note_type": note_type, "author_handle": handle, "author_email": email,
+            "title": title, "body": body, "zip_code": zip_code, "photo_data": photo_data,
+            "pin_color": pin_color, "note_color": note_color, "tilt_deg": tilt_deg
+        }).execute()
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    finally:
-        conn.close()
 
 @app.route("/api/corkboard/reply", methods=["POST"])
 def reply_corkboard_note():
@@ -523,53 +406,34 @@ def reply_corkboard_note():
     user = session.get("user") or {}
     email = user.get("email", "")
     handle = (data.get("handle") or user.get("handle") or (email.split("@")[0] if email else "CaregiverMember")).strip()
-    conn = get_db_conn()
-    if not conn:
-        return jsonify({"error": "Database not connected"}), 500
     try:
-        with conn.cursor() as cur:
-            cur.execute("INSERT INTO corkboard_replies (note_id, author_handle, reply_text) VALUES (%s, %s, %s);", (note_id, handle, reply_text))
-        conn.commit()
+        supabase.table("corkboard_replies").insert({"note_id": note_id, "author_handle": handle, "reply_text": reply_text}).execute()
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    finally:
-        conn.close()
 
 @app.route("/api/corkboard/flag", methods=["POST"])
 def flag_corkboard_note():
     data = request.get_json(silent=True) or {}
     note_id = data.get("note_id")
     reason = (data.get("reason") or "Suspected selling / marketplace violation").strip()[:250]
-    conn = get_db_conn()
-    if not conn or not note_id:
-        return jsonify({"error": "Invalid request"}), 400
     try:
-        with conn.cursor() as cur:
-            cur.execute("UPDATE corkboard_notes SET is_flagged = TRUE, flag_reason = %s WHERE id = %s;", (reason, note_id))
-        conn.commit()
+        supabase.table("corkboard_notes").update({"is_flagged": True, "flag_reason": reason}).eq("id", note_id).execute()
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    finally:
-        conn.close()
 
 @app.route("/api/corkboard/claim", methods=["POST"])
 def claim_corkboard_note():
     data = request.get_json(silent=True) or {}
     note_id = data.get("note_id")
-    conn = get_db_conn()
-    if not conn or not note_id:
-        return jsonify({"error": "Invalid request"}), 400
     try:
-        with conn.cursor() as cur:
-            cur.execute("UPDATE corkboard_notes SET is_claimed = NOT is_claimed WHERE id = %s;", (note_id,))
-        conn.commit()
+        cur_row = supabase.table("corkboard_notes").select("is_claimed").eq("id", note_id).execute().data
+        new_val = not bool(cur_row[0]["is_claimed"]) if cur_row else True
+        supabase.table("corkboard_notes").update({"is_claimed": new_val}).eq("id", note_id).execute()
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    finally:
-        conn.close()
 
 @app.route("/api/corkboard/admin-delete", methods=["POST"])
 def admin_delete_corkboard_note():
@@ -578,18 +442,11 @@ def admin_delete_corkboard_note():
     note_id = data.get("note_id")
     if pin != os.environ.get("ADMIN_PIN", "4321"):
         return jsonify({"error": "Invalid Admin PIN"}), 403
-    conn = get_db_conn()
-    if not conn or not note_id:
-        return jsonify({"error": "Invalid request"}), 400
     try:
-        with conn.cursor() as cur:
-            cur.execute("DELETE FROM corkboard_notes WHERE id = %s;", (note_id,))
-        conn.commit()
+        supabase.table("corkboard_notes").delete().eq("id", note_id).execute()
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    finally:
-        conn.close()
 
 
 if __name__ == "__main__":
