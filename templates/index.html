@@ -404,14 +404,14 @@
 
                         <div class="harbor-underline-group">
                             <label for="loginPasswordInput">Password</label>
-                            <input type="password" id="loginPasswordInput" class="harbor-underline-input" placeholder="••••••••">
+                            <div style="position:relative; display:flex; align-items:center; width:100%;"><input type="password" id="loginPasswordInput" class="harbor-underline-input" placeholder="••••••••"><button type="button" onclick="togglePwVisibility('loginPasswordInput', this)" aria-label="Show password" style="position:absolute; right:8px; background:none; border:none; color:#99f6e4; font-size:0.78rem; font-weight:700; cursor:pointer; padding:4px 6px;">Show</button></div>
                         </div>
 
                         <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.82rem; color:#cbd5e1; margin:4px 0 18px;">
                             <label for="rememberMeCheck" style="display:inline-flex; align-items:center; gap:7px; cursor:pointer;">
                                 <input type="checkbox" id="rememberMeCheck" style="width:auto; accent-color:#2dd4bf; cursor:pointer;">
                                 Remember Me
-                            </label><button type="button" onclick="handleForgotPassword()" style="background:none; border:none; color:#99f6e4; font-size:0.83rem; font-weight:600; text-decoration:underline; cursor:pointer; padding:0;">Forgot password?</button></div>
+                            </label><button type="button" onclick="handleForgotPassword()" style="background:none; border:none; color:#99f6e4; font-size:0.83rem; font-weight:600; text-decoration:underline; cursor:pointer; padding:0;">Forgot password?</button><br><button type="button" onclick="triggerTrustedBackupRecovery()" style="background:none; border:none; color:#5eead4; font-size:0.76rem; opacity:0.9; text-decoration:underline; cursor:pointer; padding:2px 0 0;">Backup recovery</button></div>
                         </div>
 
                         <button type="button" onclick="handleLoginClick()" class="harbor-primary-btn">
@@ -459,7 +459,7 @@
 
                             <div class="harbor-underline-group">
                                 <label for="signupPasswordInput">Create Password (6+ characters)</label>
-                                <input type="password" id="signupPasswordInput" class="harbor-underline-input" placeholder="••••••••" minlength="6" required>
+                                <div style="position:relative; display:flex; align-items:center; width:100%;"><input type="password" id="signupPasswordInput" class="harbor-underline-input" placeholder="••••••••" minlength="6" required><button type="button" onclick="togglePwVisibility('signupPasswordInput', this)" aria-label="Show password" style="position:absolute; right:8px; background:none; border:none; color:#99f6e4; font-size:0.78rem; font-weight:700; cursor:pointer; padding:4px 6px;">Show</button></div>
                             </div>
 
                             <div class="harbor-underline-group">
@@ -854,6 +854,21 @@
             } catch (err) {
                 console.error('Reset password error:', err);
                 alert('Unable to send reset link right now. Please try again in a moment.');
+            }
+        }
+
+        
+        function togglePwVisibility(inputId, btn) {
+            const inp = document.getElementById(inputId);
+            if (!inp) return;
+            if (inp.type === 'password') {
+                inp.type = 'text';
+                btn.textContent = 'Hide';
+                btn.setAttribute('aria-label', 'Hide password');
+            } else {
+                inp.type = 'password';
+                btn.textContent = 'Show';
+                btn.setAttribute('aria-label', 'Show password');
             }
         }
 
