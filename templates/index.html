@@ -541,40 +541,50 @@
                         <button type="button" onclick="handleForgotPassword()" style="background:none; border:none; color:#99f6e4; font-size:0.83rem; font-weight:600; text-decoration:underline; cursor:pointer; padding:0;">Forgot password?</button></div>
                         </div>
 
-                        <div style="margin: 18px auto 8px; max-width: 310px; text-align: center;">
+                        <div style="margin: 18px auto 12px; max-width: 315px; text-align: center;">
                             <button type="button" onclick="handleLoginClick()" class="harbor-primary-btn harbor-sanctuary-sign" aria-label="Enter The Harbor Sanctuary" style="width:100%; background:transparent; border:none; padding:0; cursor:pointer; display:flex; flex-direction:column; align-items:center; transition:transform 0.2s ease;">
-                                <!-- Top Crest Anchor Painted in DMD Crimson Red & Autism Spectrum Blue/Gold -->
-                                <div style="width:54px; height:54px; border-radius:50%; background:linear-gradient(135deg, #dc2626 0%, #f59e0b 35%, #14b8a6 70%, #2563eb 100%); padding:3px; box-shadow:0 6px 18px rgba(220,38,38,0.35), 0 0 22px rgba(37,99,235,0.35); z-index:2; margin-bottom:-12px;">
+                                <!-- Top Crest: True Nautical Anchor Painted in DMD Crimson & Autism Spectrum Colors -->
+                                <div style="width:58px; height:58px; border-radius:50%; background:linear-gradient(135deg, #dc2626 0%, #f59e0b 35%, #14b8a6 70%, #2563eb 100%); padding:3px; box-shadow:0 6px 18px rgba(220,38,38,0.4), 0 0 22px rgba(37,99,235,0.4); z-index:2; margin-bottom:-14px;">
                                     <div style="width:100%; height:100%; border-radius:50%; background:#071b21; display:flex; align-items:center; justify-content:center;">
-                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#dmdAutismGrad)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                        <svg width="34" height="34" viewBox="0 0 64 64" fill="none">
                                             <defs>
-                                                <linearGradient id="dmdAutismGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <linearGradient id="trueAnchorGrad" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
                                                     <stop offset="0%" stop-color="#ef4444"/>
                                                     <stop offset="35%" stop-color="#f59e0b"/>
                                                     <stop offset="70%" stop-color="#2dd4bf"/>
                                                     <stop offset="100%" stop-color="#3b82f6"/>
                                                 </linearGradient>
                                             </defs>
-                                            <circle cx="12" cy="5" r="3"/>
-                                            <line x1="12" y1="22" x2="12" y2="8"/>
-                                            <path d="M5 12H2a10 10 0 0 0 20 0h-3"/>
+                                            <circle cx="32" cy="11" r="5.5" stroke="url(#trueAnchorGrad)" stroke-width="4"/>
+                                            <line x1="20" y1="22" x2="44" y2="22" stroke="url(#trueAnchorGrad)" stroke-width="4.5" stroke-linecap="round"/>
+                                            <line x1="32" y1="16.5" x2="32" y2="53" stroke="url(#trueAnchorGrad)" stroke-width="4.8" stroke-linecap="round"/>
+                                            <path d="M13 38 C13 49, 22 54, 32 54 C42 54, 51 49, 51 38" stroke="url(#trueAnchorGrad)" stroke-width="4.8" stroke-linecap="round" fill="none"/>
+                                            <polygon points="13,31 7,41 19,40" fill="#ef4444"/>
+                                            <polygon points="51,31 45,40 57,41" fill="#3b82f6"/>
                                         </svg>
                                     </div>
                                 </div>
 
-                                <!-- Hanging Sanctuary Sign Banner -->
-                                <div style="width:100%; background:linear-gradient(180deg, rgba(13,42,50,0.98) 0%, rgba(7,24,30,0.98) 100%); border:2px solid transparent; border-image:linear-gradient(90deg, #dc2626, #f59e0b, #14b8a6, #2563eb) 1; border-radius:14px; padding:18px 16px 13px; box-shadow:0 12px 28px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.12); position:relative;">
-                                    <div style="font-size:1.25rem; font-weight:900; letter-spacing:0.22em; color:#ffffff; text-shadow:0 2px 10px rgba(45,212,191,0.45);">ENTER</div>
-                                    <div style="margin-top:5px; font-size:0.78rem; font-weight:600; color:#cbd5e1; line-height:1.35;">
-                                        Someone who understands is waiting on the other side
+                                <!-- Sanctuary Plaque Box -->
+                                <div style="width:100%; background:linear-gradient(180deg, rgba(13,42,50,0.98) 0%, rgba(7,24,30,0.98) 100%); border:2px solid transparent; border-image:linear-gradient(90deg, #dc2626, #f59e0b, #14b8a6, #2563eb) 1; border-radius:14px; padding:20px 16px 22px; box-shadow:0 12px 28px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.12); position:relative; text-align:center;">
+                                    <div style="font-size:1.22rem; font-weight:900; letter-spacing:0.24em; color:#ffffff; text-shadow:0 2px 10px rgba(255,255,255,0.2);">ENTER</div>
+                                    <div style="margin-top:4px; font-size:1.32rem; font-weight:900; letter-spacing:0.14em; text-transform:uppercase; background:linear-gradient(90deg, #ef4444 0%, #f59e0b 33%, #2dd4bf 68%, #3b82f6 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.55));">
+                                        THE HARBOR
                                     </div>
-                                    <div style="margin-top:6px; display:inline-flex; align-items:center; gap:6px; font-size:0.68rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#99f6e4;">
-                                        <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#ef4444;"></span>
+
+                                    <!-- Small Bottom-Left Lewie & Marcus Network Tag -->
+                                    <div style="position:absolute; left:10px; bottom:6px; display:inline-flex; align-items:center; gap:4px; font-size:0.54rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:rgba(203,213,225,0.72);">
+                                        <span style="display:inline-block; width:5px; height:5px; border-radius:50%; background:#ef4444;"></span>
                                         <span>The Lewie &amp; Marcus Network</span>
-                                        <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#3b82f6;"></span>
+                                        <span style="display:inline-block; width:5px; height:5px; border-radius:50%; background:#3b82f6;"></span>
                                     </div>
                                 </div>
                             </button>
+
+                            <!-- Suspenseful / Atmospheric Tagline Underneath the Box -->
+                            <div style="margin-top:10px; font-family:Georgia, 'Times New Roman', serif; font-style:italic; font-size:0.86rem; letter-spacing:0.04em; color:#cbd5e1; text-shadow:0 2px 8px rgba(0,0,0,0.65); line-height:1.4;">
+                                Someone who understands is waiting on the other side...
+                            </div>
                         </div>
 
                         <div style="text-align:center; margin-top:16px; font-size:0.88rem; color:#e2e8f0;">
