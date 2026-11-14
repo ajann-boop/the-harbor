@@ -29,6 +29,164 @@
             text-align: center;
         }
     </style>
+
+    <style id="harbor-onboarding-theme">
+        /* Top Under Construction Banner */
+        .harbor-construction-banner {
+            width: 100%;
+            background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b);
+            color: #1e293b;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 9px 14px;
+            letter-spacing: 0.2px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+            position: relative;
+            z-index: 1200;
+            border-bottom: 1px solid rgba(180, 83, 9, 0.35);
+        }
+
+        /* Teal Chat-Bubble & Heart-Trail Pattern Background */
+        .harbor-chat-pattern-bg {
+            background-color: #0e3b40 !important;
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(45, 212, 191, 0.14), transparent 55%),
+                radial-gradient(circle at 80% 80%, rgba(14, 165, 233, 0.14), transparent 55%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg fill='none' stroke='%235eead4' stroke-opacity='0.14' stroke-width='1.5'%3E%3Cpath d='M24 34c0-9 9-16 20-16s20 7 20 16-9 16-20 16c-3 0-6-.5-8.5-1.5L26 53l2.5-7.5C25.6 42.6 24 38.5 24 34z'/%3E%3Ccircle cx='38' cy='34' r='1.3' fill='%235eead4' fill-opacity='0.22'/%3E%3Ccircle cx='44' cy='34' r='1.3' fill='%235eead4' fill-opacity='0.22'/%3E%3Ccircle cx='50' cy='34' r='1.3' fill='%235eead4' fill-opacity='0.22'/%3E%3Cpath d='M114 118c0-9 9-16 20-16s20 7 20 16-9 16-20 16c-3 0-6-.5-8.5-1.5L116 137l2.5-7.5c-2.9-2.9-4.5-7-4.5-11.5z'/%3E%3Cpath d='M134 114c-1.8-2.4-5.4-2.2-7 .2-1.4 2.1-.6 4.8 7 9.3 7.6-4.5 8.4-7.2 7-9.3-1.6-2.4-5.2-2.6-7-.2z' fill='%235eead4' fill-opacity='0.18'/%3E%3Cpath d='M68 48 Q 92 75, 112 104' stroke-dasharray='3 5'/%3E%3Cpath d='M42 132c-1.5-2-4.5-1.8-5.8.2-1.2 1.8-.5 4 5.8 7.8 6.3-3.8 7-6 5.8-7.8-1.3-2-4.3-2.2-5.8-.2z' fill='%235eead4' fill-opacity='0.16'/%3E%3Cpath d='M132 38c-1.5-2-4.5-1.8-5.8.2-1.2 1.8-.5 4 5.8 7.8 6.3-3.8 7-6 5.8-7.8-1.3-2-4.3-2.2-5.8-.2z' fill='%235eead4' fill-opacity='0.16'/%3E%3C/g%3E%3C/svg%3E") !important;
+            background-repeat: repeat !important;
+            background-size: auto, auto, 180px 180px !important;
+            border-radius: 20px;
+            padding: 24px 16px;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+        }
+
+        /* Split Welcome + Frosted-Glass Auth Layout */
+        .harbor-split-shell {
+            max-width: 920px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 22px;
+            align-items: stretch;
+        }
+        @media (min-width: 780px) {
+            .harbor-split-shell {
+                grid-template-columns: 1.05fr 1fr;
+                padding: 12px;
+            }
+        }
+
+        .harbor-welcome-pane {
+            background: linear-gradient(155deg, rgba(15, 23, 42, 0.62), rgba(13, 148, 136, 0.28));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 18px;
+            padding: 28px 24px;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-align: left;
+        }
+
+        .harbor-glass-card {
+            background: rgba(15, 23, 42, 0.66);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            padding: 28px 24px;
+            color: #f8fafc;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+        }
+
+        /* Minimalist Underline Inputs */
+        .harbor-underline-group {
+            position: relative;
+            margin-bottom: 18px;
+            text-align: left;
+        }
+        .harbor-underline-group label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #99f6e4;
+            margin-bottom: 4px;
+            letter-spacing: 0.3px;
+        }
+        .harbor-underline-input {
+            width: 100%;
+            box-sizing: border-box;
+            background: transparent !important;
+            border: none !important;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.55) !important;
+            border-radius: 0 !important;
+            padding: 9px 4px !important;
+            color: #ffffff !important;
+            font-size: 0.96rem !important;
+            outline: none !important;
+            transition: border-color 0.2s ease;
+        }
+        .harbor-underline-input::placeholder {
+            color: rgba(226, 232, 240, 0.58) !important;
+        }
+        .harbor-underline-input:focus {
+            border-bottom-color: #2dd4bf !important;
+        }
+        .harbor-underline-select, .harbor-underline-textarea {
+            width: 100%;
+            box-sizing: border-box;
+            background: rgba(15, 23, 42, 0.55) !important;
+            border: 1px solid rgba(255, 255, 255, 0.28) !important;
+            border-radius: 10px !important;
+            padding: 10px 12px !important;
+            color: #ffffff !important;
+            font-size: 0.92rem !important;
+            outline: none !important;
+        }
+        .harbor-underline-select option {
+            background: #0f172a;
+            color: #ffffff;
+        }
+
+        .harbor-primary-btn {
+            width: 100%;
+            padding: 13px 20px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #0d9488, #0284c7);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.96rem;
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(13, 148, 136, 0.38);
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+        .harbor-primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 22px rgba(13, 148, 136, 0.5);
+        }
+
+        .harbor-donor-btn {
+            width: 100%;
+            padding: 12px 18px;
+            border: 1px solid rgba(251, 191, 36, 0.65);
+            border-radius: 50px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.32));
+            color: #fef3c7;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.12s ease;
+        }
+        .harbor-donor-btn:hover {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.36), rgba(217, 119, 6, 0.46));
+            transform: translateY(-1px);
+        }
+    </style>
+
 </head>
 <body>
     <div class="app-container">
@@ -49,75 +207,153 @@
         <main class="dashboard-main">
             
             <!-- Global Caregiver Sanctuary Welcome Card (Auth Screen) -->
-            <section class="fuelpay-hero-card" id="home-hero-section">
-                <!-- Top Header Banner with Left Anchor and Centered Divider Video Badge -->
-                <div class="visual-showcase">
-                    <div class="sanctuary-tag"><i class="fa-solid fa-anchor"></i> Sanctuary</div>
-                    <div class="earth-learn-more-badge" onclick="openVideoModal()" title="Click to watch master presentation">
-                        <i class="fa-solid fa-play-circle"></i> Learn More & Watch Video
-                    </div>
-                </div>
+            <section class="fuelpay-hero-card harbor-chat-pattern-bg" id="home-hero-section">
+            <div class="harbor-split-shell">
+                <!-- Left Panel: Welcome & Caregiver Mission -->
+                <div class="harbor-welcome-pane">
+                    <div>
+                        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:18px;">
+                            <span style="display:inline-flex; align-items:center; gap:6px; background:rgba(45,212,191,0.18); border:1px solid rgba(94,234,212,0.4); color:#99f6e4; padding:5px 12px; border-radius:50px; font-size:0.8rem; font-weight:700;">
+                                <i class="fa-solid fa-anchor"></i> Share Your Walk • Sanctuary
+                            </span>
+                            <button type="button" onclick="openVideoModal()" style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); color:#f8fafc; padding:5px 12px; border-radius:50px; font-size:0.78rem; font-weight:600; cursor:pointer;">
+                                <i class="fa-solid fa-play-circle"></i> Watch Intro
+                            </button>
+                        </div>
 
-                <div class="white-info-card">
-                    <h2 class="card-main-title">Welcome to <span class="highlight-text">The Harbor</span></h2>
-                    <p class="card-subtitle">Connecting caregivers from all walks of life to the support network we all need.</p>
-                    <p class="refuge-quote">"You don't have to weather the storm by yourself. Come find that needed connection."</p>
-
-                    <!-- Member Log In Form (Default Active View) -->
-                    <div id="loginFormContainer" class="auth-form-wrapper">
-                        <div class="auth-inner-form">
-                            <input type="email" id="loginMemberId" placeholder="Member ID">
-                            <input type="password" id="loginPasswordInput" placeholder="Password">
-                            
-                            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #334155; margin: 4px 0;">
-                                <input type="checkbox" id="rememberMeCheck" style="width: auto; cursor: pointer;">
-                                <label for="rememberMeCheck" style="cursor: pointer;">Remember Me</label>
-                            </div>
-
-                            <button type="button" onclick="handleLoginClick()" class="get-started-btn">Enter The Harbor</button>
-                            
-                            <!-- Distinct Oval Pill Buttons for Guest Entrance & Join Us -->
-                            <div style="margin-top: 16px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 16px; display: flex; flex-direction: column; gap: 10px; align-items: center;">
-                                <button type="button" onclick="openGuestEntrance()" style="width: 100%; background: #0284c7; color: #ffffff; border: none; border-radius: 50px; padding: 12px 24px; font-weight: 700; font-size: 0.88rem; cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); transition: transform 0.1s;">🌿 Guest Entrance (Donor & Support)</button>
-                                <button type="button" onclick="switchAuthTab('signup')" style="width: 100%; background: #16a34a; color: #ffffff; border: none; border-radius: 50px; padding: 12px 24px; font-weight: 700; font-size: 0.88rem; cursor: pointer; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3); transition: transform 0.1s;">✨ Join Us</button>
-                            </div>
+                        <h2 style="font-size:1.85rem; line-height:1.2; margin:0 0 12px; font-weight:800; color:#ffffff;">
+                            Welcome to <span style="color:#5eead4;">The Harbor</span>
+                        </h2>
+                        <p style="font-size:0.98rem; line-height:1.55; color:#e2e8f0; margin:0 0 16px;">
+                            Connecting caregivers from all walks of life to the support network we all need.
+                        </p>
+                        <div style="background:rgba(15,23,42,0.45); border-left:3px solid #2dd4bf; padding:12px 14px; border-radius:0 12px 12px 0; font-style:italic; color:#ccfbf1; font-size:0.9rem; line-height:1.5;">
+                            "You don't have to weather the storm by yourself. Come find that needed connection."
                         </div>
                     </div>
 
-                    <!-- Become a Member: Create Account Form (Initially Hidden) -->
-                    <div id="signupFormContainer" class="auth-form-wrapper" style="display: none;">
-                        <form onsubmit="handleSignup(event)" class="auth-inner-form">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <h3 style="font-size: 0.95rem; color: #2563eb; margin: 0;">Membership Application</h3>
-                                <button type="button" onclick="switchAuthTab('login')" style="background: none; border: none; color: #64748b; cursor: pointer; font-size: 0.8rem;"><i class="fa-solid fa-arrow-left"></i> Back to Login</button>
-                            </div>
-                            <input type="text" id="signupMemberIdInput" placeholder="Choose Community ID / Name" required>
-                            <input type="email" id="signupEmailInput" placeholder="Email Address" required>
-                    <input type="password" id="signupPasswordInput" placeholder="Create Password" required>
-                            <input type="url" id="signupPicUrlInput" placeholder="Photo / Image URL for Profile (Optional)">
-                            <textarea id="signupJourney" placeholder="Short description of your journey..." rows="2" required></textarea>
-                            
-                            <div style="text-align: left; margin: 10px 0 14px;">
-                        <label for="signupStormDuration" style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">
-                            How long have you been weathering this storm? (Optional)
-                        </label>
-                        <select id="signupStormDuration" style="width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; color: #1e293b; font-size: 0.95rem;">
-                            <option value="">Select timeframe (optional)...</option>
-                            <option value="Weathering the Storm: < 1 Year">Just starting out (Under 1 year)</option>
-                            <option value="Weathering the Storm: 1–3 Years">1 to 3 years</option>
-                            <option value="Weathering the Storm: 3–5 Years">3 to 5 years</option>
-                            <option value="Weathering the Storm: 5–10 Years">5 to 10 years</option>
-                            <option value="Weathering the Storm: 10–20 Years">10 to 20 years</option>
-                            <option value="Weathering the Storm: 20+ Years">20+ years</option>
-                        </select>
-                    </div>
-                    </div>
-
-                            <button type="submit" style="width: 100%; background: #16a34a; color: #ffffff; border: none; border-radius: 50px; padding: 12px 24px; font-weight: 700; font-size: 0.88rem; cursor: pointer; margin-top: 6px;">Submit Application</button>
-                        </form>
+                    <div style="margin-top:22px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.14); font-size:0.82rem; color:#cbd5e1; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-heart" style="color:#5eead4;"></i>
+                        <span>A safe, verified community built by caregivers, for caregivers.</span>
                     </div>
                 </div>
-            </section>
+
+                <!-- Right Panel: Frosted-Glass Member Login / Dedicated Membership Sign-Up -->
+                <div class="harbor-glass-card">
+                    <!-- VIEW 1: MEMBER LOGIN -->
+                    <div id="loginFormContainer">
+                        <div style="text-align:center; margin-bottom:20px;">
+                            <h3 style="margin:0 0 4px; font-size:1.4rem; font-weight:800; color:#ffffff;">Member Login</h3>
+                            <p style="margin:0; font-size:0.84rem; color:#cbd5e1;">Enter your caregiver sanctuary</p>
+                        </div>
+
+                        <div class="harbor-underline-group">
+                            <label for="loginMemberId">Member Email or ID</label>
+                            <input type="email" id="loginMemberId" class="harbor-underline-input" placeholder="you@example.com">
+                        </div>
+
+                        <div class="harbor-underline-group">
+                            <label for="loginPasswordInput">Password</label>
+                            <input type="password" id="loginPasswordInput" class="harbor-underline-input" placeholder="••••••••">
+                        </div>
+
+                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.82rem; color:#cbd5e1; margin:4px 0 18px;">
+                            <label for="rememberMeCheck" style="display:inline-flex; align-items:center; gap:7px; cursor:pointer;">
+                                <input type="checkbox" id="rememberMeCheck" style="width:auto; accent-color:#2dd4bf; cursor:pointer;">
+                                Remember Me
+                            </label>
+                        </div>
+
+                        <button type="button" onclick="handleLoginClick()" class="harbor-primary-btn">
+                            Enter The Harbor
+                        </button>
+
+                        <div style="text-align:center; margin-top:16px; font-size:0.88rem; color:#e2e8f0;">
+                            Not a member?
+                            <button type="button" onclick="switchAuthTab('signup')" style="background:none; border:none; color:#5eead4; font-weight:700; text-decoration:underline; cursor:pointer; padding:0 2px; font-size:0.88rem;">
+                                Click here
+                            </button>
+                        </div>
+
+                        <!-- Donor & Visitor Entrance Card Action -->
+                        <div style="margin-top:20px; padding-top:18px; border-top:1px solid rgba(255,255,255,0.16); text-align:center;">
+                            <p style="margin:0 0 10px; font-size:0.78rem; color:#cbd5e1; letter-spacing:0.2px;">
+                                Visiting to donate, partner, or support our mission?
+                            </p>
+                            <button type="button" onclick="openDirectDonorPortal()" class="harbor-donor-btn">
+                                🤝 Guest Entrance for Donors &amp; Visitors
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- VIEW 2: WELCOME — MEMBERSHIP SIGN-UP SCREEN -->
+                    <div id="signupFormContainer" style="display:none;">
+                        <div style="text-align:center; margin-bottom:18px;">
+                            <span style="display:inline-block; background:rgba(45,212,191,0.18); color:#99f6e4; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:50px; margin-bottom:6px;">
+                                Welcome • New Caregiver Membership
+                            </span>
+                            <h3 style="margin:0 0 4px; font-size:1.35rem; font-weight:800; color:#ffffff;">Join Share Your Walk</h3>
+                            <p style="margin:0; font-size:0.82rem; color:#cbd5e1;">Create your account—we'll send a 6-digit code to verify your email.</p>
+                        </div>
+
+                        <form onsubmit="handleSignup(event)">
+                            <div class="harbor-underline-group">
+                                <label for="signupMemberIdInput">Caregiver Handle / Display Name</label>
+                                <input type="text" id="signupMemberIdInput" class="harbor-underline-input" placeholder="e.g. HopeWalker" required>
+                            </div>
+
+                            <div class="harbor-underline-group">
+                                <label for="signupEmailInput">Email Address</label>
+                                <input type="email" id="signupEmailInput" class="harbor-underline-input" placeholder="you@example.com" required>
+                            </div>
+
+                            <div class="harbor-underline-group">
+                                <label for="signupPasswordInput">Create Password (6+ characters)</label>
+                                <input type="password" id="signupPasswordInput" class="harbor-underline-input" placeholder="••••••••" minlength="6" required>
+                            </div>
+
+                            <div class="harbor-underline-group">
+                                <label for="signupPicUrlInput">Profile Photo URL (Optional)</label>
+                                <input type="url" id="signupPicUrlInput" class="harbor-underline-input" placeholder="https://... (leave blank if none)">
+                            </div>
+
+                            <div style="margin-bottom:14px; text-align:left;">
+                                <label for="signupStormDuration" style="display:block; font-size:0.78rem; font-weight:600; color:#99f6e4; margin-bottom:6px;">
+                                    How long have you been weathering this storm? (Optional)
+                                </label>
+                                <select id="signupStormDuration" class="harbor-underline-select">
+                                    <option value="">Select timeframe (optional)...</option>
+                                    <option value="Weathering the Storm: < 1 Year">Just starting out (Under 1 year)</option>
+                                    <option value="Weathering the Storm: 1–3 Years">1 to 3 years</option>
+                                    <option value="Weathering the Storm: 3–5 Years">3 to 5 years</option>
+                                    <option value="Weathering the Storm: 5–10 Years">5 to 10 years</option>
+                                    <option value="Weathering the Storm: 10–20 Years">10 to 20 years</option>
+                                    <option value="Weathering the Storm: 20+ Years">20+ years</option>
+                                </select>
+                            </div>
+
+                            <div style="margin-bottom:16px; text-align:left;">
+                                <label for="signupJourney" style="display:block; font-size:0.78rem; font-weight:600; color:#99f6e4; margin-bottom:6px;">
+                                    Your Caregiving Walk (Short Intro)
+                                </label>
+                                <textarea id="signupJourney" class="harbor-underline-textarea" rows="2" placeholder="Share a sentence or two about your walk..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="harbor-primary-btn">
+                                Create Membership &amp; Get 6-Digit Code
+                            </button>
+                        </form>
+
+                        <div style="text-align:center; margin-top:14px; font-size:0.86rem; color:#e2e8f0;">
+                            Already a member?
+                            <button type="button" onclick="switchAuthTab('login')" style="background:none; border:none; color:#5eead4; font-weight:700; text-decoration:underline; cursor:pointer; padding:0 2px; font-size:0.86rem;">
+                                Back to Member Login
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
             <!-- GUEST ENTRANCE SELECTION PAGE -->
             <section class="connect-view-section" id="guest-entrance-view" style="display: none;">
@@ -134,19 +370,63 @@
             </section>
 
             <!-- GUEST CONTACT FORM -->
-            <section class="connect-view-section" id="guest-submission-view" style="display: none;">
-                <div class="connect-header">
-                    <h2 id="guestFormTitle">🎁 Guest Contribution</h2>
-                    <p id="guestFormSubtitle">Send your support offer to administrators.</p>
-                    <button class="back-btn" onclick="openGuestEntrance()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+            <section class="connect-view-section harbor-chat-pattern-bg" id="guest-submission-view" style="display:none;">
+            <div class="harbor-glass-card" style="max-width:540px; margin:0 auto; text-align:left;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                    <span style="background:rgba(245,158,11,0.22); border:1px solid rgba(251,191,36,0.5); color:#fde68a; font-size:0.76rem; font-weight:700; padding:4px 12px; border-radius:50px;">
+                        🤝 Direct Donor &amp; Visitor Desk
+                    </span>
+                    <button type="button" onclick="logoutToHome()" style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.22); color:#f8fafc; padding:6px 12px; border-radius:50px; font-size:0.8rem; cursor:pointer;">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Login
+                    </button>
                 </div>
-                <form onsubmit="handleGuestSubmission(event)" class="create-group-card" style="display: flex; flex-direction: column; gap: 10px;">
-                    <input type="text" id="guestNameInput" placeholder="Your Name / Organization" required>
-                    <input type="email" id="guestEmailInput" placeholder="Contact Email" required>
-                    <textarea id="guestMessageInput" placeholder="Describe your offer..." rows="4" required></textarea>
-                    <button type="submit" class="create-group-btn" style="width: 100%;">Send Request</button>
+
+                <h2 id="guestFormTitle" style="margin:0 0 6px; font-size:1.45rem; color:#ffffff;">Guest Entrance for Donors &amp; Visitors</h2>
+                <p id="guestFormSubtitle" style="margin:0 0 18px; font-size:0.88rem; color:#cbd5e1; line-height:1.45;">
+                    No verification code required. Share your contact details below and your message goes straight to Anthony so we can connect personally first.
+                </p>
+
+                <form onsubmit="handleGuestSubmission(event)">
+                    <div class="harbor-underline-group">
+                        <label for="guestNameInput">Your Name or Organization *</label>
+                        <input type="text" id="guestNameInput" class="harbor-underline-input" placeholder="Jane Doe / Community Partner" required>
+                    </div>
+
+                    <div class="harbor-underline-group">
+                        <label for="guestEmailInput">Contact Email *</label>
+                        <input type="email" id="guestEmailInput" class="harbor-underline-input" placeholder="you@example.com" required>
+                    </div>
+
+                    <div class="harbor-underline-group">
+                        <label for="guestPhoneInput">Phone Number or Preferred Contact Method (Optional)</label>
+                        <input type="text" id="guestPhoneInput" class="harbor-underline-input" placeholder="(555) 123-4567 or Best time to call">
+                    </div>
+
+                    <div style="margin-bottom:16px;">
+                        <label for="guestSupportType" style="display:block; font-size:0.78rem; font-weight:600; color:#99f6e4; margin-bottom:6px;">
+                            How would you like to connect?
+                        </label>
+                        <select id="guestSupportType" class="harbor-underline-select">
+                            <option value="Donor / Financial Contribution">Financial Donation / Sponsorship</option>
+                            <option value="Caregiver Supplies / Resource Support">Caregiver Supplies or Resource Support</option>
+                            <option value="Community Partner / Organization">Community Partner / Organization</option>
+                            <option value="Visitor / General Inquiry">Visitor / General Question</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom:18px;">
+                        <label for="guestMessageInput" style="display:block; font-size:0.78rem; font-weight:600; color:#99f6e4; margin-bottom:6px;">
+                            Your Message *
+                        </label>
+                        <textarea id="guestMessageInput" class="harbor-underline-textarea" rows="4" placeholder="Tell us how you'd like to support or visit Share Your Walk..." required></textarea>
+                    </div>
+
+                    <button type="submit" id="guestSubmitBtn" class="harbor-donor-btn" style="font-size:0.96rem; padding:13px 20px;">
+                        Send Directly to Anthony
+                    </button>
                 </form>
-            </section>
+            </div>
+        </section>
 
             <!-- APPROVED MEMBER DASHBOARD WITH ACTIVITY FEED & ROLODEX -->
             <section class="connect-view-section" id="member-dashboard-view" style="display: none;">
@@ -382,12 +662,18 @@
         };
 
         function switchAuthTab(tab) {
-            const loginForm = document.getElementById('loginFormContainer');
-            const signupForm = document.getElementById('signupFormContainer');
+            const loginBox = document.getElementById('loginFormContainer');
+            const signupBox = document.getElementById('signupFormContainer');
+            if (!loginBox || !signupBox) return;
             if (tab === 'signup') {
-                loginForm.style.display = 'none';
-                signupForm.style.display = 'block';
+                loginBox.style.display = 'none';
+                signupBox.style.display = 'block';
             } else {
+                signupBox.style.display = 'none';
+                loginBox.style.display = 'block';
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
                 signupForm.style.display = 'none';
                 loginForm.style.display = 'block';
             }
@@ -593,6 +879,14 @@
         function openShortVideosGallery() { hideAllViews(); document.getElementById('short-videos-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function openFunnyPicsGallery() { hideAllViews(); document.getElementById('funny-pics-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
+        
+        function openDirectDonorPortal() {
+            hideAllViews();
+            const el = document.getElementById('guest-submission-view');
+            if (el) el.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function openGuestEntrance() {
             hideAllViews();
             document.getElementById('guest-entrance-view').style.display = 'block';
@@ -605,10 +899,37 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function handleGuestSubmission(event) {
+        async function handleGuestSubmission(event) {
             event.preventDefault();
-            alert('Guest support request sent successfully!');
-            logoutToHome();
+            const btn = document.getElementById('guestSubmitBtn');
+            const name = document.getElementById('guestNameInput').value.trim();
+            const email = document.getElementById('guestEmailInput').value.trim();
+            const phoneEl = document.getElementById('guestPhoneInput');
+            const phone = phoneEl ? phoneEl.value.trim() : '';
+            const typeEl = document.getElementById('guestSupportType');
+            const support_type = typeEl ? typeEl.value : 'Donor / Visitor Inquiry';
+            const message = document.getElementById('guestMessageInput').value.trim();
+
+            if (btn) { btn.disabled = true; btn.textContent = 'Sending directly to Anthony...'; }
+            try {
+                const res = await fetch('/api/guest-inquiry', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, phone, support_type, message })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Could not send inquiry. Please try again.');
+                    return;
+                }
+                alert(data.message || 'Thank you! Your information was sent directly to Anthony.');
+                event.target.reset();
+                logoutToHome();
+            } catch (err) {
+                alert('Network error sending message. Please try again.');
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Send Directly to Anthony'; }
+            }
         }
 
         async function logoutToHome() { try { await fetch('/api/logout', { method: 'POST' }); } catch (e) {}

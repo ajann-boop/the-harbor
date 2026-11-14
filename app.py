@@ -131,5 +131,77 @@ def verify_admin():
     return jsonify({"verified": False, "error": "Invalid Admin PIN"}), 403
 
 
+
+@app.route('/api/guest-inquiry', methods=['POST'])
+def api_guest_inquiry():
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()
+    email = (data.get("email") or "").strip()
+    phone = (data.get("phone") or "").strip()
+    support_type = (data.get("support_type") or "Donor / Visitor Inquiry").strip()
+    message = (data.get("message") or "").strip()
+
+    if not name or not email or not message:
+        return jsonify({"error": "Please enter your name, email, and a short message."}), 400
+
+    record = {
+        "name": name,
+        "email": email,
+        "phone": phone,
+        "support_type": support_type,
+        "message": message
+    }
+
+    # 1. Save to Supabase table 'donor_inquiries' if configured
+    saved_db = False
+    if supabase:
+        try:
+            supabase.table("donor_inquiries").insert(record).execute()
+            saved_db = True
+        except Exception as e:
+            print("Supabase donor_inquiries insert note:", e)
+
+    # 2. Also append to local fallback JSONL so no inquiry is ever lost
+    try:
+        import json, datetime
+        record["submitted_at"] = datetime.datetime.utcnow().isoformat() + "Z"
+        with open("guest_inquiries.jsonl", "a", encoding="utf-8") as f:
+            f.write(json.dumps(record) + "\n")
+    except Exception as e:
+        print("Local inquiry log note:", e)
+
+    # 3. Optional SMTP notification straight to Anthony if SMTP env vars exist
+    try:
+        import smtplib
+        from email.message import EmailMessage
+        smtp_user = os.environ.get("SMTP_USER")
+        smtp_pass = os.environ.get("SMTP_PASS")
+        notify_to = os.environ.get("ADMIN_NOTIFY_EMAIL", "a.s.jannuzzi@gmail.com")
+        if smtp_user and smtp_pass:
+            msg = EmailMessage()
+            msg["Subject"] = f"[Share Your Walk] New {support_type} from {name}"
+            msg["From"] = smtp_user
+            msg["To"] = notify_to
+            msg.set_content(
+                f"New Donor / Visitor Inquiry (Bypassed Verification)\n\n"
+                f"Name / Organization: {name}\n"
+                f"Email: {email}\n"
+                f"Phone / Contact: {phone or 'Not provided'}\n"
+                f"Category: {support_type}\n\n"
+                f"Message:\n{message}\n"
+            )
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+    except Exception as e:
+        print("SMTP notify note:", e)
+
+    return jsonify({
+        "ok": True,
+        "saved_db": saved_db,
+        "message": "Thank you! Your message has been sent directly to Anthony at Share Your Walk. We will reach out to you personally soon."
+    }), 200
+
+
 if __name__ == "__main__":
     app.run(debug=True)
