@@ -711,6 +711,12 @@
                 <div class="connect-header">
                     <h2 id="chatRoomTitle">🏡 Village Chat Room</h2>
                     <p id="chatRoomSubtitle">A safe, supportive space.</p>
+        <div id="liveChatPresenceBadge" style="display:inline-flex; align-items:center; gap:8px; margin:8px 0 12px; padding:6px 14px; border-radius:999px; background:rgba(20,184,166,0.14); border:1px solid rgba(45,212,191,0.38); color:#5eead4; font-size:0.85rem; font-weight:600;">
+            <span style="width:9px; height:9px; border-radius:50%; background:#22c55e; box-shadow:0 0 8px #22c55e; display:inline-block;"></span>
+            <span id="liveRoomActiveCount">1 member active in this chat</span>
+            <span style="opacity:0.55;">•</span>
+            <span id="liveTotalActiveCount">1 online in chat</span>
+        </div>
                     <button class="back-btn" onclick="openCommunityHub()"><i class="fa-solid fa-arrow-left"></i> Back</button>
                 </div>
                 <div class="chat-messages-container" id="chatMessagesContainer">
@@ -1217,29 +1223,96 @@
             }
         }
 
-        function openVillageChatRoom(title, subtitle) {
-            hideAllViews();
-            document.getElementById('chatRoomTitle').innerText = title;
-            document.getElementById('chatRoomSubtitle').innerText = subtitle;
-            document.getElementById('village-chat-room-view').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        const chatClientId = 'syw_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+        let activeChatRoomName = 'Village Chat Room';
+        let chatSyncTimer = null;
+        let lastRenderedMsgId = 0;
+
+        function escapeChatHtml(str) {
+            return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
-        function sendChatMessage(event) {
-            event.preventDefault();
-            const textInput = document.getElementById('chatInputText');
-            const mediaInput = document.getElementById('universalMediaUrlInput');
-            
-            if (!textInput.value.trim() && (!mediaInput || !mediaInput.value.trim())) return;
-
+        function renderChatMessages(messages, forceReset) {
             const container = document.getElementById('chatMessagesContainer');
-            const msgRow = document.createElement('div');
-            msgRow.className = 'chat-message-row';
-            
-            let mediaHtml = '';
-            if (mediaInput && mediaInput.value.trim()) {
-                mediaHtml = `<div style="margin-top: 6px;"><img src="${mediaInput.value.trim()}" alt="Attached media" style="max-width: 100%; border-radius: 8px; max-height: 200px; object-fit: cover;"></div>`;
+            if (!container) return;
+            if (forceReset) {
+                container.innerHTML = `<div class="chat-message-row"><div class="chat-avatar-sm"><i class="fa-solid fa-anchor"></i></div><div class="chat-bubble"><div class="chat-user-handle">@SanctuaryGuide</div><div class="chat-text">Welcome to <strong>${escapeChatHtml(activeChatRoomName)}</strong>! Messages and active members update live. ❤️</div></div></div>`;
+                lastRenderedMsgId = 0;
             }
+            let addedNew = false;
+            (messages || []).forEach(msg => {
+                if (msg.id <= lastRenderedMsgId) return;
+                lastRenderedMsgId = msg.id;
+                addedNew = true;
+                const myHandle = (typeof currentMember !== 'undefined' && currentMember && currentMember.id) ? currentMember.id : '';
+                const isMe = myHandle && msg.sender_handle === myHandle;
+                const row = document.createElement('div');
+                row.className = 'chat-message-row';
+                if (isMe) row.style.flexDirection = 'row-reverse';
+                row.innerHTML = `<div class="chat-avatar-sm"><i class="fa-solid fa-user"></i></div><div class="chat-bubble" style="${isMe ? 'background:rgba(20,184,166,0.22); border-color:rgba(45,212,191,0.45);' : ''}"><div class="chat-user-handle" style="display:flex; justify-content:space-between; gap:12px;"><span>${escapeChatHtml(msg.sender_handle)}</span><span style="font-size:0.72rem; opacity:0.65; font-weight:400;">${escapeChatHtml(msg.time_str || '')}</span></div><div class="chat-text">${escapeChatHtml(msg.message_text)}</div></div>`;
+                container.appendChild(row);
+            });
+            if (forceReset || addedNew) container.scrollTop = container.scrollHeight;
+        }
+
+        async function syncVillageChat(forceReset = false) {
+            const roomView = document.getElementById('village-chat-room-view');
+            if (!roomView || roomView.style.display === 'none') return;
+            const myHandle = (typeof currentMember !== 'undefined' && currentMember && currentMember.id) ? currentMember.id : 'CaregiverMember';
+            try {
+                const res = await fetch('/api/chat/state', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ room: activeChatRoomName, client_id: chatClientId, handle: myHandle })
+                });
+                const data = await res.json();
+                if (!res.ok) return;
+                const roomCnt = data.room_active || 1;
+                const totalCnt = data.total_active || 1;
+                const roomEl = document.getElementById('liveRoomActiveCount');
+                const totalEl = document.getElementById('liveTotalActiveCount');
+                if (roomEl) roomEl.innerText = `${roomCnt} ${roomCnt === 1 ? 'member' : 'members'} active in this chat`;
+                if (totalEl) totalEl.innerText = `${totalCnt} online in chat`;
+                renderChatMessages(data.messages || [], forceReset);
+            } catch (err) {}
+        }
+
+        function openVillageChatRoom(title, subtitle) {
+            hideAllViews();
+            activeChatRoomName = title || 'Village Chat Room';
+            document.getElementById('chatRoomTitle').innerText = activeChatRoomName;
+            document.getElementById('chatRoomSubtitle').innerText = subtitle || 'A safe, supportive space.';
+            document.getElementById('village-chat-room-view').style.display = 'block';
+            syncVillageChat(true);
+            if (chatSyncTimer) clearInterval(chatSyncTimer);
+            chatSyncTimer = setInterval(() => syncVillageChat(false), 2500);
+        }
+
+        async function sendChatMessage(event) {
+            if (event) event.preventDefault();
+            const textInput = document.getElementById('chatInputText');
+            const text = (textInput.value || '').trim();
+            if (!text) return;
+            const myHandle = (typeof currentMember !== 'undefined' && currentMember && currentMember.id) ? currentMember.id : 'CaregiverMember';
+            textInput.value = '';
+            try {
+                const res = await fetch('/api/chat/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ room: activeChatRoomName, handle: myHandle, message: text })
+                });
+                const data = await res.json();
+                if (res.ok && data.message) renderChatMessages([data.message], false);
+            } catch (err) {
+                alert('Could not send message. Please check your connection.');
+            }
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon('/api/chat/leave', new Blob([JSON.stringify({ client_id: chatClientId })], { type: 'application/json' }));
+            }
+        });
 
             msgRow.innerHTML = `
                 <div class="chat-avatar-sm"><i class="fa-solid fa-user"></i></div>

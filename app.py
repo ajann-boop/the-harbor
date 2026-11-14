@@ -1,3 +1,5 @@
+import psycopg2
+from psycopg2.extras import RealDictCursor
 import os
 from functools import wraps
 from flask import Flask, render_template, request, jsonify, session
@@ -252,6 +254,125 @@ def update_password():
         return jsonify({"ok": True, "message": "Password updated! You can now sign in."})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+def get_db_conn():
+    return psycopg2.connect(DATABASE_URL) if DATABASE_URL else None
+
+def init_chat_tables():
+    conn = get_db_conn()
+    if not conn:
+        return
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS chat_messages (
+                    id SERIAL PRIMARY KEY,
+                    room_name TEXT NOT NULL,
+                    sender_handle TEXT NOT NULL,
+                    sender_email TEXT,
+                    message_text TEXT NOT NULL,
+                    created_at TIMESTAMPTZ DEFAULT NOW()
+                );
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS chat_presence (
+                    session_token TEXT PRIMARY KEY,
+                    room_name TEXT NOT NULL,
+                    member_handle TEXT NOT NULL,
+                    last_seen TIMESTAMPTZ DEFAULT NOW()
+                );
+            """)
+        conn.commit()
+    except Exception as e:
+        print("Chat DB init error:", e)
+    finally:
+        conn.close()
+
+init_chat_tables()
+
+@app.route("/api/chat/state", methods=["GET", "POST"])
+def chat_state():
+    data = request.get_json(silent=True) or {}
+    room = (request.args.get("room") or data.get("room") or "Village Chat Room").strip()
+    client_id = (request.args.get("client_id") or data.get("client_id") or "").strip()
+    user = session.get("user") or {}
+    handle = (data.get("handle") or user.get("handle") or (user.get("email", "").split("@")[0] if user.get("email") else "CaregiverGuest")).strip()
+    conn = get_db_conn()
+    if not conn:
+        return jsonify({"messages": [], "room_active": 1, "total_active": 1})
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            if client_id:
+                cur.execute("""
+                    INSERT INTO chat_presence (session_token, room_name, member_handle, last_seen)
+                    VALUES (%s, %s, %s, NOW())
+                    ON CONFLICT (session_token)
+                    DO UPDATE SET room_name = EXCLUDED.room_name, member_handle = EXCLUDED.member_handle, last_seen = NOW();
+                """, (client_id, room, handle))
+            cur.execute("DELETE FROM chat_presence WHERE last_seen < NOW() - INTERVAL '20 seconds';")
+            cur.execute("SELECT COUNT(DISTINCT session_token) AS cnt FROM chat_presence WHERE room_name = %s;", (room,))
+            room_active = max(1, int(cur.fetchone()["cnt"] or 1))
+            cur.execute("SELECT COUNT(DISTINCT session_token) AS cnt FROM chat_presence;")
+            total_active = max(1, int(cur.fetchone()["cnt"] or 1))
+            cur.execute("""
+                SELECT id, room_name, sender_handle, message_text,
+                       TO_CHAR(created_at AT TIME ZONE 'America/New_York', 'HH12:MI AM') AS time_str
+                FROM chat_messages WHERE room_name = %s ORDER BY id DESC LIMIT 60;
+            """, (room,))
+            rows = list(reversed(cur.fetchall()))
+        conn.commit()
+        return jsonify({"messages": rows, "room_active": room_active, "total_active": total_active})
+    except Exception as e:
+        return jsonify({"error": str(e), "messages": [], "room_active": 1, "total_active": 1}), 500
+    finally:
+        conn.close()
+
+@app.route("/api/chat/send", methods=["POST"])
+def chat_send():
+    data = request.get_json(silent=True) or {}
+    room = (data.get("room") or "Village Chat Room").strip()
+    text = (data.get("message") or "").strip()[:1000]
+    if not text:
+        return jsonify({"error": "Message cannot be empty"}), 400
+    user = session.get("user") or {}
+    sender_email = user.get("email", "")
+    sender_handle = (data.get("handle") or user.get("handle") or (sender_email.split("@")[0] if sender_email else "CaregiverMember")).strip()
+    conn = get_db_conn()
+    if not conn:
+        return jsonify({"error": "Database not connected"}), 500
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""
+                INSERT INTO chat_messages (room_name, sender_handle, sender_email, message_text)
+                VALUES (%s, %s, %s, %s)
+                RETURNING id, room_name, sender_handle, message_text,
+                          TO_CHAR(created_at AT TIME ZONE 'America/New_York', 'HH12:MI AM') AS time_str;
+            """, (room, sender_handle, sender_email, text))
+            msg = cur.fetchone()
+        conn.commit()
+        return jsonify({"ok": True, "message": msg})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route("/api/chat/leave", methods=["POST"])
+def chat_leave():
+    data = request.get_json(silent=True) or {}
+    client_id = (data.get("client_id") or "").strip()
+    conn = get_db_conn()
+    if conn and client_id:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM chat_presence WHERE session_token = %s;", (client_id,))
+            conn.commit()
+        finally:
+            conn.close()
+    return jsonify({"ok": True})
 
 
 if __name__ == "__main__":
