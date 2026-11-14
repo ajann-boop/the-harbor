@@ -688,6 +688,16 @@
 
             <!-- Community Hub View -->
             <section class="connect-view-section" id="connect-view" style="display: none;">
+        <div onclick="openCorkBoard()" style="cursor:pointer; margin:16px 0 22px; padding:18px 20px; border-radius:16px; background:linear-gradient(135deg, rgba(180,120,68,0.34), rgba(120,76,38,0.46)); border:2px solid rgba(245,193,128,0.45); box-shadow:0 10px 25px rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:space-between; gap:14px;">
+            <div>
+                <div style="font-size:1.15rem; font-weight:800; color:#fef08a; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-thumbtack" style="color:#f87171; transform:rotate(25deg);"></i> Community Cork Board
+                </div>
+                <div style="font-size:0.88rem; color:#fde68a; margin-top:4px;">Pin everyday caregiver questions, tips, or free local blessings &amp; loans by ZIP code.</div>
+            </div>
+            <span style="background:#fef08a; color:#422006; font-weight:800; padding:8px 14px; border-radius:10px; font-size:0.85rem; white-space:nowrap;">Open Board →</span>
+        </div>
+
                 <div class="connect-header">
                     <h2>Village Chat & Hub</h2>
                     <p>Open discussions and support topics.</p>
@@ -1446,6 +1456,262 @@
             } catch (err) {
                 alert("Error updating password: " + err.message);
             }
+        }
+    </script>
+
+
+    <style>
+        .corkboard-surface {
+            background-color: #a46b39;
+            background-image:
+                radial-gradient(rgba(58, 32, 10, 0.28) 1px, transparent 0),
+                radial-gradient(rgba(255, 224, 178, 0.16) 1px, transparent 0),
+                linear-gradient(135deg, #b57945 0%, #925b2d 50%, #a86e3b 100%);
+            background-size: 18px 18px, 23px 23px, 100% 100%;
+            background-position: 0 0, 9px 11px, 0 0;
+            border: 10px solid #5c3718;
+            border-radius: 18px;
+            box-shadow: inset 0 0 35px rgba(38, 19, 4, 0.65), 0 14px 35px rgba(0, 0, 0, 0.55);
+            padding: 22px 16px;
+            min-height: 440px;
+        }
+        .cork-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+            gap: 22px;
+            margin-top: 16px;
+        }
+        .sticky-note-card {
+            position: relative;
+            padding: 26px 16px 14px;
+            border-radius: 4px 4px 14px 4px;
+            color: #1e293b;
+            box-shadow: 4px 8px 18px rgba(24, 12, 2, 0.45);
+            transition: transform 0.18s ease;
+        }
+        .sticky-note-card:hover {
+            transform: scale(1.02) rotate(0deg) !important;
+            z-index: 5;
+        }
+        .cork-pushpin {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.55), inset -3px -3px 5px rgba(0,0,0,0.35), inset 3px 3px 5px rgba(255,255,255,0.65);
+        }
+    </style>
+
+    <section class="connect-view-section" id="corkboard-view" style="display:none; padding-bottom:90px;">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;">
+            <button class="back-btn" onclick="openCommunityHub()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+            <button type="button" onclick="openPinNoteModal()" style="background:#fef08a; color:#422006; border:none; padding:10px 16px; border-radius:12px; font-weight:800; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,0.35);">
+                <i class="fa-solid fa-thumbtack"></i> Pin a Note to Board
+            </button>
+        </div>
+
+        <h2 style="margin:0 0 6px; color:#fef08a;"><i class="fa-solid fa-thumbtack" style="color:#f87171;"></i> Community Cork Board</h2>
+        <div style="background:rgba(15,23,42,0.78); border-left:4px solid #f59e0b; padding:12px 14px; border-radius:10px; margin-bottom:14px; font-size:0.86rem; color:#fef3c7; line-height:1.45;">
+            <strong><i class="fa-solid fa-shield-heart" style="color:#fbbf24;"></i> Safe Harbor Sharing Pledge:</strong> We are all here to survive and lift each other up—not to profit off one another. All items pinned here must be offered freely (gift or loan only). Any attempt to buy, sell, or charge fellow members will result in removal from Share Your Walk.
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;">
+            <select id="corkFilterType" onchange="loadCorkBoard()" style="padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.2); background:#0f2930; color:#fff;">
+                <option value="all">All Pinned Notes</option>
+                <option value="advice">Advice &amp; Everyday Questions</option>
+                <option value="item">Free Blessings &amp; Local Loans</option>
+            </select>
+            <input id="corkFilterZip" type="text" placeholder="Filter by Area / ZIP code..." oninput="loadCorkBoard()" style="flex:1; min-width:160px; padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.2); background:#0f2930; color:#fff;">
+        </div>
+
+        <div class="corkboard-surface">
+            <div id="corkBoardGrid" class="cork-grid"></div>
+        </div>
+    </section>
+
+    <div id="pinNoteModal" style="display:none; position:fixed; inset:0; background:rgba(7,23,28,0.88); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center; padding:16px; overflow-y:auto;">
+        <div style="background:#0f2930; border:1px solid rgba(254,240,138,0.4); border-radius:18px; max-width:440px; width:100%; padding:22px; color:#f8fafc; box-shadow:0 20px 50px rgba(0,0,0,0.65);">
+            <h3 style="margin:0 0 12px; color:#fef08a;"><i class="fa-solid fa-thumbtack" style="color:#f87171;"></i> Pin a Sticky Note</h3>
+
+            <label style="font-size:0.82rem; color:#cbd5e1;">What are you pinning?</label>
+            <select id="pinNoteType" onchange="togglePinItemFields()" style="width:100%; padding:10px; border-radius:10px; background:#081a1f; color:#fff; border:1px solid rgba(148,163,184,0.35); margin:4px 0 12px;">
+                <option value="advice">Question / Advice / Caregiver Tip</option>
+                <option value="item">Free Item / Local Loan (No Selling)</option>
+            </select>
+
+            <input id="pinNoteTitle" type="text" maxlength="120" placeholder="Headline (e.g., Any advice for meltdown over different brand of ice cream?)" style="width:100%; padding:10px; border-radius:10px; background:#081a1f; color:#fff; border:1px solid rgba(148,163,184,0.35); margin-bottom:10px; box-sizing:border-box;">
+            <textarea id="pinNoteBody" rows="3" maxlength="1200" placeholder="Share details, what you've tried, or pickup/loan details..." style="width:100%; padding:10px; border-radius:10px; background:#081a1f; color:#fff; border:1px solid rgba(148,163,184,0.35); margin-bottom:10px; box-sizing:border-box;"></textarea>
+
+            <div id="pinItemExtraFields" style="display:none;">
+                <input id="pinNoteZip" type="text" maxlength="25" placeholder="Area or ZIP Code (e.g., 17976 / Shenandoah)" style="width:100%; padding:10px; border-radius:10px; background:#081a1f; color:#fff; border:1px solid rgba(148,163,184,0.35); margin-bottom:10px; box-sizing:border-box;">
+                <label style="display:block; font-size:0.82rem; color:#cbd5e1; margin-bottom:4px;">Attach Photo of Item (optional):</label>
+                <input id="pinNotePhoto" type="file" accept="image/*" style="width:100%; font-size:0.82rem; color:#cbd5e1; margin-bottom:12px;">
+            </div>
+
+            <label style="display:flex; align-items:flex-start; gap:8px; font-size:0.8rem; color:#fde68a; background:rgba(245,158,11,0.12); padding:10px; border-radius:10px; margin-bottom:14px; cursor:pointer;">
+                <input id="pinFreePledgeCheck" type="checkbox" style="margin-top:3px;">
+                <span>I confirm this note involves zero buying, selling, or profit—only peer support, free gifts, or neighborly loans.</span>
+            </label>
+
+            <button type="button" onclick="submitCorkNote()" style="width:100%; padding:12px; border-radius:10px; border:none; background:#fef08a; color:#422006; font-weight:800; font-size:0.95rem; cursor:pointer;">Pin to Cork Board</button>
+            <button type="button" onclick="document.getElementById('pinNoteModal').style.display='none'" style="width:100%; margin-top:8px; padding:8px; background:transparent; border:none; color:#94a3b8; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        function openCorkBoard() {
+            hideAllViews();
+            document.getElementById('corkboard-view').style.display = 'block';
+            loadCorkBoard();
+        }
+        function openPinNoteModal() {
+            document.getElementById('pinNoteModal').style.display = 'flex';
+            togglePinItemFields();
+        }
+        function togglePinItemFields() {
+            const t = document.getElementById('pinNoteType').value;
+            document.getElementById('pinItemExtraFields').style.display = (t === 'item') ? 'block' : 'none';
+        }
+        function resizeImageFile(file) {
+            return new Promise((resolve) => {
+                if (!file) return resolve('');
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const maxW = 640;
+                        const scale = Math.min(1, maxW / img.width);
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
+                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.72));
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        async function submitCorkNote() {
+            const note_type = document.getElementById('pinNoteType').value;
+            const title = document.getElementById('pinNoteTitle').value.trim();
+            const body = document.getElementById('pinNoteBody').value.trim();
+            const zip_code = document.getElementById('pinNoteZip').value.trim();
+            const free_pledge = document.getElementById('pinFreePledgeCheck').checked;
+            if (!title || !body) { alert('Please enter a headline and message.'); return; }
+            if (!free_pledge) { alert('Please check the Safe Harbor Zero-Profit Pledge box first.'); return; }
+
+            const fileInput = document.getElementById('pinNotePhoto');
+            const photo_data = (note_type === 'item' && fileInput.files[0]) ? await resizeImageFile(fileInput.files[0]) : '';
+            const handle = (typeof currentMember !== 'undefined' && currentMember && currentMember.id) ? currentMember.id : 'CaregiverMember';
+
+            const res = await fetch('/api/corkboard/pin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ note_type, title, body, zip_code, photo_data, free_pledge, handle })
+            });
+            const data = await res.json();
+            if (!res.ok) { alert(data.error || 'Could not pin note.'); return; }
+
+            document.getElementById('pinNoteTitle').value = '';
+            document.getElementById('pinNoteBody').value = '';
+            document.getElementById('pinNoteZip').value = '';
+            document.getElementById('pinNotePhoto').value = '';
+            document.getElementById('pinFreePledgeCheck').checked = false;
+            document.getElementById('pinNoteModal').style.display = 'none';
+            loadCorkBoard();
+        }
+        async function loadCorkBoard() {
+            const type = document.getElementById('corkFilterType').value;
+            const zip = document.getElementById('corkFilterZip').value.trim();
+            const res = await fetch(`/api/corkboard?type=${encodeURIComponent(type)}&zip=${encodeURIComponent(zip)}`);
+            const data = await res.json();
+            const grid = document.getElementById('corkBoardGrid');
+            if (!grid) return;
+            const notes = data.notes || [];
+            if (!notes.length) {
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#fef08a; padding:30px; font-weight:700;">No notes pinned here yet—be the first to pin a question or free local blessing!</div>`;
+                return;
+            }
+            grid.innerHTML = notes.map(n => {
+                const repliesHtml = (n.replies || []).map(r => `
+                    <div style="background:rgba(255,255,255,0.55); padding:6px 8px; border-radius:6px; margin-top:6px; font-size:0.78rem;">
+                        <strong>${escapeChatHtml(r.author_handle)}:</strong> ${escapeChatHtml(r.reply_text)}
+                    </div>
+                `).join('');
+                return `
+                <div class="sticky-note-card" style="background:${escapeChatHtml(n.note_color)}; transform:rotate(${n.tilt_deg}deg); ${n.is_claimed ? 'opacity:0.72;' : ''}">
+                    <div class="cork-pushpin" style="background:${escapeChatHtml(n.pin_color)};"></div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; font-size:0.72rem; font-weight:700; color:#475569; margin-bottom:6px;">
+                        <span>${n.note_type === 'item' ? '🎁 FREE GIFT / LOAN' : '💬 ADVICE & TIPS'}</span>
+                        ${n.zip_code ? `<span style="background:rgba(15,23,42,0.12); padding:2px 7px; border-radius:999px;">📍 ${escapeChatHtml(n.zip_code)}</span>` : ''}
+                    </div>
+                    ${n.is_claimed ? `<div style="background:#16a34a; color:#fff; font-size:0.72rem; font-weight:800; padding:3px 8px; border-radius:6px; display:inline-block; margin-bottom:6px;">✓ CLAIMED / GIFTED</div>` : ''}
+                    <h4 style="margin:0 0 6px; font-size:1rem; color:#0f172a;">${escapeChatHtml(n.title)}</h4>
+                    <p style="margin:0 0 8px; font-size:0.86rem; line-height:1.4; color:#1e293b; white-space:pre-wrap;">${escapeChatHtml(n.body)}</p>
+                    ${n.photo_data ? `<img src="${n.photo_data}" alt="Pinned item" style="width:100%; max-height:190px; object-fit:cover; border-radius:8px; margin-bottom:8px; border:2px solid rgba(0,0,0,0.12);">` : ''}
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.73rem; color:#475569; border-top:1px dashed rgba(15,23,42,0.2); padding-top:6px;">
+                        <span>Pinned by <strong>${escapeChatHtml(n.author_handle)}</strong></span>
+                        <div style="display:flex; gap:8px;">
+                            ${n.note_type === 'item' ? `<button type="button" onclick="toggleClaimCorkNote(${n.id})" style="background:none; border:none; color:#0f766e; font-weight:700; cursor:pointer; font-size:0.73rem;">${n.is_claimed ? 'Reopen' : 'Mark Claimed'}</button>` : ''}
+                            <button type="button" onclick="flagCorkNote(${n.id})" title="Flag if selling or unsafe" style="background:none; border:none; color:#dc2626; cursor:pointer; font-size:0.75rem;"><i class="fa-solid fa-flag"></i> Flag</button>
+                            <button type="button" onclick="adminDeleteCorkNote(${n.id})" title="Admin Remove" style="background:none; border:none; color:#334155; cursor:pointer; font-size:0.75rem;"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                    ${n.is_flagged ? `<div style="margin-top:6px; background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:6px; font-size:0.72rem; font-weight:700;">🚩 Flagged for Admin Review</div>` : ''}
+                    <div style="margin-top:8px;">${repliesHtml}</div>
+                    <div style="display:flex; gap:5px; margin-top:8px;">
+                        <input id="corkReplyInput_${n.id}" type="text" placeholder="Pin a helpful reply..." style="flex:1; padding:6px 8px; border-radius:6px; border:1px solid rgba(15,23,42,0.25); background:rgba(255,255,255,0.85); color:#0f172a; font-size:0.78rem;">
+                        <button type="button" onclick="submitCorkReply(${n.id})" style="padding:6px 10px; border-radius:6px; border:none; background:#0f2930; color:#fef08a; font-weight:700; font-size:0.78rem; cursor:pointer;">Reply</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+        async function submitCorkReply(noteId) {
+            const inp = document.getElementById('corkReplyInput_' + noteId);
+            const reply_text = (inp.value || '').trim();
+            if (!reply_text) return;
+            const handle = (typeof currentMember !== 'undefined' && currentMember && currentMember.id) ? currentMember.id : 'CaregiverMember';
+            await fetch('/api/corkboard/reply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ note_id: noteId, reply_text, handle })
+            });
+            loadCorkBoard();
+        }
+        async function toggleClaimCorkNote(noteId) {
+            await fetch('/api/corkboard/claim', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ note_id: noteId })
+            });
+            loadCorkBoard();
+        }
+        async function flagCorkNote(noteId) {
+            const reason = prompt("Why are you flagging this note? (e.g., Asking for money / selling item)");
+            if (reason === null) return;
+            await fetch('/api/corkboard/flag', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ note_id: noteId, reason })
+            });
+            alert("Thank you for protecting our Safe Harbor. This note has been flagged for Anthony's review.");
+            loadCorkBoard();
+        }
+        async function adminDeleteCorkNote(noteId) {
+            const pin = prompt("Enter Admin Master PIN to remove this note:");
+            if (!pin) return;
+            const res = await fetch('/api/corkboard/admin-delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ note_id: noteId, pin })
+            });
+            const data = await res.json();
+            if (!res.ok) { alert(data.error || 'Invalid PIN'); return; }
+            loadCorkBoard();
         }
     </script>
 

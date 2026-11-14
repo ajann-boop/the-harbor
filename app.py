@@ -375,5 +375,222 @@ def chat_leave():
     return jsonify({"ok": True})
 
 
+
+# --- COMMUNITY CORK BOARD (ADVICE & ZERO-PROFIT GIFT/LOAN BOARD) ---
+def init_corkboard_tables():
+    conn = get_db_conn()
+    if not conn:
+        return
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS corkboard_notes (
+                    id SERIAL PRIMARY KEY,
+                    note_type TEXT NOT NULL DEFAULT 'advice',
+                    author_handle TEXT NOT NULL,
+                    author_email TEXT,
+                    title TEXT NOT NULL,
+                    body TEXT NOT NULL,
+                    zip_code TEXT DEFAULT '',
+                    photo_data TEXT DEFAULT '',
+                    pin_color TEXT DEFAULT '#ef4444',
+                    note_color TEXT DEFAULT '#fef08a',
+                    tilt_deg NUMERIC(4,1) DEFAULT 0.0,
+                    is_claimed BOOLEAN DEFAULT FALSE,
+                    is_flagged BOOLEAN DEFAULT FALSE,
+                    flag_reason TEXT DEFAULT '',
+                    created_at TIMESTAMPTZ DEFAULT NOW()
+                );
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS corkboard_replies (
+                    id SERIAL PRIMARY KEY,
+                    note_id INTEGER REFERENCES corkboard_notes(id) ON DELETE CASCADE,
+                    author_handle TEXT NOT NULL,
+                    reply_text TEXT NOT NULL,
+                    created_at TIMESTAMPTZ DEFAULT NOW()
+                );
+            """)
+        conn.commit()
+    except Exception as e:
+        print("Corkboard DB init error:", e)
+    finally:
+        conn.close()
+
+init_corkboard_tables()
+
+@app.route("/api/corkboard", methods=["GET"])
+def get_corkboard():
+    filter_type = (request.args.get("type") or "all").strip().lower()
+    zip_q = (request.args.get("zip") or "").strip()
+    conn = get_db_conn()
+    if not conn:
+        return jsonify({"notes": []})
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            query = """
+                SELECT id, note_type, author_handle, title, body, zip_code, photo_data,
+                       pin_color, note_color, tilt_deg, is_claimed, is_flagged, flag_reason,
+                       TO_CHAR(created_at AT TIME ZONE 'America/New_York', 'Mon DD, HH12:MI AM') AS time_str
+                FROM corkboard_notes
+                WHERE 1=1
+            """
+            params = []
+            if filter_type in ("advice", "item"):
+                query += " AND note_type = %s"
+                params.append(filter_type)
+            if zip_q:
+                query += " AND zip_code ILIKE %s"
+                params.append(f"%{zip_q}%")
+            query += " ORDER BY is_claimed ASC, id DESC LIMIT 60;"
+            cur.execute(query, params)
+            notes = cur.fetchall()
+
+            note_ids = [n["id"] for n in notes]
+            replies_map = {nid: [] for nid in note_ids}
+            if note_ids:
+                cur.execute("""
+                    SELECT id, note_id, author_handle, reply_text,
+                           TO_CHAR(created_at AT TIME ZONE 'America/New_York', 'Mon DD, HH12:MI AM') AS time_str
+                    FROM corkboard_replies
+                    WHERE note_id = ANY(%s)
+                    ORDER BY id ASC;
+                """, (note_ids,))
+                for r in cur.fetchall():
+                    replies_map[r["note_id"]].append(r)
+
+            for n in notes:
+                n["tilt_deg"] = float(n["tilt_deg"] or 0.0)
+                n["replies"] = replies_map.get(n["id"], [])
+        return jsonify({"notes": notes})
+    except Exception as e:
+        return jsonify({"error": str(e), "notes": []}), 500
+    finally:
+        conn.close()
+
+@app.route("/api/corkboard/pin", methods=["POST"])
+def pin_corkboard_note():
+    import random
+    data = request.get_json(silent=True) or {}
+    note_type = (data.get("note_type") or "advice").strip().lower()
+    title = (data.get("title") or "").strip()[:120]
+    body = (data.get("body") or "").strip()[:1200]
+    zip_code = (data.get("zip_code") or "").strip()[:25]
+    photo_data = (data.get("photo_data") or "").strip()
+    free_pledge = bool(data.get("free_pledge"))
+
+    if not title or not body:
+        return jsonify({"error": "Please include a headline and note message."}), 400
+    if note_type == "item" and not free_pledge:
+        return jsonify({"error": "You must check the 100% Free Gift/Loan Pledge before pinning an item."}), 400
+    if len(photo_data) > 650000:
+        return jsonify({"error": "Photo is too large. Please pick a smaller image."}), 400
+
+    user = session.get("user") or {}
+    email = user.get("email", "")
+    handle = (data.get("handle") or user.get("handle") or (email.split("@")[0] if email else "CaregiverMember")).strip()
+
+    pin_colors = ["#ef4444", "#3b82f6", "#22c55e", "#f59e0b", "#ec4899", "#a855f7", "#06b6d4"]
+    note_colors = ["#fef08a", "#bae6fd", "#fecdd3", "#bbf7d0", "#fed7aa", "#e9d5ff"]
+    pin_color = random.choice(pin_colors)
+    note_color = random.choice(note_colors)
+    tilt_deg = round(random.uniform(-2.2, 2.2), 1)
+
+    conn = get_db_conn()
+    if not conn:
+        return jsonify({"error": "Database not connected"}), 500
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO corkboard_notes
+                (note_type, author_handle, author_email, title, body, zip_code, photo_data, pin_color, note_color, tilt_deg)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+            """, (note_type, handle, email, title, body, zip_code, photo_data, pin_color, note_color, tilt_deg))
+        conn.commit()
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route("/api/corkboard/reply", methods=["POST"])
+def reply_corkboard_note():
+    data = request.get_json(silent=True) or {}
+    note_id = data.get("note_id")
+    reply_text = (data.get("reply_text") or "").strip()[:600]
+    if not note_id or not reply_text:
+        return jsonify({"error": "Reply cannot be empty"}), 400
+    user = session.get("user") or {}
+    email = user.get("email", "")
+    handle = (data.get("handle") or user.get("handle") or (email.split("@")[0] if email else "CaregiverMember")).strip()
+    conn = get_db_conn()
+    if not conn:
+        return jsonify({"error": "Database not connected"}), 500
+    try:
+        with conn.cursor() as cur:
+            cur.execute("INSERT INTO corkboard_replies (note_id, author_handle, reply_text) VALUES (%s, %s, %s);", (note_id, handle, reply_text))
+        conn.commit()
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route("/api/corkboard/flag", methods=["POST"])
+def flag_corkboard_note():
+    data = request.get_json(silent=True) or {}
+    note_id = data.get("note_id")
+    reason = (data.get("reason") or "Suspected selling / marketplace violation").strip()[:250]
+    conn = get_db_conn()
+    if not conn or not note_id:
+        return jsonify({"error": "Invalid request"}), 400
+    try:
+        with conn.cursor() as cur:
+            cur.execute("UPDATE corkboard_notes SET is_flagged = TRUE, flag_reason = %s WHERE id = %s;", (reason, note_id))
+        conn.commit()
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route("/api/corkboard/claim", methods=["POST"])
+def claim_corkboard_note():
+    data = request.get_json(silent=True) or {}
+    note_id = data.get("note_id")
+    conn = get_db_conn()
+    if not conn or not note_id:
+        return jsonify({"error": "Invalid request"}), 400
+    try:
+        with conn.cursor() as cur:
+            cur.execute("UPDATE corkboard_notes SET is_claimed = NOT is_claimed WHERE id = %s;", (note_id,))
+        conn.commit()
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route("/api/corkboard/admin-delete", methods=["POST"])
+def admin_delete_corkboard_note():
+    data = request.get_json(silent=True) or {}
+    pin = (data.get("pin") or "").strip()
+    note_id = data.get("note_id")
+    if pin != os.environ.get("ADMIN_PIN", "4321"):
+        return jsonify({"error": "Invalid Admin PIN"}), 403
+    conn = get_db_conn()
+    if not conn or not note_id:
+        return jsonify({"error": "Invalid request"}), 400
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM corkboard_notes WHERE id = %s;", (note_id,))
+        conn.commit()
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
+
 if __name__ == "__main__":
     app.run(debug=True)
