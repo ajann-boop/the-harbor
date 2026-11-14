@@ -281,23 +281,23 @@
     <style>
         #layoutModeSwitcher {
             position: fixed;
-            top: 14px;
+            bottom: 72px;
             right: 16px;
             z-index: 9500;
             display: inline-flex;
-            background: rgba(7, 23, 28, 0.88);
+            background: rgba(7, 23, 28, 0.92);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(45, 212, 191, 0.35);
+            border: 1px solid rgba(45, 212, 191, 0.45);
             border-radius: 999px;
             padding: 4px;
             gap: 4px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
         }
         .mode-pill-btn {
             border: none;
             border-radius: 999px;
             padding: 6px 12px;
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.18s ease;
@@ -309,26 +309,37 @@
             color: #042f2e;
             box-shadow: 0 2px 8px rgba(20, 184, 166, 0.45);
         }
+
+        /* WEBSITE VIEW: Full wide-screen desktop sanctuary layout */
+        body.mode-website .app-container,
+        body.mode-website .mobile-shell,
+        body.mode-website main,
         body.mode-website .connect-view-section {
-            position: relative;
-            z-index: 10;
-            max-width: 1080px;
-            margin: 68px auto 95px !important;
-            padding: 20px 18px 90px !important;
+            max-width: 1120px !important;
+            width: 94% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
         }
-        body.mode-overlay .connect-view-section {
+        body.mode-website .connect-view-section {
+            position: relative !important;
+            z-index: 10;
+            padding-bottom: 95px !important;
+        }
+
+        /* OVERLAY VIEW: Centered app card + floating pop-up glass overlay for sub-views */
+        body.mode-overlay .connect-view-section:not(#member-dashboard-view):not(#guest-entrance-view) {
             position: fixed !important;
-            inset: 58px 16px 76px 16px !important;
-            max-width: 980px !important;
+            inset: 54px 16px 76px 16px !important;
+            max-width: 860px !important;
             margin: 0 auto !important;
-            background: rgba(9, 28, 34, 0.96) !important;
-            backdrop-filter: blur(14px);
-            border: 1px solid rgba(45, 212, 191, 0.38);
+            background: rgba(9, 28, 34, 0.97) !important;
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(45, 212, 191, 0.42);
             border-radius: 22px;
-            box-shadow: 0 24px 65px rgba(0, 0, 0, 0.78), 0 0 0 9999px rgba(4, 14, 18, 0.65);
+            box-shadow: 0 24px 65px rgba(0, 0, 0, 0.82), 0 0 0 9999px rgba(4, 14, 18, 0.68);
             overflow-y: auto !important;
             z-index: 9000 !important;
-            padding: 22px 20px 40px !important;
+            padding: 22px 20px 44px !important;
         }
         #overlayCloseBtn {
             display: none;
@@ -336,8 +347,8 @@
             top: 0;
             float: right;
             z-index: 9100;
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid rgba(248, 113, 113, 0.45);
+            background: rgba(239, 68, 68, 0.22);
+            border: 1px solid rgba(248, 113, 113, 0.5);
             color: #fecaca;
             border-radius: 999px;
             padding: 5px 12px;
@@ -1218,7 +1229,7 @@
         function backToDashboard() { showMemberDashboard(); }
         function openCommunityHub() { hideAllViews(); document.getElementById('connect-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function openKidsHarborHub() { hideAllViews(); document.getElementById('kids-harbor-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
-        function openSharingBoard() { hideAllViews(); document.getElementById('sharing-board-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function openSharingBoard() { openCorkBoard(); }); }
         function openTeachersLounge() { hideAllViews(); document.getElementById('teachers-lounge-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function openShortVideosGallery() { hideAllViews(); document.getElementById('short-videos-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function openFunnyPicsGallery() { hideAllViews(); document.getElementById('funny-pics-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
