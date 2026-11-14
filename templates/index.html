@@ -825,6 +825,37 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        async function handleForgotPassword() {
+            const emailInput = document.getElementById('loginMemberId');
+            let email = emailInput ? emailInput.value.trim() : '';
+            if (!email || !email.includes('@')) {
+                const entered = prompt('Enter the email address associated with your Share Your Walk account:');
+                if (!entered) return;
+                email = entered.trim();
+            }
+            if (!email.includes('@')) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+            try {
+                if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                        redirectTo: window.location.origin
+                    });
+                    if (error) {
+                        alert(error.message || 'Could not send reset email. Please check the address and try again.');
+                        return;
+                    }
+                    alert('Password reset link sent to ' + email + '! Check your inbox (and spam folder).');
+                } else {
+                    alert('Password reset request received for ' + email + '. Please check your email shortly.');
+                }
+            } catch (err) {
+                console.error('Reset password error:', err);
+                alert('Unable to send reset link right now. Please try again in a moment.');
+            }
+        }
+
         async function handleLoginClick() {
             const emailInput = document.getElementById('loginMemberId');
             const passInput = document.getElementById('loginPasswordInput');
