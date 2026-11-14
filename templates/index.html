@@ -399,12 +399,12 @@
 
                         <div class="harbor-underline-group">
                             <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin:14px 0 20px;"><label for="loginMemberId">Member Email or ID</label>
-                            <input type="email" id="loginMemberId" class="harbor-underline-input" placeholder="you@example.com">
+                            <input type="email" id="loginMemberId" class="harbor-underline-input" placeholder="you@example.com" name="email" autocomplete="username">
                         </div>
 
                         <div class="harbor-underline-group">
                             <label for="loginPasswordInput">Password</label>
-                            <div style="position:relative; display:flex; align-items:center; width:100%;"><input type="password" id="loginPasswordInput" class="harbor-underline-input" placeholder="••••••••"><button type="button" onclick="togglePwVisibility('loginPasswordInput', this)" aria-label="Show password" style="position:absolute; right:8px; background:none; border:none; color:#99f6e4; font-size:0.78rem; font-weight:700; cursor:pointer; padding:4px 6px;">Show</button></div>
+                            <div style="position:relative; display:flex; align-items:center; width:100%;"><input type="password" id="loginPasswordInput" class="harbor-underline-input" placeholder="••••••••" name="password" autocomplete="current-password"><button type="button" onclick="togglePwVisibility('loginPasswordInput', this)" aria-label="Show password" style="position:absolute; right:8px; background:none; border:none; color:#99f6e4; font-size:0.78rem; font-weight:700; cursor:pointer; padding:4px 6px;">Show</button></div>
                         </div>
 
                         <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.82rem; color:#cbd5e1; margin:4px 0 18px;">
@@ -459,7 +459,7 @@
 
                             <div class="harbor-underline-group">
                                 <label for="signupPasswordInput">Create Password (6+ characters)</label>
-                                <div style="position:relative; display:flex; align-items:center; width:100%;"><input type="password" id="signupPasswordInput" class="harbor-underline-input" placeholder="••••••••" minlength="6" required><button type="button" onclick="togglePwVisibility('signupPasswordInput', this)" aria-label="Show password" style="position:absolute; right:8px; background:none; border:none; color:#99f6e4; font-size:0.78rem; font-weight:700; cursor:pointer; padding:4px 6px;">Show</button></div>
+                                <div style="position:relative; display:flex; align-items:center; width:100%;"><input type="password" id="signupPasswordInput" class="harbor-underline-input" placeholder="••••••••" minlength="6" required name="password" autocomplete="new-password"><button type="button" onclick="togglePwVisibility('signupPasswordInput', this)" aria-label="Show password" style="position:absolute; right:8px; background:none; border:none; color:#99f6e4; font-size:0.78rem; font-weight:700; cursor:pointer; padding:4px 6px;">Show</button></div>
                             </div>
 
                             <div class="harbor-underline-group">
@@ -1322,7 +1322,7 @@
         <div style="background:#0f2930; border:1px solid rgba(45,212,191,0.35); border-radius:18px; max-width:400px; width:100%; padding:28px; color:#f8fafc; box-shadow:0 20px 50px rgba(0,0,0,0.6);">
             <h3 style="margin:0 0 8px; font-size:1.35rem; color:#2dd4bf;">Set Your New Password</h3>
             <p style="margin:0 0 18px; font-size:0.88rem; color:#cbd5e1;">Enter a new password (at least 8 characters) for your Share Your Walk account.</p>
-            <input id="newRecoveryPassword" type="password" placeholder="New password (8+ characters)" style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid rgba(148,163,184,0.35); background:#081a1f; color:#fff; font-size:1rem; margin-bottom:14px; box-sizing:border-box;">
+            <input id="newRecoveryPassword" type="password" placeholder="New password (8+ characters)" style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid rgba(148,163,184,0.35); background:#081a1f; color:#fff; font-size:1rem; margin-bottom:14px; box-sizing:border-box;" name="password" autocomplete="new-password">
             <button type="button" onclick="submitNewRecoveryPassword()" style="width:100%; padding:12px; border-radius:10px; border:none; background:#14b8a6; color:#042f2e; font-weight:700; font-size:1rem; cursor:pointer;">Save New Password</button>
             <button type="button" onclick="document.getElementById('newPasswordModal').style.display='none'" style="width:100%; margin-top:10px; padding:8px; background:transparent; border:none; color:#94a3b8; cursor:pointer; font-size:0.85rem;">Cancel</button>
         </div>
