@@ -480,15 +480,30 @@
                 <!-- Right Panel: Frosted-Glass Member Login / Dedicated Membership Sign-Up -->
                 <div class="harbor-glass-card">
                     <!-- VIEW 1: MEMBER LOGIN -->
-                    <div id="loginFormContainer">
+                    <div id="loginFormContainer" style="padding-bottom: 110px;">
                         <div style="text-align:center; margin-bottom:20px;">
                             <h3 style="margin:0 0 4px; font-size:1.4rem; font-weight:800; color:#ffffff;">Member Login</h3>
                             <p style="margin:0; font-size:0.84rem; color:#cbd5e1;">Enter your caregiver sanctuary</p>
                         </div>
 
-                        <div class="harbor-underline-group">
-                            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin:14px 0 20px;"><label for="loginMemberId">Member Email or ID</label>
-                            <input type="email" id="loginMemberId" class="harbor-underline-input" placeholder="you@example.com" name="email" autocomplete="username">
+                        <div class="harbor-underline-group" style="display:flex; flex-direction:column; gap:6px; margin:0 0 16px;">
+                            <label for="loginMemberId" style="font-size:0.85rem; font-weight:700; color:#e2e8f0; text-align:left;">Member Email or ID</label>
+                            <input type="email" id="loginMemberId" class="harbor-underline-input" placeholder="you@example.com" name="email" autocomplete="username" onkeydown="if(event.key==='Enter'){event.preventDefault();document.querySelector('#loginFormContainer button[type=submit], #loginFormContainer .harbor-submit-btn, #memberLoginBtn')?.click();}" style="width:100%; box-sizing:border-box; padding:11px 14px; border-radius:10px; font-size:0.95rem;">
+                        </div>
+
+                        <div class="harbor-underline-group" style="display:flex; flex-direction:column; gap:6px; margin:0 0 14px;">
+                            <label for="loginPasswordInput" style="font-size:0.85rem; font-weight:700; color:#e2e8f0; text-align:left;">Password</label>
+                            <div style="position:relative; display:flex; align-items:center; width:100%;">
+                                <input type="password" id="loginPasswordInput" class="harbor-underline-input" placeholder="••••••••" name="password" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();document.querySelector('#loginFormContainer button[type=submit], #loginFormContainer .harbor-submit-btn, #memberLoginBtn')?.click();}" style="width:100%; box-sizing:border-box; padding:11px 68px 11px 14px; border-radius:10px; font-size:0.95rem;">
+                                <button type="button" onclick="togglePwVisibility('loginPasswordInput', this)" aria-label="Show password" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:#0f2930; border:1px solid rgba(20,184,166,0.45); border-radius:7px; color:#5eead4; font-size:0.75rem; font-weight:700; cursor:pointer; padding:4px 9px; z-index:5;">Show</button>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.84rem; color:#e2e8f0; margin:6px 0 16px;">
+                            <label for="rememberMeCheck" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-weight:600;">
+                                <input type="checkbox" id="rememberMeCheck" style="width:16px; height:16px; accent-color:#2dd4bf; cursor:pointer;">
+                                <span>Remember Me</span>
+                            </label>
                         </div>
 
                         <div class="harbor-underline-group">
