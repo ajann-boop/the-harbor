@@ -398,7 +398,7 @@
                         </div>
 
                         <div class="harbor-underline-group">
-                            <label for="loginMemberId">Member Email or ID</label>
+                            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin:14px 0 20px;"><label for="loginMemberId">Member Email or ID</label>
                             <input type="email" id="loginMemberId" class="harbor-underline-input" placeholder="you@example.com">
                         </div>
 
@@ -411,7 +411,7 @@
                             <label for="rememberMeCheck" style="display:inline-flex; align-items:center; gap:7px; cursor:pointer;">
                                 <input type="checkbox" id="rememberMeCheck" style="width:auto; accent-color:#2dd4bf; cursor:pointer;">
                                 Remember Me
-                            </label>
+                            </label><button type="button" onclick="handleForgotPassword()" style="background:none; border:none; color:#99f6e4; font-size:0.83rem; font-weight:600; text-decoration:underline; cursor:pointer; padding:0;">Forgot password?</button></div>
                         </div>
 
                         <button type="button" onclick="handleLoginClick()" class="harbor-primary-btn">
