@@ -534,13 +534,13 @@
                         <div style="max-width:300px; margin:0 auto;">
                             <div class="harbor-underline-group" style="display:flex; flex-direction:column; gap:6px; margin:0 0 14px;">
                                 <label for="loginMemberId" style="font-size:0.84rem; font-weight:700; color:#e2e8f0; text-align:left;">Member Email or ID</label>
-                                <input type="email" id="loginMemberId" class="harbor-underline-input" placeholder="you@example.com" name="email" autocomplete="username" onkeydown="if(event.key==='Enter'){event.preventDefault();if(typeof handleLoginClick==='function'){handleLoginClick();}else{document.querySelector('.harbor-primary-btn')?.click();}}" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:10px; font-size:0.92rem; background:#ffffff; color:#0f172a; border:1px solid rgba(148,163,184,0.45);">
+                                <input type="email" id="loginMemberId" class="harbor-underline-input" placeholder="you@example.com" name="email" autocomplete="username" onkeydown="if(event.key==='Enter'){event.preventDefault();if(typeof handleLoginClick==='function'){handleLoginClick();}else{document.querySelector('.harbor-primary-btn')?.click();}}" style="width:100%; box-sizing:border-box; padding:12px 14px; border-radius:10px; border:1px solid rgba(94, 234, 212, 0.45); background:rgba(11, 46, 51, 0.48); color:#ffffff; font-size:0.95rem; outline:none;" name="username" autocomplete="username">
                             </div>
 
                             <div class="harbor-underline-group" style="display:flex; flex-direction:column; gap:6px; margin:0 0 12px;">
                                 <label for="loginPasswordInput" style="font-size:0.84rem; font-weight:700; color:#e2e8f0; text-align:left;">Password</label>
                                 <div style="position:relative; display:flex; align-items:center; width:100%;">
-                                    <input type="password" id="loginPasswordInput" class="harbor-underline-input" placeholder="••••••••" name="password" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();if(typeof handleLoginClick==='function'){handleLoginClick();}else{document.querySelector('.harbor-primary-btn')?.click();}}" style="width:100%; box-sizing:border-box; padding:10px 66px 10px 14px; border-radius:10px; font-size:0.92rem; background:#ffffff; color:#0f172a; border:1px solid rgba(148,163,184,0.45);">
+                                    <input type="password" id="loginPasswordInput" class="harbor-underline-input" placeholder="••••••••" name="password" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();if(typeof handleLoginClick==='function'){handleLoginClick();}else{document.querySelector('.harbor-primary-btn')?.click();}}" style="width:100%; box-sizing:border-box; padding:12px 14px; border-radius:10px; border:1px solid rgba(94, 234, 212, 0.45); background:rgba(11, 46, 51, 0.48); color:#ffffff; font-size:0.95rem; outline:none; padding-right:68px;" name="password" autocomplete="current-password">
                                     <button type="button" onclick="togglePwVisibility('loginPasswordInput', this)" aria-label="Show password" style="position:absolute; right:7px; top:50%; transform:translateY(-50%); background:#0f2930; border:1px solid rgba(20,184,166,0.55); border-radius:7px; color:#5eead4; font-size:0.75rem; font-weight:700; cursor:pointer; padding:4px 9px; z-index:5;">Show</button>
                                 </div>
                             </div>
@@ -1323,7 +1323,7 @@
         function backToDashboard() { showMemberDashboard(); }
         function openCommunityHub() { hideAllViews(); document.getElementById('connect-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function openKidsHarborHub() { hideAllViews(); document.getElementById('kids-harbor-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
-        function openSharingBoard() { openCorkBoard(); }); }
+        function openSharingBoard() { openCorkBoard(); }; 
         function openTeachersLounge() { hideAllViews(); document.getElementById('teachers-lounge-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function openShortVideosGallery() { hideAllViews(); document.getElementById('short-videos-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function openFunnyPicsGallery() { hideAllViews(); document.getElementById('funny-pics-view').style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -1520,7 +1520,7 @@
             textInput.value = '';
             if (mediaInput) mediaInput.value = '';
             container.scrollTop = container.scrollHeight;
-        }
+        
         window.addEventListener('DOMContentLoaded', async () => {
             try {
                 const res = await fetch('/api/me');
