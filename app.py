@@ -752,7 +752,36 @@ def serious_wall_api():
 
     return jsonify({"ok": True, "posts": posts})
 
+@app.route("/api/wall/<int:post_id>", methods=["DELETE"])
+def delete_serious_wall_post(post_id):
+    is_admin = bool(session.get("is_admin"))
+    member_name = (session.get("member_name") or "").strip().lower()
 
+    if not is_admin and not member_name:
+        return jsonify({"ok": False, "error": "Please sign in first."}), 401
+
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT author_name FROM harbor_wall_posts WHERE id = %s LIMIT 1;",
+                (post_id,),
+            )
+            post = cur.fetchone()
+            if not post:
+                return jsonify({"ok": False, "error": "Post not found."}), 404
+
+            post_author = (post["author_name"] or "").strip().lower()
+            if not is_admin and post_author != member_name:
+                return jsonify({"ok": False, "error": "You can only remove your own pinned posts."}), 403
+
+            cur.execute("DELETE FROM harbor_wall_replies WHERE post_id = %s;", (post_id,))
+            cur.execute("DELETE FROM harbor_wall_posts WHERE id = %s;", (post_id,))
+            conn.commit()
+    finally:
+        conn.close()
+
+    return jsonify({"ok": True})
 @app.route("/api/wall/<int:post_id>/reply", methods=["POST"])
 def reply_serious_wall(post_id):
     data = request.get_json(silent=True) or {}

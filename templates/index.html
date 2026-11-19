@@ -3009,13 +3009,16 @@
             try {
                 const res = await fetch('/api/wall');
                 const data = await res.json();
-                if (!data.ok || !data.posts || data.posts.length === 0) return;
-
                 const board = document.getElementById('seriousWallBoard');
-                if (!board) return;
+if (!board || !data.ok || !data.posts) return;
+if (data.posts.length === 0) {
+    board.innerHTML = '';
+    return;
+}
                 board.innerHTML = data.posts.map(p => `
                     <div style="background: rgba(15, 23, 42, 0.94); border: 1.5px solid #818cf8; border-top: 4px solid #fde047; border-radius: 12px; padding: 14px; box-shadow: 0 10px 24px rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
                         <div>
+                      <button type="button" onclick="deleteSeriousWallPost(${p.id})" style="background: rgba(248, 113, 113, 0.14); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.4); border-radius: 6px; font-size: 0.68rem; font-weight: 700; padding: 2px 8px; cursor: pointer;">Remove</button>      
                             <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 6px;">
                                 <span style="font-size: 0.68rem; font-weight: 800; color: #fde047; background: rgba(253, 224, 71, 0.14); border: 1px solid rgba(253, 224, 71, 0.4); padding: 2px 8px; border-radius: 50px;">${p.category}</span>
                             </div>
@@ -3078,6 +3081,16 @@
             const data = await res.json();
             if (data.ok) loadSeriousWall();
         }
+        async function deleteSeriousWallPost(postId) {
+    if (!confirm('Remove this pinned post from the Wall of Seriousness?')) return;
+    const res = await fetch(`/api/wall/${postId}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.ok) {
+        loadSeriousWall();
+    } else {
+        alert(data.error || 'Could not remove post.');
+    }
+}
 
         document.addEventListener('DOMContentLoaded', () => {
             loadHarborContest();
