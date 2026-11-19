@@ -1,0 +1,146 @@
+SCRIPT:
+with open("templates/index.html", "r") as f:
+    html = f.read()
+
+# 1. Add CSS for The Wall of Seriousness dedicated page, slider, paper-pin animation & hover tooltip
+wall_css = """
+        /* THE WALL OF SERIOUSNESS (DEDICATED PAGE) */
+        .wall-seriousness-screen {
+            max-width: 1000px;
+            background: linear-gradient(145deg, rgba(24, 22, 54, 0.94), rgba(15, 23, 42, 0.96));
+            border: 2px solid #818cf8;
+        }
+        .highlighted-topic-box {
+            background: rgba(253, 224, 71, 0.14);
+            border: 2px solid #fde047;
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 0 15px rgba(253, 224, 71, 0.18);
+        }
+        .highlighted-topic-input {
+            width: 100%; background: rgba(15, 23, 42, 0.85); border: 1.5px solid #fde047;
+            color: #fde047; font-weight: 800; font-size: 0.95rem; padding: 8px 12px; border-radius: 8px; outline: none;
+        }
+        .highlighted-topic-input::placeholder { color: rgba(253, 224, 71, 0.55); font-weight: 600; }
+
+        .care-checkbox-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 12px;
+        }
+        .care-check-pill {
+            display: flex; align-items: center; gap: 8px; background: rgba(49, 46, 129, 0.5);
+            border: 1px solid rgba(129, 140, 248, 0.45); padding: 8px 10px; border-radius: 8px;
+            font-size: 0.8rem
+
+YOUTH COVE 1104..1176:
+1104:         <div id="youthCoveView" class="view-screen ig-youth-screen" style="max-width: 720px;">
+1105:             <div class="screen-header" style="border-bottom-color: rgba(244, 114, 182, 0.35);">
+1106:                 <div>
+1107:                     <div class="screen-title" style="color: #f472b6;">✨ The Youth Cove (21 &amp; Under)</div>
+1108:                     <div style="font-size: 0.75rem; color: #f5d0fe;">Visual feed &amp; hangout for kids, teens, and young adults 21 &amp; under.</div>
+1109:                 </div>
+1110:                 <button class="back-hub-btn" style="border-color: #f472b6; color: #f472b6;" onclick="switchView('communityDashboardView')">← Back to Hub</button>
+1111:             </div>
+1112: 
+1113:             <!-- Instagram-Style Stories Bar -->
+1114:             <div class="ig-stories-row">
+1115:                 <div class="ig-story-item" onclick="document.getElementById('kidNameInput').focus()">
+1116:                     <div class="ig-story-ring"><div class="ig-story-inner">+</div></div>
+1117:                     <span class="ig-story-name">Your Snap</span>
+1118:                 </div>
+1119:                 <div class="ig-story-item" onclick="alert('Marcus (7): Testing out the Hoover Power Scrub today!')">
+1120:                     <div class="ig-story-ring"><div class="ig-story-inner">M7</div></div>
+1121:                     <span class="ig-story-name">Marcus • 7</span>
+1122:                 </div>
+1123:                 <div class="ig-story-item" onclick="alert('Lily (15): Having a great week!')">
+1124:                     <div class="ig-story-ring"><div class="ig-story-inner">L15</div></div>
+1125:                     <span class="ig-story-name">Lily • 15</span>
+1126:                 </div>
+1127:                 <div class="ig-story-item" onclick="alert('Lewie: Listening to my favorite tracks!')">
+1128:                     <div class="ig-story-ring"><div class="ig-story-inner">LW</div></div>
+1129:                     <span class="ig-story-name">Lewie</span>
+1130:                 </div>
+1131:             </div>
+1132: 
+1133:             <!-- Share a Snap Composer -->
+1134:             <form onsubmit="event.preventDefault(); postKidsJourney();" style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(244, 114, 182, 0.4); padding: 12px; border-radius: 14px; margin-bottom: 14px;">
+1135:                 <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+1136:                     <input type="text" id="kidNameInput" class="dark-input" style="max-width: 185px; border-color: rgba(244, 114, 182, 0.45);" required placeholder="Name & Age (e.g. Lily, 15)">
+1137:                     <input type="text" id="kidJourneyInput" class="dark-input" style="flex: 1; min-width: 200px; border-color: rgba(244, 114, 182, 0.45);" required placeholder="Write a caption or say what's up...">
+1138:                 </div>
+1139:                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+1140:                     <div style="display: flex; align-items: center; gap: 8px;">
+1141:                         <label for="kidPhotoUpload" class="back-hub-btn" style="border-color: #f472b6; color: #f472b6; cursor: pointer;">📸 Add Photo</label>
+1142:                         <input type="file" id="kidPhotoUpload" accept="image/*" style="display: none;" onchange="handleGatheringPhoto(this)">
+1143:                         <span id="kidPhotoName" style="font-size: 0.72rem; color: #f5d0fe;"></span>
+1144:                     </div>
+1145:                     <button type="submit" class="action-btn" style="width: auto; padding: 7px 20px; margin-top: 0; background: linear-gradient(135deg, #f43f5e, #a855f7); color: #ffffff; border-radius: 50px; font-size: 0.82rem;">Share Post</button>
+1146:                 </div>
+1147:             </form>
+1148: 
+1149:             <!-- Visual Feed Cards -->
+1150:             <div id="kidsCornerFeed">
+1151:                 <div class="ig-post-card">
+1152:                     <div class="ig-post-top">
+1153:                         <div style="display: flex; align-items: center; gap: 8px;">
+1154:                             <div class="ig-story-ring" style="width: 34px; height: 34px;"><div class="ig-story-inner" style="font-size: 0.74rem;">M7</div></div>
+1155:                             <div>
+1156:                                 <div style="font-size: 0.84rem; font-weight: 800; color: #ffffff;">Marcus, Age 7</div>
+1157:                                 <div style="font-size: 0.68rem; color: #f5d0fe;">Youth Crew</div>
+1158:                             </div>
+1159:                         </div>
+1160:                         <span style="font-size: 0.72rem; color: #f472b6; font-weight: 800;">✨ Featured</span>
+1161:                     </div>
+1162:                     {% if second_mosaic %}
+1163:                     <img src="{{ url_for('static', filename='images/mosaic/' + second_mosaic) }}" class="ig-post-photo" alt="Youth Cove Snap">
+1164:                     {% endif %}
+1165:                     <div class="ig-post-body">
+1166:                         <div class="ig-reactions-bar">
+1167:                             <button type="button" class="ig-react-btn" onclick="this.innerText='❤️ 16'">🤍 15</button>
+1168:                             <button type="button" class="ig-react-btn" onclick="this.innerText='🔥 9'">🔥 8</button>
+1169:                         </div>
+1170:                         <div style="font-size: 0.84rem; color: #f8fafc;"><strong>Marcus</strong> Tested out the Hoover Power Scrub and helped clean the living room carpet today!</div>
+1171:                     </div>
+1172:                 </div>
+1173:             </div>
+1174:         </div>
+1175: 
+1176:         <!-- 5C. DEDICATED VIEW: THE REC AREA -->
+
+
+SWITCHVIEW:
+2674:         function switchView(viewId) {
+2675:             allViews.forEach(id => {
+2676:                 const el = document.getElementById(id);
+2677:                 if (el) {
+2678:                     el.classList.remove('active');
+2679:                     if (id === 'mainGatewayView') el.classList.add('hidden');
+2680:                 }
+2681:             });
+2682: 
+2683:             const distanceBg = document.getElementById('distanceBg');
+2684:             const joinBg = document.getElementById('joinBg');
+2685:             const guestBg = document.getElementById('guestBg');
+2686:             distanceBg.classList.remove('active');
+2687:             joinBg.classList.remove('active');
+2688:             guestBg.classList.remove('active');
+2689: 
+2690:             if (viewId === 'mainGatewayView') {
+2691:                 document.getElementById('mainGatewayView').classList.remove('hidden');
+2692:             } else {
+2693:                 const target = document.getElementById(viewId);
+2694:                 if (target) target.classList.add('active');
+2695: 
+2696:                 if (viewId === 'becomeMemberView') {
+2697:                     joinBg.classList.add('active');
+2698:                 } else if (viewId === 'donorVisitorView' || viewId === 'tourView') {
+2699:                     guestBg.classList.add('active');
+2700:                 } else {
+2701:                     distanceBg.classList.add('active');
+2702:                 }
+2703:             }
+2704:             window.scrollTo({ top: 0, behavior: 'smooth' });
+2705:         }
+2706:     </script>
+2707:     <script>
+2708:         /* Live Backend Wiring -> app.py (PostgreSQL + Gmail SMTP) */
