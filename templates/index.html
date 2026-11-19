@@ -971,6 +971,7 @@
         <!-- 5. COMMUNITY HUB (CLEAN COMMAND CENTER DASHBOARD) -->
         <div id="communityDashboardView" class="view-screen dashboard-screen">
             <div class="screen-header">
+               <button type="button" onclick="openChangePwModal()" class="close-btn" style="font-size: 0.8rem; color: #5eead4; border: 1px solid rgba(94, 234, 212, 0.45); padding: 6px 12px; margin-right: 8px;">Change Password</button> 
                 <div class="screen-title" style="font-size: 1.35rem;">⚓ Community Hub</div>
                 <button class="close-btn" style="font-size: 0.8rem; color: #5eead4; border: 1px solid rgba(94, 234, 212, 0.45); padding: 5px 12px; border-radius: 50px;" onclick="switchView('mainGatewayView')">Sign Out</button>
             </div>
@@ -3083,5 +3084,61 @@
             loadSeriousWall();
         });
     </script>
+
+    <!-- Change Password Modal -->
+<div id="changePwModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center;">
+  <div style="background:#16202a; border:1px solid rgba(255,255,255,0.14); border-radius:14px; padding:24px; width:90%; max-width:380px; color:#f4f6f8;">
+    <h3 style="margin:0 0 14px;">Change Password</h3>
+    <input id="curPwInput" type="password" placeholder="Current password" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; box-sizing:border-box;">
+    <input id="newPwInput" type="password" placeholder="New password (6+ characters)" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; box-sizing:border-box;">
+    <input id="confirmPwInput" type="password" placeholder="Confirm new password" style="width:100%; padding:10px; margin-bottom:12px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; box-sizing:border-box;">
+    <p id="pwStatusMsg" style="font-size:0.85rem; margin:0 0 12px; min-height:1.2em;"></p>
+    <div style="display:flex; gap:10px; justify-content:flex-end;">
+      <button type="button" onclick="closeChangePwModal()" style="padding:8px 14px; border-radius:8px; background:#334155; color:#fff; border:none; cursor:pointer;">Cancel</button>
+      <button type="button" onclick="submitPasswordChange()" style="padding:8px 14px; border-radius:8px; background:#2dd4bf; color:#0f172a; font-weight:600; border:none; cursor:pointer;">Update Password</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openChangePwModal() {
+  document.getElementById("pwStatusMsg").textContent = "";
+  document.getElementById("changePwModal").style.display = "flex";
+}
+function closeChangePwModal() {
+  document.getElementById("changePwModal").style.display = "none";
+  document.getElementById("curPwInput").value = "";
+  document.getElementById("newPwInput").value = "";
+  document.getElementById("confirmPwInput").value = "";
+}
+async function submitPasswordChange() {
+  const current_password = document.getElementById("curPwInput").value;
+  const new_password = document.getElementById("newPwInput").value;
+  const confirm = document.getElementById("confirmPwInput").value;
+  const msg = document.getElementById("pwStatusMsg");
+
+  if (new_password !== confirm) {
+    msg.style.color = "#f87171";
+    msg.textContent = "New passwords do not match.";
+    return;
+  }
+
+  const res = await fetch("/api/change-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ current_password, new_password })
+  });
+  const data = await res.json();
+
+  if (data.ok) {
+    msg.style.color = "#34d399";
+    msg.textContent = data.message;
+    setTimeout(closeChangePwModal, 1100);
+  } else {
+    msg.style.color = "#f87171";
+    msg.textContent = data.error || "Could not update password.";
+  }
+}
+</script>
 </body>
 </html>

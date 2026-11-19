@@ -363,7 +363,41 @@ def login_member():
         }
     )
 
+@app.route("/api/change-password", methods=["POST"])
+def change_password():
+    member_id = session.get("member_id")
+    if not member_id:
+        return jsonify({"ok": False, "error": "Please sign in first."}), 401
 
+    data = request.get_json(silent=True) or {}
+    current_password = data.get("current_password") or ""
+    new_password = (data.get("new_password") or "").strip()
+
+    if len(new_password) < 6:
+        return jsonify({"ok": False, "error": "New password must be at least 6 characters."}), 400
+
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT password_hash FROM harbor_members WHERE id = %s LIMIT 1;",
+                (member_id,),
+            )
+            member = cur.fetchone()
+
+            if not member or not check_password_hash(member["password_hash"], current_password):
+                return jsonify({"ok": False, "error": "Current password is incorrect."}), 400
+
+            new_hash = generate_password_hash(new_password)
+            cur.execute(
+                "UPDATE harbor_members SET password_hash = %s WHERE id = %s;",
+                (new_hash, member_id),
+            )
+            conn.commit()
+    finally:
+        conn.close()
+
+    return jsonify({"ok": True, "message": "Password updated successfully."})
 @app.route("/api/admin/unlock", methods=["POST"])
 def admin_unlock():
     data = request.get_json(silent=True) or {}
