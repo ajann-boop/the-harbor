@@ -320,9 +320,9 @@ def login_member():
     # Admin passphrase login support
     if MASTER_PIN and secrets.compare_digest(password, MASTER_PIN):
         session["member_id"] = 0
-        session["member_name"] = login_id or "Anthony"
+        session["member_name"] = login_id or "ajann"
         session["is_admin"] = True
-        return jsonify({"ok": True, "display_name": login_id or "Anthony", "is_admin": True})
+        return jsonify({"ok": True, "display_name": login_id or "ajann", "is_admin": True})
 
     conn = get_db_connection()
     try:
