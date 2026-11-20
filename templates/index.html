@@ -767,7 +767,7 @@
                 <div id="sanctuaryQuoteText" class="sanctuary-quote-text">"You don't have to weather the storm by yourself. Your lived experiences light the path for fellow caregivers walking right beside you."</div>
                 <div id="sanctuaryQuoteAuthor" class="sanctuary-quote-author">— The Harbor Community</div>
             </div>
-                <form onsubmit="event.preventDefault(); loginAsMember();">
+              <div id="memberLoginBox">  
                 <div class="form-group">
                     <label class="form-label">Login Info</label>
                     <input type="text" id="loginUserField" class="dark-input" required placeholder="Username or Email" autocomplete="username">
@@ -790,8 +790,8 @@
                     {% endif %}
                 </div>
 
-                <button type="submit" class="action-btn">Enter</button>
-            </form>
+                <button type="button" class="action-btn" onclick="handleHarborLogin()">Enter</button>
+            </div>
 
             <div style="text-align: center; margin-top: 14px;">
                 <a href="#" onclick="switchView('becomeMemberView'); return false;" style="color: #5eead4; font-size: 0.86rem; font-weight: 700; text-decoration: underline;">Not a member?</a>
@@ -3214,7 +3214,7 @@ async function submitPasswordChange() {
     msg.textContent = data.error || "Could not update password.";
   }
 }
-<script>
+
 async function loginAsMember() {
     const loginId = document.getElementById('loginUserField').value.trim();
     const password = document.getElementById('loginPasswordField').value;
