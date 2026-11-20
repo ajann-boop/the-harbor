@@ -185,8 +185,9 @@ def register_send_code():
     code = f"{random.randint(100000, 999999)}"
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=20)
     temp_hash = generate_password_hash(password)
-conn = get_db_connection() 
-try:
+    conn = get_db_connection() 
+    
+    try:
      with conn.cursor() as cur:
             cur.execute("SELECT id, is_verified FROM harbor_members WHERE email = %s;", (email,))
             existing = cur.fetchone()
@@ -217,27 +218,26 @@ try:
                     (username, display_name, email, temp_hash, caregiver_role, code, expires_at),
                 )
             conn.commit()
-finally:
+    finally:
         conn.close()    
        
-        send_harbor_email(
+    send_harbor_email(
         to_address=email,
-        subject="Your 6-Digit Verification Code — The Harbor (shareyourwalk.com)",
+        subject="Your 6-Digit Verification Code - The Harbor (shareyourwalk.com)",
         body_text=(
             f"Hi {first_name},\n\n"
             f"Welcome to The Harbor! Enter this 6-digit code to verify your email address:\n\n"
             f"    {code}\n\n"
             f"This code expires in 20 minutes.\n\n"
-            f"Warmly,\nThe Harbor Team — shareyourwalk.com"
-            return jsonify({"ok": True, "message": f"6-digit confirmation code sent to {email}!"})
+            f"Warmly,\nThe Harbor Team - shareyourwalk.com"
         ),
     )
-        
 
-
-@app.route("/api/register/verify", methods=["POST"])
-def register_verify():
-    data = request.get_json(silent=True) or {}
+    return jsonify({"ok": True, "message": f"6-digit confirmation code sent to {email}!"})
+    
+    @app.route("/api/register/verify", methods=["POST"])
+    def register_verify():
+     data = request.get_json(silent=True) or {}
     username = (data.get("username") or "").strip()
     first_name = (data.get("first_name") or "").strip()
     last_name = (data.get("last_name") or "").strip()
@@ -245,7 +245,6 @@ def register_verify():
     caregiver_role = (data.get("caregiver_role") or "").strip()
     bio = (data.get("bio") or "").strip()
     code = (data.get("code") or "").strip()
-
     if not email or not code:
         return jsonify({"ok": False, "error": "Please enter the 6-digit verification code sent to your email."}), 400
 
