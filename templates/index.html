@@ -767,7 +767,23 @@
                 <div id="sanctuaryQuoteText" class="sanctuary-quote-text">"You don't have to weather the storm by yourself. Your lived experiences light the path for fellow caregivers walking right beside you."</div>
                 <div id="sanctuaryQuoteAuthor" class="sanctuary-quote-author">— The Harbor Community</div>
             </div>
-              
+            
+              <div id="freshMemberLoginBox" style="position: relative; z-index: 50; margin-top: 12px;">
+    <div class="form-group">
+        <label class="form-label" for="harborLoginUser">Login Info</label>
+        <input type="text" id="harborLoginUser" class="dark-input" placeholder="Username or Email" autocomplete="username">
+    </div>
+
+    <div class="form-group" style="position: relative;">
+        <label class="form-label" for="harborLoginPass">Password</label>
+        <input type="password" id="harborLoginPass" class="dark-input" placeholder="••••••••" autocomplete="current-password">
+        <button type="button" id="harborEyeBtn" style="position: absolute; right: 12px; top: 34px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 16px;">👁️</button>
+    </div>
+
+    <button type="button" id="harborEnterBtn" class="action-btn" style="position: relative; z-index: 60; cursor: pointer; touch-action: manipulation;">
+        Enter
+    </button>
+</div>
 
             <div style="text-align: center; margin-top: 14px;">
                 <a href="#" onclick="switchView('becomeMemberView'); return false;" style="color: #5eead4; font-size: 0.86rem; font-weight: 700; text-decoration: underline;">Not a member?</a>
