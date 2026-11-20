@@ -535,6 +535,46 @@
     </div>
     <div class="mosaic-overlay"></div>
 
+<!-- CONTRIBUTE / SPONSOR MODAL -->
+<div id="contributeModalBackdrop" class="modal-backdrop" onclick="if(event.target === this) closeContributeModal()">
+    <div class="modal-card" style="max-width: 460px; width: 92%; background: #0f172a; border: 1px solid rgba(94, 234, 212, 0.35); border-radius: 16px; padding: 24px; color: #f8fafc;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="color: #5eead4; margin: 0;">🤝 Support &amp; Contribute to The Harbor</h3>
+            <button type="button" onclick="closeContributeModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        </div>
+        <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.45; margin-bottom: 14px;">
+            Thank you for helping keep The Harbor 100% free for caregivers and families. Leave your info below and Anthony will reach out personally.
+        </p>
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label class="form-label">Your Name</label>
+            <input type="text" id="contribNameInput" class="dark-input" placeholder="Full Name">
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="contribEmailInput" class="dark-input" placeholder="you@example.com">
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label class="form-label">Phone Number (Optional)</label>
+            <input type="tel" id="contribPhoneInput" class="dark-input" placeholder="(555) 123-4567">
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label class="form-label">Preferred Contact Method</label>
+            <div style="display: flex; gap: 14px; font-size: 0.84rem; color: #e2e8f0; margin-top: 4px;">
+                <label><input type="radio" name="contactPrefChoice" value="Email only" checked> Email</label>
+                <label><input type="radio" name="contactPrefChoice" value="Call or Text"> Call / Text</label>
+            </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+            <label class="form-label">How would you like to help?</label>
+            <textarea id="contribCauseInput" class="dark-input" rows="2" placeholder="Sponsorship, gear donation, foundation partnership, or general support..."></textarea>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button type="button" class="action-btn" onclick="submitContributeContact()">Send Inquiry</button>
+            <button type="button" class="uniform-portal-btn" onclick="closeContributeModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
     <!-- "Connecting the Distance" Beacon Horizon Backdrop -->
     <div id="distanceBg" class="distance-bg">
         <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
@@ -1541,45 +1581,7 @@
             <button type="button" class="action-btn" onclick="closeFeedAttachModal()">Done</button>
         </div>
     </div>
-    <!-- CONTRIBUTE / SPONSOR MODAL -->
-<div id="contributeModalBackdrop" class="modal-backdrop" onclick="if(event.target === this) closeContributeModal()">
-    <div class="modal-card" style="max-width: 460px; width: 92%; background: #0f172a; border: 1px solid rgba(94, 234, 212, 0.35); border-radius: 16px; padding: 24px; color: #f8fafc;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h3 style="color: #5eead4; margin: 0;">🤝 Support &amp; Contribute to The Harbor</h3>
-            <button type="button" onclick="closeContributeModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">&times;</button>
-        </div>
-        <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.45; margin-bottom: 14px;">
-            Thank you for helping keep The Harbor 100% free for caregivers and families. Leave your info below and Anthony will reach out personally.
-        </p>
-        <div class="form-group" style="margin-bottom: 10px;">
-            <label class="form-label">Your Name</label>
-            <input type="text" id="contribNameInput" class="dark-input" placeholder="Full Name">
-        </div>
-        <div class="form-group" style="margin-bottom: 10px;">
-            <label class="form-label">Email Address</label>
-            <input type="email" id="contribEmailInput" class="dark-input" placeholder="you@example.com">
-        </div>
-        <div class="form-group" style="margin-bottom: 10px;">
-            <label class="form-label">Phone Number (Optional)</label>
-            <input type="tel" id="contribPhoneInput" class="dark-input" placeholder="(555) 123-4567">
-        </div>
-        <div class="form-group" style="margin-bottom: 10px;">
-            <label class="form-label">Preferred Contact Method</label>
-            <div style="display: flex; gap: 14px; font-size: 0.84rem; color: #e2e8f0; margin-top: 4px;">
-                <label><input type="radio" name="contactPrefChoice" value="Email only" checked> Email</label>
-                <label><input type="radio" name="contactPrefChoice" value="Call or Text"> Call / Text</label>
-            </div>
-        </div>
-        <div class="form-group" style="margin-bottom: 16px;">
-            <label class="form-label">How would you like to help?</label>
-            <textarea id="contribCauseInput" class="dark-input" rows="2" placeholder="Sponsorship, gear donation, foundation partnership, or general support..."></textarea>
-        </div>
-        <div style="display: flex; gap: 10px;">
-            <button type="button" class="action-btn" onclick="submitContributeContact()">Send Inquiry</button>
-            <button type="button" class="uniform-portal-btn" onclick="closeContributeModal()">Cancel</button>
-        </div>
-    </div>
-</div>
+   
 
     <script>
         /* Show / Hide Password Toggle (Minimal Eyeball) */
@@ -1682,7 +1684,35 @@
                 arrow.innerText = '▾';
             }
         }
+window.loginAsMember = async function() {
+            const loginId = document.getElementById('loginUserField').value.trim();
+            const password = document.getElementById('loginPasswordField').value;
 
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login_id: loginId, password: password })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.ok) {
+                    alert(data.error || "Login failed. Please check your credentials.");
+                    return;
+                }
+                setHubGreetingAndBadges(data.display_name || loginId || 'Anthony', data.caregiver_role || '');
+                const adminCard = document.getElementById('adminApprovalCard');
+                if (data.is_admin) {
+                    if (adminCard) adminCard.style.display = 'block';
+                    loadAdminMembers();
+                } else if (adminCard) {
+                    adminCard.style.display = 'none';
+                }
+                switchView('communityDashboardView');
+            } catch (err) {
+                alert("Network error signing in. Please try again.");
+            }
+        };
+        
         function openContributeModal() {
             document.getElementById('contributeModalBackdrop').classList.add('active');
         }
@@ -3202,5 +3232,7 @@ async function submitPasswordChange() {
   }
 }
 </script>
+
+</div>
 </body>
 </html>
