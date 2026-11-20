@@ -26,8 +26,6 @@ def get_db_connection():
     if not DATABASE_URL:
         raise RuntimeError("DATABASE_URL is not configured.")
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
-
-
 def init_db():
     """Create core tables in Supabase PostgreSQL if they do not exist yet."""
     if not DATABASE_URL:
@@ -187,29 +185,28 @@ def register_send_code():
     code = f"{random.randint(100000, 999999)}"
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=20)
     temp_hash = generate_password_hash(password)
-conn = get_db_connection()
+conn = get_db_connection() 
 try:
-        with conn.cursor() as cur:
+     with conn.cursor() as cur:
             cur.execute("SELECT id, is_verified FROM harbor_members WHERE email = %s;", (email,))
             existing = cur.fetchone()
             if existing and existing["is_verified"]:
                 return jsonify({"ok": False, "error": "An account with this email is already registered."}), 409
-            
-            
-         if existing:
-         cur.execute(
-             """
-             UPDATE harbor_members
-             SET username = %s,
-                 display_name = %s,
-                 password_hash = %s,
-                 caregiver_role = %s,
-                 verification_code = %s,
-                 code_expires_at = %s
-             WHERE email = %s;
-             """,
-             (username, display_name, temp_hash, caregiver_role, code, expires_at, email),
-         )  
+
+            if existing:
+                cur.execute(
+                    """
+                    UPDATE harbor_members
+                    SET username = %s,
+                        display_name = %s,
+                        password_hash = %s,
+                        caregiver_role = %s,
+                        verification_code = %s,
+                        code_expires_at = %s
+                    WHERE email = %s;
+                    """,
+                    (username, display_name, temp_hash, caregiver_role, code, expires_at, email),
+                )
             else:
                 cur.execute(
                     """
@@ -219,11 +216,11 @@ try:
                     """,
                     (username, display_name, email, temp_hash, caregiver_role, code, expires_at),
                 )
-        conn.commit()
-    finally:
-        conn.close()
-
-    send_harbor_email(
+            conn.commit()
+finally:
+        conn.close()    
+       
+        send_harbor_email(
         to_address=email,
         subject="Your 6-Digit Verification Code — The Harbor (shareyourwalk.com)",
         body_text=(
@@ -232,10 +229,10 @@ try:
             f"    {code}\n\n"
             f"This code expires in 20 minutes.\n\n"
             f"Warmly,\nThe Harbor Team — shareyourwalk.com"
+            return jsonify({"ok": True, "message": f"6-digit confirmation code sent to {email}!"})
         ),
     )
-
-    return jsonify({"ok": True, "message": f"6-digit confirmation code sent to {email}!"})
+        
 
 
 @app.route("/api/register/verify", methods=["POST"])
