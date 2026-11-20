@@ -323,9 +323,9 @@ def login_member():
     is_admin_pin = bool(ADMIN_PIN and secrets.compare_digest(password, ADMIN_PIN))
     if is_master or is_admin_pin:
         session["member_id"] = 0
-        session["member_name"] = login_id or "ajann"
+        session["member_name"] = login_id or "Anthony"
         session["is_admin"] = True
-        return jsonify({"ok": True, "display_name": login_id or "ajann", "is_admin": True})
+        return jsonify({"ok": True, "display_name": login_id or "Anthony", "is_admin": True})
 
     conn = get_db_connection()
     try:
