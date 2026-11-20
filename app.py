@@ -409,7 +409,63 @@ def admin_unlock():
     session["is_admin"] = True
     return jsonify({"ok": True})
 
+@app.route("/api/admin/members", methods=["GET"])
+def admin_list_members():
+    if not session.get("is_admin"):
+        return jsonify({"ok": False, "error": "Admin access required."}), 403
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT id, username, display_name, email, caregiver_role, bio_note, is_verified, is_approved, created_at
+                FROM harbor_members
+                ORDER BY is_approved ASC, created_at DESC;
+                """
+            )
+            rows = [dict(r) for r in cur.fetchall()]
+            for r in rows:
+                if r.get("created_at"):
+                    r["created_at"] = str(r["created_at"])
+        return jsonify({"ok": True, "members": rows})
+    finally:
+        conn.close()
 
+
+@app.route("/api/admin/members/<int:member_id>/<action>", methods=["POST"])
+def admin_review_member(member_id, action):
+    if not session.get("is_admin"):
+        return jsonify({"ok": False, "error": "Admin access required."}), 403
+    if action not in ("approve", "decline"):
+        return jsonify({"ok": False, "error": "Invalid action."}), 400
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            if action == "approve":
+                cur.execute(
+                    "UPDATE harbor_members SET is_approved = TRUE, is_verified = TRUE WHERE id = %s RETURNING email, display_name;",
+                    (member_id,),
+                )
+                row = cur.fetchone()
+                conn.commit()
+                if row and row.get("email"):
+                    send_harbor_email(
+                        to_address=row["email"],
+                        subject="Welcome Home - Your Harbor Membership is Approved!",
+                        body_text=(
+                            f"Hi {row.get('display_name') or 'Friend'},\n\n"
+                            "Your application to join The Harbor (shareyourwalk.com) has been approved! "
+                            "You can now sign in anytime using your email/username and password.\n\n"
+                            "Warmly,\nThe Harbor Team - shareyourwalk.com"
+                        ),
+                    )
+            else:
+                cur.execute("DELETE FROM harbor_members WHERE id = %s;", (member_id,))
+                conn.commit()
+        return jsonify({"ok": True})
+    finally:
+        conn.close()
+        
 @app.route("/api/contact", methods=["POST"])
 def contact_harbor():
     data = request.get_json(silent=True) or {}
