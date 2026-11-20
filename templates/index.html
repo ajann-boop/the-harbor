@@ -520,7 +520,39 @@
             border-top: 1px solid rgba(255,255,255,0.1); margin-top: 14px; position: relative; z-index: 10;
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
         }
-    </style>
+        @media (max-width: 600px) {
+        #memberLoginView {
+            width: 94% !important;
+            max-width: 100% !important;
+            padding: 18px 16px !important;
+            margin: 12px auto !important;
+            box-sizing: border-box !important;
+        }
+        #freshMemberLoginBox .dark-input {
+            font-size: 16px !important;
+            min-height: 48px !important;
+            padding: 12px 44px 12px 14px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        #harborEyeBtn {
+            top: 50% !important;
+            transform: translateY(-10%) !important;
+            min-width: 44px !important;
+            min-height: 44px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        #harborEnterBtn {
+            width: 100% !important;
+            min-height: 50px !important;
+            font-size: 16px !important;
+            margin-top: 8px !important;
+        }
+    }
+</style>
+   
 </head>
 <body>
     <!-- Safe Default Photo Data Variable from Flask mosaic_images -->
