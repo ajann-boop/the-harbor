@@ -3214,8 +3214,40 @@ async function submitPasswordChange() {
     msg.textContent = data.error || "Could not update password.";
   }
 }
-</script>
+<script>
+async function loginAsMember() {
+    const loginId = document.getElementById('loginUserField').value.trim();
+    const password = document.getElementById('loginPasswordField').value;
 
-</div>
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ login_id: loginId, password: password })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+            alert(data.error || "Login failed. Please check your credentials.");
+            return;
+        }
+        if (typeof setHubGreetingAndBadges === 'function') {
+            setHubGreetingAndBadges(data.display_name || loginId || 'Anthony', data.caregiver_role || '');
+        }
+        const adminCard = document.getElementById('adminApprovalCard');
+        if (data.is_admin) {
+            if (adminCard) adminCard.style.display = 'block';
+            if (typeof loadAdminMembers === 'function') loadAdminMembers();
+        } else if (adminCard) {
+            adminCard.style.display = 'none';
+        }
+        if (typeof switchView === 'function') {
+            switchView('communityDashboardView');
+        }
+    } catch (err) {
+        alert("Network error signing in. Please try again.");
+    }
+}
+window.loginAsMember = loginAsMember;
+</script>
 </body>
 </html>
