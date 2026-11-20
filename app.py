@@ -16,7 +16,8 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY") or secrets.token_hex(32)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-MASTER_PIN = os.getenv("MASTER_PIN", "")
+MASTER_PIN = (os.getenv("MASTER_PIN") or "").strip()
+ADMIN_PIN = (os.getenv("ADMIN_PIN") or "").strip()
 MAIL_USERNAME = os.getenv("MAIL_USERNAME", "")
 MAIL_APP_PASSWORD = os.getenv("MAIL_APP_PASSWORD", "")
 HARBOR_CONTACT_EMAIL = os.getenv("HARBOR_CONTACT_EMAIL") or MAIL_USERNAME
@@ -318,7 +319,9 @@ def login_member():
         return jsonify({"ok": False, "error": "Please enter your username/email and password."}), 400
 
     # Admin passphrase login support
-    if MASTER_PIN and secrets.compare_digest(password, MASTER_PIN):
+    is_master = bool(MASTER_PIN and secrets.compare_digest(password, MASTER_PIN))
+    is_admin_pin = bool(ADMIN_PIN and secrets.compare_digest(password, ADMIN_PIN))
+    if is_master or is_admin_pin:
         session["member_id"] = 0
         session["member_name"] = login_id or "ajann"
         session["is_admin"] = True
@@ -400,12 +403,13 @@ def admin_unlock():
     data = request.get_json(silent=True) or {}
     entered_phrase = (data.get("passphrase") or "").strip()
 
-    if not MASTER_PIN:
-        return jsonify({"ok": False, "error": "MASTER_PIN is not configured on the server."}), 500
+    if not MASTER_PIN and not ADMIN_PIN:
+        return jsonify({"ok": False, "error": "Admin PIN is not configured."}), 500
 
-    if not secrets.compare_digest(entered_phrase, MASTER_PIN):
-        return jsonify({"ok": False, "error": "Incorrect Admin passphrase."}), 401
-
+    is_master = bool(MASTER_PIN and secrets.compare_digest(entered_phrase, MASTER_PIN))
+    is_admin_pin = bool(ADMIN_PIN and secrets.compare_digest(entered_phrase, ADMIN_PIN))
+    if not is_master and not is_admin_pin:
+        return jsonify({"ok": False, "error": "Incorrect Admin PIN."}), 403
     session["is_admin"] = True
     return jsonify({"ok": True})
 
@@ -465,7 +469,7 @@ def admin_review_member(member_id, action):
         return jsonify({"ok": True})
     finally:
         conn.close()
-        
+
 @app.route("/api/contact", methods=["POST"])
 def contact_harbor():
     data = request.get_json(silent=True) or {}
