@@ -767,8 +767,8 @@
                 <div id="sanctuaryQuoteText" class="sanctuary-quote-text">"You don't have to weather the storm by yourself. Your lived experiences light the path for fellow caregivers walking right beside you."</div>
                 <div id="sanctuaryQuoteAuthor" class="sanctuary-quote-author">— The Harbor Community</div>
             </div>
-            
-              <div id="freshMemberLoginBox" style="position: relative; z-index: 50; margin-top: 12px;">
+
+            <div id="freshMemberLoginBox" style="position: relative; z-index: 50; margin-top: 12px;">
     <div class="form-group">
         <label class="form-label" for="harborLoginUser">Login Info</label>
         <input type="text" id="harborLoginUser" class="dark-input" placeholder="Username or Email" autocomplete="username">
@@ -776,12 +776,39 @@
 
     <div class="form-group" style="position: relative;">
         <label class="form-label" for="harborLoginPass">Password</label>
-        <input type="password" id="harborLoginPass" class="dark-input" placeholder="••••••••" autocomplete="current-password">
-        <button type="button" id="harborEyeBtn" style="position: absolute; right: 12px; top: 34px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 16px;">👁️</button>
+        <input type="password" id="harborLoginPass" class="dark-input" placeholder="••••••••" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter'){ event.preventDefault(); document.getElementById('harborEnterBtn').click(); }">
+        <button type="button" id="harborEyeBtn"
+                onclick="var p=document.getElementById('harborLoginPass'); var h=p.type==='password'; p.type=h?'text':'password'; this.textContent=h?'🙈':'👁️';"
+                style="position: absolute; right: 12px; top: 34px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 16px; z-index: 65;">👁️</button>
     </div>
 
-    <button type="button" id="harborEnterBtn" class="action-btn" style="position: relative; z-index: 60; cursor: pointer; touch-action: manipulation;">
-        Enter
+    <button type="button" id="harborEnterBtn" class="action-btn"
+            onclick="(async function(btn){
+                var u = document.getElementById('harborLoginUser').value.trim();
+                var p = document.getElementById('harborLoginPass').value;
+                if(!u){ alert('Please enter your username or email.'); return; }
+                if(!p){ alert('Please enter your password.'); return; }
+                btn.disabled = true; btn.textContent = 'Logging in...';
+                try {
+                    var r = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({login_id: u, password: p})
+                    });
+                    var d = await r.json();
+                    if(!r.ok || !d.ok){ alert(d.error || 'Login failed.'); return; }
+                    if(typeof setHubGreetingAndBadges === 'function') setHubGreetingAndBadges(d.display_name || u, d.caregiver_role || '');
+                    var ac = document.getElementById('adminApprovalCard');
+                    if(d.is_admin){ if(ac) ac.style.display='block'; if(typeof loadAdminMembers==='function') loadAdminMembers(); }
+                    else if(ac){ ac.style.display='none'; }
+                    if(typeof switchView === 'function'){ switchView('communityDashboardView'); }
+                    else { document.querySelectorAll('.view-screen').forEach(function(v){v.classList.remove('active');}); document.getElementById('communityDashboardView').classList.add('active'); }
+                } catch(e){ alert('Error: ' + e.message); }
+                finally { btn.disabled = false; btn.textContent = 'Log In'; }
+            })(this);"
+            style="position: relative; z-index: 60; cursor: pointer; touch-action: manipulation;">
+        Log In
     </button>
 </div>
 
