@@ -2882,40 +2882,32 @@
             }
         }
 
-        async function loadAdminMembers() {
-            const listEl = document.getElementById('adminMembersList');
-            if (!listEl) return;
+        async function loginAsMember() {
+            const loginId = document.getElementById('loginUserField').value.trim();
+            const password = document.getElementById('loginPasswordField').value;
+
             try {
-                const res = await fetch('/api/admin/members');
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login_id: loginId, password: password })
+                });
                 const data = await res.json();
                 if (!res.ok || !data.ok) {
-                    listEl.textContent = data.error || 'Could not load members.';
+                    alert(data.error || "Login failed. Please check your credentials.");
                     return;
                 }
-                const pending = (data.members || []).filter(m => !m.is_approved);
-                const approvedCount = (data.members || []).filter(m => m.is_approved).length;
-                if (pending.length === 0) {
-                    listEl.innerHTML = `<div style="color: #94a3b8;">No pending applications right now. (${approvedCount} approved members)</div>`;
-                    return;
+                setHubGreetingAndBadges(data.display_name || loginId || 'Anthony', data.caregiver_role || '');
+                const adminCard = document.getElementById('adminApprovalCard');
+                if (data.is_admin) {
+                    if (adminCard) adminCard.style.display = 'block';
+                    loadAdminMembers();
+                } else if (adminCard) {
+                    adminCard.style.display = 'none';
                 }
-                listEl.innerHTML = pending.map(m => `
-                    <div style="background: rgba(10, 25, 32, 0.75); border: 1px solid rgba(94, 234, 212, 0.35); border-radius: 10px; padding: 12px; margin-bottom: 10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <div>
-                                <strong style="color: #5eead4;">${m.display_name || m.username}</strong>
-                                <span style="color: #94a3b8; font-size: 0.8rem;">(${m.email})</span>
-                                <div style="font-size: 0.78rem; color: #fde047; margin-top: 2px;">${m.caregiver_role || 'Caregiver'} • ${m.is_verified ? '✅ Email Verified' : '⏳ Unverified Email'}</div>
-                            </div>
-                            <div style="display: flex; gap: 6px;">
-                                <button type="button" onclick="reviewMember(${m.id}, 'approve')" style="background: #10b981; color: #052e16; border: none; border-radius: 8px; padding: 6px 12px; font-weight: 700; cursor: pointer;">Approve</button>
-                                <button type="button" onclick="reviewMember(${m.id}, 'decline')" style="background: #ef4444; color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-weight: 700; cursor: pointer;">Decline</button>
-                            </div>
-                        </div>
-                        ${m.bio_note ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; font-style: italic;">"${m.bio_note}"</div>` : ''}
-                    </div>
-                `).join('') + `<div style="color: #94a3b8; font-size: 0.78rem; margin-top: 6px;">Approved members active: ${approvedCount}</div>`;
+                switchView('communityDashboardView');
             } catch (err) {
-                listEl.textContent = 'Network error loading applications.';
+                alert("Network error signing in. Please try again.");
             }
         }
 
