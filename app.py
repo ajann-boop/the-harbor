@@ -194,10 +194,8 @@ try:
             existing = cur.fetchone()
             if existing and existing["is_verified"]:
                 return jsonify({"ok": False, "error": "An account with this email is already registered."}), 409
-
-            if existing:
-                cur.execute(
-                    """
+            
+            
          if existing:
          cur.execute(
              """
