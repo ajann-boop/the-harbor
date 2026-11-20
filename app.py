@@ -179,17 +179,16 @@ def register_send_code():
     last_name = (data.get("last_name") or "").strip()
     email = (data.get("email") or "").strip().lower()
     caregiver_role = (data.get("caregiver_role") or "").strip()
-
-    if not first_name or not last_name or not email:
-        return jsonify({"ok": False, "error": "First name, last name, and email are required."}), 400
-
+    password = (data.get("password") or "").strip()
+    if not first_name or not last_name or not email or not password:
+        return jsonify({"ok": False, "error": "First name, last name, email, and password are required."}), 400 
+    if len(password) < 8: return jsonify({"ok": False, "error": "Please choose a password with at least 8 characters."}), 400
     display_name = username or f"{first_name} {last_name[0]}."
     code = f"{random.randint(100000, 999999)}"
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=20)
-    temp_hash = generate_password_hash("Harbor2026")
-
-    conn = get_db_connection()
-    try:
+    temp_hash = generate_password_hash(password)
+conn = get_db_connection()
+try:
         with conn.cursor() as cur:
             cur.execute("SELECT id, is_verified FROM harbor_members WHERE email = %s;", (email,))
             existing = cur.fetchone()
@@ -199,16 +198,20 @@ def register_send_code():
             if existing:
                 cur.execute(
                     """
-                    UPDATE harbor_members
-                    SET username = %s,
-                        display_name = %s,
-                        caregiver_role = %s,
-                        verification_code = %s,
-                        code_expires_at = %s
-                    WHERE email = %s;
-                    """,
-                    (username, display_name, caregiver_role, code, expires_at, email),
-                )
+         if existing:
+         cur.execute(
+             """
+             UPDATE harbor_members
+             SET username = %s,
+                 display_name = %s,
+                 password_hash = %s,
+                 caregiver_role = %s,
+                 verification_code = %s,
+                 code_expires_at = %s
+             WHERE email = %s;
+             """,
+             (username, display_name, temp_hash, caregiver_role, code, expires_at, email),
+         )  
             else:
                 cur.execute(
                     """

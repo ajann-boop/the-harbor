@@ -824,7 +824,11 @@
                         <label class="form-label">Email Address</label>
                         <input type="email" id="regEmailInput" class="dark-input" required placeholder="you@example.com">
                     </div>
-
+                      <div class="form-group">
+            <label class="form-label">Create a Password</label>
+            <input type="password" id="regPasswordInput" class="dark-input" minlength="8" required placeholder="At least 8 characters">
+        </div>
+        
                     <button type="submit" class="action-btn" style="width: auto; padding: 9px 22px; font-size: 0.85rem; border-radius: 50px;">✉️ Send Confirmation Code</button>
                 </form>
             </div>
@@ -2777,12 +2781,13 @@
             }
 
             const payload = {
-                username: document.getElementById('regUsername').value.trim(),
-                first_name: document.getElementById('regFirstName').value.trim(),
-                last_name: document.getElementById('regLastName').value.trim(),
-                caregiver_role: document.getElementById('regRoleSelect').value,
-                email: document.getElementById('regEmailInput').value.trim()
-            };
+            username: document.getElementById('regUsername').value.trim(),
+            first_name: document.getElementById('regFirstName').value.trim(),
+            last_name: document.getElementById('regLastName').value.trim(),
+            caregiver_role: document.getElementById('regRoleSelect').value,
+            email: document.getElementById('regEmailInput').value.trim(),
+            password: document.getElementById('regPasswordInput').value
+        };
 
             try {
                 const res = await fetch('/api/register/send-code', {
