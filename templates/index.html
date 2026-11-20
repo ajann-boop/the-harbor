@@ -767,31 +767,7 @@
                 <div id="sanctuaryQuoteText" class="sanctuary-quote-text">"You don't have to weather the storm by yourself. Your lived experiences light the path for fellow caregivers walking right beside you."</div>
                 <div id="sanctuaryQuoteAuthor" class="sanctuary-quote-author">— The Harbor Community</div>
             </div>
-              <div id="memberLoginBox">  
-                <div class="form-group">
-                    <label class="form-label">Login Info</label>
-                    <input type="text" id="loginUserField" class="dark-input" required placeholder="Username or Email" autocomplete="username">
-                </div> 
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="loginPasswordField" class="dark-input" required placeholder="••••••••" autocomplete="current-password">
-                        <button type="button" class="eyeball-toggle-btn" title="Show or Hide Password" onclick="togglePasswordVisibility('loginPasswordField', this)">👁️</button>
-                    </div>
-                </div>
-
-                <!-- Solid Media Card Placed Above Enter Button -->
-                <div class="winner-spotlight-card">
-                    <div class="winner-spotlight-title">Congrats Weekly Winner</div>
-                    {% if first_mosaic %}
-                    <img src="{{ url_for('static', filename='images/mosaic/' + first_mosaic) }}" class="winner-img" alt="Congrats Weekly Winner">
-                    {% else %}
-                    <div style="height: 150px; border-radius: 8px; background: linear-gradient(135deg, #0f3d44, #1e3a8a); display: flex; align-items: center; justify-content: center; color: #5eead4; font-weight: 800;">🏆 Weekly Community Photo Spotlight</div>
-                    {% endif %}
-                </div>
-
-                <button type="button" class="action-btn" onclick="handleHarborLogin()">Enter</button>
-            </div>
+              
 
             <div style="text-align: center; margin-top: 14px;">
                 <a href="#" onclick="switchView('becomeMemberView'); return false;" style="color: #5eead4; font-size: 0.86rem; font-weight: 700; text-decoration: underline;">Not a member?</a>
@@ -3246,8 +3222,98 @@ async function loginAsMember() {
     } catch (err) {
         alert("Network error signing in. Please try again.");
     }
-}
-window.loginAsMember = loginAsMember;
-</script>
+  }
+         window.loginAsMember = loginAsMember;
+      </script>
+   </script>
+    (function() {
+        const userInput = document.getElementById('harborLoginUser');
+        const passInput = document.getElementById('harborLoginPass');
+        const eyeBtn = document.getElementById('harborEyeBtn');
+        const enterBtn = document.getElementById('harborEnterBtn');
+
+        if (eyeBtn && passInput) {
+            eyeBtn.addEventListener('click', function() {
+                const isHidden = passInput.type === 'password';
+                passInput.type = isHidden ? 'text' : 'password';
+                eyeBtn.textContent = isHidden ? '🙈' : '👁️';
+            });
+        }
+
+        async function runFreshLogin() {
+            const loginId = userInput ? userInput.value.trim() : '';
+            const password = passInput ? passInput.value : '';
+
+            if (!loginId) {
+                alert("Please enter your username or email.");
+                if (userInput) userInput.focus();
+                return;
+            }
+            if (!password) {
+                alert("Please enter your password.");
+                if (passInput) passInput.focus();
+                return;
+            }
+
+            if (enterBtn) {
+                enterBtn.disabled = true;
+                enterBtn.textContent = "Entering...";
+            }
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login_id: loginId, password: password })
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.ok) {
+                    alert(data.error || "Login failed. Please check your credentials.");
+                    return;
+                }
+
+                if (typeof setHubGreetingAndBadges === 'function') {
+                    setHubGreetingAndBadges(data.display_name || loginId, data.caregiver_role || '');
+                }
+
+                const adminCard = document.getElementById('adminApprovalCard');
+                if (data.is_admin) {
+                    if (adminCard) adminCard.style.display = 'block';
+                    if (typeof loadAdminMembers === 'function') loadAdminMembers();
+                } else if (adminCard) {
+                    adminCard.style.display = 'none';
+                }
+
+                if (typeof switchView === 'function') {
+                    switchView('communityDashboardView');
+                } else {
+                    document.querySelectorAll('.view-screen').forEach(v => v.classList.remove('active'));
+                    const hub = document.getElementById('communityDashboardView');
+                    if (hub) hub.classList.add('active');
+                }
+            } catch (err) {
+                alert("Network error: " + err.message);
+            } finally {
+                if (enterBtn) {
+                    enterBtn.disabled = false;
+                    enterBtn.textContent = "Enter";
+                }
+            }
+        }
+
+        if (enterBtn) {
+            enterBtn.addEventListener('click', runFreshLogin);
+        }
+        if (passInput) {
+            passInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    runFreshLogin();
+                }
+            });
+        }
+    })();
+    </script>
 </body>
 </html>
