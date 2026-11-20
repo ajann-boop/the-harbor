@@ -727,8 +727,7 @@
                 <div id="sanctuaryQuoteText" class="sanctuary-quote-text">"You don't have to weather the storm by yourself. Your lived experiences light the path for fellow caregivers walking right beside you."</div>
                 <div id="sanctuaryQuoteAuthor" class="sanctuary-quote-author">— The Harbor Community</div>
             </div>
-
-            <form onsubmit="event.preventDefault(); loginAsMember();">
+                <form onsubmit="event.preventDefault(); loginAsMember();">
                 <div class="form-group">
                     <label class="form-label">Login Info</label>
                     <input type="text" id="loginUserField" class="dark-input" required placeholder="Username or Email" value="Anthony" autocomplete="username">
@@ -2853,36 +2852,7 @@
                 cause_designation: causeEl ? causeEl.value.trim() : ''
             };
 
-         async function loginAsMember() {
-            const loginId = document.getElementById('loginUserField').value.trim();
-            const password = document.getElementById('loginPasswordField').value;
-
-            try {
-                const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ login_id: loginId, password: password })
-                });
-                const data = await res.json();
-                if (!res.ok || !data.ok) {
-                    alert(data.error || "Login failed. Please check your credentials.");
-                    return;
-                }
-                setHubGreetingAndBadges(data.display_name || loginId || 'Anthony', data.caregiver_role || '');
-                const adminCard = document.getElementById('adminApprovalCard');
-                if (data.is_admin) {
-                    if (adminCard) adminCard.style.display = 'block';
-                    loadAdminMembers();
-                } else if (adminCard) {
-                    adminCard.style.display = 'none';
-                }
-                switchView('communityDashboardView');
-            } catch (err) {
-                alert("Network error signing in. Please try again.");
-            }
-        }
-
-        async function loginAsMember() {
+          async function loginAsMember() {
             const loginId = document.getElementById('loginUserField').value.trim();
             const password = document.getElementById('loginPasswordField').value;
 
