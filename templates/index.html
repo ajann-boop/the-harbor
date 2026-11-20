@@ -536,7 +536,7 @@
     <div class="mosaic-overlay"></div>
 
 <!-- CONTRIBUTE / SPONSOR MODAL -->
-<div id="contributeModalBackdrop" class="modal-backdrop" onclick="if(event.target === this) closeContributeModal()">
+<div id="contributeModalBackdrop" style="display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); z-index: 9999; align-items: center; justify-content: center; padding: 16px;" onclick="if(event.target === this) closeContributeModal()">
     <div class="modal-card" style="max-width: 460px; width: 92%; background: #0f172a; border: 1px solid rgba(94, 234, 212, 0.35); border-radius: 16px; padding: 24px; color: #f8fafc;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <h3 style="color: #5eead4; margin: 0;">🤝 Support &amp; Contribute to The Harbor</h3>
@@ -1684,58 +1684,41 @@
                 arrow.innerText = '▾';
             }
         }
-window.loginAsMember = async function() {
-            const loginId = document.getElementById('loginUserField').value.trim();
-            const password = document.getElementById('loginPasswordField').value;
 
-            try {
-                const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ login_id: loginId, password: password })
-                });
-                const data = await res.json();
-                if (!res.ok || !data.ok) {
-                    alert(data.error || "Login failed. Please check your credentials.");
-                    return;
-                }
-                setHubGreetingAndBadges(data.display_name || loginId || 'Anthony', data.caregiver_role || '');
-                const adminCard = document.getElementById('adminApprovalCard');
-                if (data.is_admin) {
-                    if (adminCard) adminCard.style.display = 'block';
-                    loadAdminMembers();
-                } else if (adminCard) {
-                    adminCard.style.display = 'none';
-                }
-                switchView('communityDashboardView');
-            } catch (err) {
-                alert("Network error signing in. Please try again.");
-            }
+window.openContributeModal = function() {
+            const modal = document.getElementById('contributeModalBackdrop');
+            if (modal) modal.style.display = 'flex';
         };
-        
-        function openContributeModal() {
-            document.getElementById('contributeModalBackdrop').classList.add('active');
-        }
-        function closeContributeModal() {
-            document.getElementById('contributeModalBackdrop').classList.remove('active');
-        }
-        function submitContributeContact() {
+
+        window.closeContributeModal = function() {
+            const modal = document.getElementById('contributeModalBackdrop');
+            if (modal) modal.style.display = 'none';
+        };
+
+        window.submitContributeContact = function() {
             const name = document.getElementById('contribNameInput').value.trim();
             const email = document.getElementById('contribEmailInput').value.trim();
             const phone = document.getElementById('contribPhoneInput').value.trim();
             const pref = document.querySelector('input[name="contactPrefChoice"]:checked')?.value || 'Email only';
             const cause = document.getElementById('contribCauseInput').value.trim();
 
+            if (!name || !email) {
+                alert("Please enter your name and email address so Anthony can follow up.");
+                return;
+            }
             try {
                 const inquiries = JSON.parse(localStorage.getItem('harbor_sponsor_inquiries') || '[]');
                 inquiries.push({ name, email, phone, pref, cause, date: new Date().toISOString() });
                 localStorage.setItem('harbor_sponsor_inquiries', JSON.stringify(inquiries));
             } catch (e) {}
 
+            alert("Thank you, " + name + "! Your inquiry has been recorded and Anthony will reach out soon.");
+            document.getElementById('contribNameInput').value = '';
+            document.getElementById('contribEmailInput').value = '';
+            document.getElementById('contribPhoneInput').value = '';
+            document.getElementById('contribCauseInput').value = '';
             closeContributeModal();
-            alert("Thank you, " + name + "! Someone from The Harbor will reach out within one business day (24 business hours, excluding weekends and holidays).");
-        }
-
+        };
         /* Tour Watch Counter */
         function openTourWithCounter() {
             let count = parseInt(localStorage.getItem('harbor_tour_watch_count') || '0', 10) + 1;
