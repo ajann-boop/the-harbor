@@ -978,10 +978,17 @@
                <button type="button" onclick="openChangePwModal()" class="close-btn" style="font-size: 0.8rem; color: #5eead4; border: 1px solid rgba(94, 234, 212, 0.45); padding: 6px 12px; margin-right: 8px;">Change Password</button> 
                 <div class="screen-title" style="font-size: 1.35rem;">⚓ Community Hub</div>
                 <button class="close-btn" style="font-size: 0.8rem; color: #5eead4; border: 1px solid rgba(94, 234, 212, 0.45); padding: 5px 12px; border-radius: 50px;" onclick="switchView('mainGatewayView')">Sign Out</button>
+           
+           <!-- ADMIN ONLY: Pending Member Applications -->
+        <div id="adminApprovalCard" style="display: none; background: rgba(15, 61, 68, 0.85); border: 1.5px solid #fde047; border-radius: 14px; padding: 16px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-weight: 800; color: #fde047; font-size: 0.98rem;">🛡️ Admin Command: Member Applications</span>
+                <button type="button" onclick="loadAdminMembers()" style="background: rgba(253, 224, 71, 0.15); border: 1px solid #fde047; color: #fde047; border-radius: 8px; padding: 4px 10px; font-size: 0.78rem; cursor: pointer;">Refresh</button>
             </div>
-
-
-            <!-- TOP: Personalized Greeting, Sign-Up Role Badges & Thought of the Day -->
+            <div id="adminMembersList" style="font-size: 0.86rem; color: #e2e8f0;">Loading applications...</div>
+        </div>
+            
+          <!-- TOP: Personalized Greeting, Sign-Up Role Badges & Thought of the Day -->
             <div class="member-profile-bar">
                 <div>
                     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
@@ -2846,25 +2853,7 @@
                 cause_designation: causeEl ? causeEl.value.trim() : ''
             };
 
-            try {
-                const res = await fetch('/api/contact', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                if (!res.ok || !data.ok) {
-                    alert(data.error || "Please enter your name and email before submitting.");
-                    return;
-                }
-                if (typeof closeContributeModal === 'function') closeContributeModal();
-                alert("Thank you! Your message has been sent directly to The Harbor team.");
-            } catch (err) {
-                alert("Network error sending your message. Please try again.");
-            }
-        }
-
-        async function loginAsMember() {
+     async function loginAsMember() {
             const loginId = document.getElementById('loginUserField').value.trim();
             const password = document.getElementById('loginPasswordField').value;
 
@@ -2879,12 +2868,21 @@
                     alert(data.error || "Login failed. Please check your credentials.");
                     return;
                 }
-              setHubGreetingAndBadges(data.display_name || loginId || 'Anthony', data.caregiver_role || '');
-            const adminCard = document.getElementById('adminApprovalCard');
-            if (data.is_admin) {
-                if (adminCard) adminCard.style.display = 'block';
-                loadAdminMembers();
-                async function loadAdminMembers() {
+                setHubGreetingAndBadges(data.display_name || loginId || 'Anthony', data.caregiver_role || '');
+                const adminCard = document.getElementById('adminApprovalCard');
+                if (data.is_admin) {
+                    if (adminCard) adminCard.style.display = 'block';
+                    loadAdminMembers();
+                } else if (adminCard) {
+                    adminCard.style.display = 'none';
+                }
+                switchView('communityDashboardView');
+            } catch (err) {
+                alert("Network error signing in. Please try again.");
+            }
+        }
+
+        async function loadAdminMembers() {
             const listEl = document.getElementById('adminMembersList');
             if (!listEl) return;
             try {
@@ -2935,25 +2933,8 @@
                 alert('Network error updating member.');
             }
         }
-            } else if (adminCard) {
-                adminCard.style.display = 'none';
-            }
-            switchView('communityDashboardView'); 
-            } catch (err) {
-                alert("Network error signing in. Please try again.");
-            }
-        }
-        setHubGreetingAndBadges(data.display_name || loginId || 'Anthony', data.caregiver_role || '');
-            const adminCard = document.getElementById('adminApprovalCard');
-            if (data.is_admin) {
-                if (adminCard) adminCard.style.display = 'block';
-                loadAdminMembers();
-            } else if (adminCard) {
-                adminCard.style.display = 'none';
-            }
-            
-            switchView('communityDashboardView');
-    
+    }
+      
 
 
 </script>
