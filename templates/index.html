@@ -549,12 +549,59 @@
             min-height: 50px !important;
             font-size: 16px !important;
             margin-top: 8px !important;
-        }
+       /* Equal perimeter spacing on Welcome / Gateway screen */
+    #mainGatewayView.gateway-section {
+        width: 92% !important;
+        max-width: 420px !important;
+        margin: 16px auto !important;
+        padding: 16px !important;
+        box-sizing: border-box !important;
     }
+
+    /* Slimmer mobile fit & cleaner glass transparency for Join / Become a Member */
+    #becomeMemberView {
+        width: 90% !important;
+        max-width: 360px !important;
+        margin: 14px auto !important;
+        padding: 16px 14px !important;
+        background: rgba(11, 46, 51, 0.52) !important;
+        backdrop-filter: blur(6px) !important;
+        box-sizing: border-box !important;
+    }
+
+    #becomeMemberView .screen-header {
+        margin-top: 2px !important;
+        margin-bottom: 10px !important;
+    }
+
+    #becomeMemberView .form-row,
+    #becomeMemberView .name-row {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    #becomeMemberView .dark-input,
+    #becomeMemberView select {
+        font-size: 16px !important;
+        min-height: 44px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+        #weeklyWinnerCard {
+            width: 100% !important;
+            margin: 14px auto !important;
+            box-sizing: border-box !important;
+            text-align: center !important;
+        }
+    }  
+
 </style>
-   
-</head>
-<body>
+
+  </head>
+
+ <body>
     <!-- Safe Default Photo Data Variable from Flask mosaic_images -->
     {% set first_mosaic = mosaic_images[0] if mosaic_images and mosaic_images|length > 0 else '' %}
     {% set second_mosaic = mosaic_images[1] if mosaic_images and mosaic_images|length > 1 else first_mosaic %}
@@ -814,17 +861,7 @@
                 onclick="var p=document.getElementById('harborLoginPass'); var h=p.type==='password'; p.type=h?'text':'password'; this.textContent=h?'🙈':'👁️';"
                 style="position: absolute; right: 12px; top: 34px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 16px; z-index: 65;">👁️</button>
     </div>
-           <!-- Weekly Winner Photo Contest Spotlight -->
-    <div id="weeklyWinnerCard" style="background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(253, 224, 71, 0.45); border-radius: 14px; padding: 12px; margin: 14px 0; text-align: center;">
-        <div style="font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #fde047; margin-bottom: 6px;">
-            🏆 Congrats Weekly Photo Contest Winner!
-        </div>
-        <div id="weeklyWinnerPhotoWrap" style="width: 100%; max-height: 190px; overflow: hidden; border-radius: 10px; margin-bottom: 8px; background: rgba(2, 6, 23, 0.6); display: flex; align-items: center; justify-content: center;">
-            <img id="weeklyWinnerImg" src="{{ url_for('static', filename='images/mosaic/' + first_mosaic) if first_mosaic else '' }}" alt="Weekly Photo Contest Winner" style="width: 100%; max-height: 190px; object-fit: cover; display: block;" onerror="this.style.display='none';">
-        </div>
-        <div id="weeklyWinnerTitle" style="font-size: 0.9rem; font-weight: 700; color: #f8fafc;">Weekly Community Spotlight</div>
-        <div id="weeklyWinnerCaption" style="font-size: 0.8rem; color: #94a3b8; margin-top: 2px;">Celebrating moments of strength &amp; joy across The Harbor</div>
-    </div>
+        
     
     <button type="button" id="harborEnterBtn" class="action-btn"
             onclick="(async function(btn){
@@ -855,7 +892,7 @@
             Log In
     </button>
 
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 14px; font-size: 0.88rem;">
+   <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 14px; font-size: 0.88rem;">
         <a href="#" onclick="openChangePwModal(); return false;" style="color: #94a3b8; text-decoration: underline;">
             Forgot / Change Password?
         </a>
@@ -863,22 +900,20 @@
             Not a member? Join here
         </a>
     </div>
-</div>
 
-
-        <!-- 2. BECOME A MEMBER VIEW (Vetting, Role Dropdown, Captcha & 24-Hr Admin Approval) -->
-        <div id="becomeMemberView" class="view-screen">
-            <div class="screen-header">
+            <!-- 2. BECOME A MEMBER VIEW (Vetting, Role Dropdown, Captcha & 24-Hr Admin Approval) -->
+           <div id="becomeMemberView" class="view-screen">
+              <div class="screen-header">
                 <div class="screen-title">Ready to join the Harbor? Share your walk of life.</div>
                 <button class="close-btn" onclick="switchView('mainGatewayView')">&times;</button>
-            </div>
-
-            <!-- Reworked Respectful Judgment-Free Callout -->
+              </div>
+                 
+              <!-- Reworked Respectful Judgment-Free Callout -->
             <div class="mission-callout">
                 <strong>Please Read Before Joining:</strong> This is a helping community and a strictly <strong>judgment-free zone</strong>. Our members are all walking through different stages of their caregiving journeys. You don't have to agree with every opinion or approach you see here, and not everyone will agree with yours—but we ask that you acknowledge and agree to treat every member with genuine respect and kindness.
             </div>
 
-            <!-- Step 1: Agreement, Not-a-Robot, Details & Role -->
+              <!-- Step 1: Agreement, Not-a-Robot, Details & Role -->
             <div id="verificationStep1">
                 <form onsubmit="event.preventDefault(); submitJoinStep1();">
                     <div class="agree-choice-row">
@@ -3405,7 +3440,9 @@ async function loginAsMember() {
                 }
             });
         }
-    })();
-    </script>
-</body>
-</html>
+        
+       
+         </body>
+
+         </script>  
+         </html>
