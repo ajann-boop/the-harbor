@@ -814,7 +814,18 @@
                 onclick="var p=document.getElementById('harborLoginPass'); var h=p.type==='password'; p.type=h?'text':'password'; this.textContent=h?'🙈':'👁️';"
                 style="position: absolute; right: 12px; top: 34px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 16px; z-index: 65;">👁️</button>
     </div>
-
+           <!-- Weekly Winner Photo Contest Spotlight -->
+    <div id="weeklyWinnerCard" style="background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(253, 224, 71, 0.45); border-radius: 14px; padding: 12px; margin: 14px 0; text-align: center;">
+        <div style="font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #fde047; margin-bottom: 6px;">
+            🏆 Congrats Weekly Photo Contest Winner!
+        </div>
+        <div id="weeklyWinnerPhotoWrap" style="width: 100%; max-height: 190px; overflow: hidden; border-radius: 10px; margin-bottom: 8px; background: rgba(2, 6, 23, 0.6); display: flex; align-items: center; justify-content: center;">
+            <img id="weeklyWinnerImg" src="{{ url_for('static', filename='images/mosaic/' + first_mosaic) if first_mosaic else '' }}" alt="Weekly Photo Contest Winner" style="width: 100%; max-height: 190px; object-fit: cover; display: block;" onerror="this.style.display='none';">
+        </div>
+        <div id="weeklyWinnerTitle" style="font-size: 0.9rem; font-weight: 700; color: #f8fafc;">Weekly Community Spotlight</div>
+        <div id="weeklyWinnerCaption" style="font-size: 0.8rem; color: #94a3b8; margin-top: 2px;">Celebrating moments of strength &amp; joy across The Harbor</div>
+    </div>
+    
     <button type="button" id="harborEnterBtn" class="action-btn"
             onclick="(async function(btn){
                 var u = document.getElementById('harborLoginUser').value.trim();
@@ -840,14 +851,20 @@
                 finally { btn.disabled = false; btn.textContent = 'Log In'; }
             })(this);"
             style="position: relative; z-index: 60; cursor: pointer; touch-action: manipulation;">
-        Log In
+              
+            Log In
     </button>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 14px; font-size: 0.88rem;">
+        <a href="#" onclick="openChangePwModal(); return false;" style="color: #94a3b8; text-decoration: underline;">
+            Forgot / Change Password?
+        </a>
+        <a href="#" onclick="switchView('becomeMemberView'); return false;" style="color: #5eead4; font-weight: 700; text-decoration: underline;">
+            Not a member? Join here
+        </a>
+    </div>
 </div>
 
-            <div style="text-align: center; margin-top: 14px;">
-                <a href="#" onclick="switchView('becomeMemberView'); return false;" style="color: #5eead4; font-size: 0.86rem; font-weight: 700; text-decoration: underline;">Not a member?</a>
-            </div>
-        </div>
 
         <!-- 2. BECOME A MEMBER VIEW (Vetting, Role Dropdown, Captcha & 24-Hr Admin Approval) -->
         <div id="becomeMemberView" class="view-screen">
