@@ -837,7 +837,7 @@
             </div>
          </div>
 
-              
+         </div>       
             <!-- 1. MEMBERS LOGIN VIEW ("Welcome back") -->
              <div id="memberLoginView" class="view-screen">
             <div class="screen-header">
@@ -1694,7 +1694,7 @@
         </div>
     </div>
    
-    </div>  
+
     <script>
         /* Show / Hide Password Toggle (Minimal Eyeball) */
         function togglePasswordVisibility(inputId, btn) {
@@ -3272,8 +3272,8 @@ if (data.posts.length === 0) {
         });
     </script>
 
-    <!-- Change Password Modal -->
-<div id="changePwModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center;">
+          <!-- Change Password Modal -->
+          <div id="changePwModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center;">
   <div style="background:#16202a; border:1px solid rgba(255,255,255,0.14); border-radius:14px; padding:24px; width:90%; max-width:380px; color:#f4f6f8;">
     <h3 style="margin:0 0 14px;">Change Password</h3>
     <input id="curPwInput" type="password" placeholder="Current password" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; box-sizing:border-box;">
@@ -3285,20 +3285,20 @@ if (data.posts.length === 0) {
       <button type="button" onclick="submitPasswordChange()" style="padding:8px 14px; border-radius:8px; background:#2dd4bf; color:#0f172a; font-weight:600; border:none; cursor:pointer;">Update Password</button>
     </div>
   </div>
-</div>
+      </div>
 
-<script>
-function openChangePwModal() {
+     <script>
+        function openChangePwModal() {
   document.getElementById("pwStatusMsg").textContent = "";
   document.getElementById("changePwModal").style.display = "flex";
 }
-function closeChangePwModal() {
+        function closeChangePwModal() {
   document.getElementById("changePwModal").style.display = "none";
   document.getElementById("curPwInput").value = "";
   document.getElementById("newPwInput").value = "";
   document.getElementById("confirmPwInput").value = "";
 }
-async function submitPasswordChange() {
+        async function submitPasswordChange() {
   const current_password = document.getElementById("curPwInput").value;
   const new_password = document.getElementById("newPwInput").value;
   const confirm = document.getElementById("confirmPwInput").value;
@@ -3326,8 +3326,7 @@ async function submitPasswordChange() {
     msg.textContent = data.error || "Could not update password.";
   }
 }
-
-async function loginAsMember() {
+        async function loginAsMember() {
     const loginId = document.getElementById('loginUserField').value.trim();
     const password = document.getElementById('loginPasswordField').value;
 
@@ -3359,29 +3358,28 @@ async function loginAsMember() {
         alert("Network error signing in. Please try again.");
     }
   }
-         window.loginAsMember = loginAsMember;
-      </script>
-   </script>
-    (function() {
-        const userInput = document.getElementById('harborLoginUser');
-        const passInput = document.getElementById('harborLoginPass');
-        const eyeBtn = document.getElementById('harborEyeBtn');
-        const enterBtn = document.getElementById('harborEnterBtn');
+        window.loginAsMember = loginAsMember;
+       
 
-        if (eyeBtn && passInput) {
-            eyeBtn.addEventListener('click', function() {
-                const isHidden = passInput.type === 'password';
-                passInput.type = isHidden ? 'text' : 'password';
-                eyeBtn.textContent = isHidden ? '🙈' : '👁️';
-            });
-        }
+        (function() {
+         const userInput = document.getElementById('harborLoginUser');
+         const passInput = document.getElementById('harborLoginPass');
+         const eyeBtn = document.getElementById('harborEyeBtn');
+         const enterBtn = document.getElementById('harborEnterBtn');
 
-        async function runFreshLogin() {
-            const loginId = userInput ? userInput.value.trim() : '';
-            const password = passInput ? passInput.value : '';
+      if (eyeBtn && passInput) {
+        eyeBtn.addEventListener('click', function() {
+            const isHidden = passInput.type === 'password';
+            passInput.type = isHidden ? 'text' : 'password';
+            eyeBtn.textContent = isHidden ? '🙈' : '👁️';
+        });
+    }
+           async function runFreshLogin() {
+             const loginId = userInput ? userInput.value.trim() : '';
+             const password = passInput ? passInput.value : '';
 
-            if (!loginId) {
-                alert("Please enter your username or email.");
+         if (!loginId) {
+             alert("Please enter your username or email.");
                 if (userInput) userInput.focus();
                 return;
             }
@@ -3438,7 +3436,7 @@ async function loginAsMember() {
             }
         }
 
-        if (enterBtn) {
+         if (enterBtn) {
             enterBtn.addEventListener('click', runFreshLogin);
         }
         if (passInput) {
@@ -3448,9 +3446,8 @@ async function loginAsMember() {
                     runFreshLogin();
                 }
             });
-        }
-        
-       
+        }  
+            })();
           </script>  
        </body        
-       </html>
+    </html>
