@@ -4,7 +4,6 @@ import smtplib
 import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from functools import wraps
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -89,12 +88,14 @@ def init_db():
                     );
                 """)
                 cur.execute("""
-                    CREATE TABLE IF NOT EXISTS harbor_contest_votes (
+                    CREATE TABLE IF NOT EXISTS harbor_contest_daily_votes (
                         id SERIAL PRIMARY KEY,
-                        entry_id INTEGER REFERENCES harbor_contest_entries(id) ON DELETE CASCADE,
+                        week_key VARCHAR(20) NOT NULL,
+                        vote_date DATE NOT NULL DEFAULT CURRENT_DATE,
                         voter_key VARCHAR(160) NOT NULL,
+                        entry_id INTEGER REFERENCES harbor_contest_entries(id) ON DELETE CASCADE,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        UNIQUE(entry_id, voter_key)
+                        UNIQUE(week_key, vote_date, voter_key)
                     );
                 """)
     except Exception as e:
@@ -134,52 +135,29 @@ def get_mosaic_images():
 
 
 def get_contest_schedule_context(now=None):
-    """
-    Contest Weekly Schedule:
-    - Tuesday (weekday == 1): Voting & Entry Round ('TUE')
-    - Thursday (weekday == 3): Voting & Entry Round ('THU')
-    - Saturday (weekday == 5): Morning Tally & Finalist Lock ('SAT_TALLY')
-    - Sunday (weekday == 6): Sunday Winner Acknowledgement in Members Login ('SUN_SPOTLIGHT')
-    - Mon/Wed/Fri: Open gallery & active voting preview
-    """
     if now is None:
         now = datetime.datetime.now()
     iso_year, iso_week, _ = now.isocalendar()
     week_key = f"{iso_year}-W{iso_week:02d}"
     wd = now.weekday()  # Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6
 
-    if wd == 1:
-        round_code = "TUE"
-        phase_label = "Tuesday Voting Round Open"
-    elif wd == 3:
-        round_code = "THU"
-        phase_label = "Thursday Voting Round Open"
-    elif wd == 5:
-        round_code = "SAT_TALLY"
-        phase_label = "Saturday Morning Tally & Finalist Review"
+    if wd == 5:
+        phase_label = "Saturday Final Tally & Winner Reveal"
     elif wd == 6:
-        round_code = "SUN_SPOTLIGHT"
         phase_label = "Sunday Winner Acknowledgement"
     else:
-        round_code = "TUE" if wd < 3 else "THU"
-        phase_label = "Tuesday & Thursday Voting Schedule"
+        phase_label = "Daily Showdown Open — Cast 1 Vote Per Day"
 
     return {
         "week_key": week_key,
         "weekday": wd,
-        "round_code": round_code,
+        "today_str": now.strftime("%Y-%m-%d"),
         "phase_label": phase_label,
     }
 
 
 def tally_and_fetch_champion(conn, week_key, weekday):
-    """
-    On Saturday (weekday == 5) or Sunday (weekday == 6), automatically tallies the
-    highest-voted photo across Tuesday & Thursday rounds for the current week
-    and marks it as the Sunday Winner Acknowledgement.
-    """
     with conn.cursor() as cur:
-        # Check if this week already has a locked champion
         cur.execute("""
             SELECT * FROM harbor_contest_entries
             WHERE week_key = %s AND is_champion = TRUE
@@ -202,7 +180,6 @@ def tally_and_fetch_champion(conn, week_key, weekday):
                 """, (top_entry["id"],))
                 champ = cur.fetchone()
 
-        # Fallback to most recent champion if current week hasn't been tallied yet
         if not champ:
             cur.execute("""
                 SELECT * FROM harbor_contest_entries
@@ -340,7 +317,6 @@ def api_login():
     if not login_id or not password:
         return jsonify({"ok": False, "error": "Please enter both your login ID and password."}), 400
 
-    # Dual-PIN Admin Quick Login Support
     if login_id.lower() in ("ajann", "admin", ADMIN_EMAIL.lower()) and password in (ADMIN_PIN_PRIMARY, ADMIN_PIN_SECONDARY):
         session["member_id"] = 0
         session["display_name"] = "Anthony"
@@ -349,6 +325,7 @@ def api_login():
             "ok": True,
             "display_name": "Anthony",
             "caregiver_role": "PC|🧸 Pediatric Caregiver",
+            "bio": "Marcus, 15 and Rachel, 9",
             "is_admin": True
         })
 
@@ -385,6 +362,7 @@ def api_login():
             "ok": True,
             "display_name": display_name,
             "caregiver_role": member.get("caregiver_role") or "",
+            "bio": member.get("bio") or "",
             "is_admin": is_admin
         })
     except Exception as e:
@@ -564,18 +542,21 @@ def api_serious_wall_delete(post_id):
         conn.close()
 
 
-# ---------------- CONTEST (TUES/THURS VOTE -> SAT TALLY -> SUN SPOTLIGHT) ---------------- #
+# ---------------- CONTEST (SIDE-BY-SIDE TUES/THURS SHOWDOWN -> 1 VOTE/DAY -> SAT TALLY -> SUN SPOTLIGHT) ---------------- #
 
 @app.route("/api/contest/state", methods=["GET"])
 def api_contest_state():
     sched = get_contest_schedule_context()
+    voter_key = (request.args.get("voter_name") or session.get("display_name") or request.remote_addr or "guest").strip()
     conn = get_db_connection()
     if not conn:
         return jsonify({
             "ok": True,
             "schedule": sched,
+            "tuesday_pick": None,
+            "thursday_pick": None,
             "round_entries": [],
-            "finalists": [],
+            "voted_today": False,
             "weekly_champion": None
         })
 
@@ -589,24 +570,41 @@ def api_contest_state():
             """, (sched["week_key"],))
             round_entries = [dict(r) for r in cur.fetchall()]
 
-            # Top entry for Tuesday ('TUE') and top entry for Thursday ('THU') for Saturday morning tally
-            finalists = []
-            for rcode in ("TUE", "THU"):
-                cur.execute("""
-                    SELECT * FROM harbor_contest_entries
-                    WHERE week_key = %s AND round_code = %s
-                    ORDER BY votes DESC, created_at ASC LIMIT 1;
-                """, (sched["week_key"], rcode))
-                top_r = cur.fetchone()
-                if top_r:
-                    finalists.append(dict(top_r))
+            cur.execute("""
+                SELECT * FROM harbor_contest_entries
+                WHERE week_key = %s AND round_code = 'TUE'
+                ORDER BY votes DESC, created_at ASC LIMIT 1;
+            """, (sched["week_key"],))
+            tue_row = cur.fetchone()
+
+            cur.execute("""
+                SELECT * FROM harbor_contest_entries
+                WHERE week_key = %s AND round_code = 'THU'
+                ORDER BY votes DESC, created_at ASC LIMIT 1;
+            """, (sched["week_key"],))
+            thu_row = cur.fetchone()
+
+            # Fallback if only 2 entries exist without separate round codes
+            if not tue_row and len(round_entries) >= 1:
+                tue_row = round_entries[0]
+            if not thu_row and len(round_entries) >= 2:
+                thu_row = round_entries[1]
+
+            cur.execute("""
+                SELECT id FROM harbor_contest_daily_votes
+                WHERE week_key = %s AND vote_date = CURRENT_DATE AND voter_key = %s
+                LIMIT 1;
+            """, (sched["week_key"], voter_key))
+            voted_today = bool(cur.fetchone())
 
         conn.commit()
         return jsonify({
             "ok": True,
             "schedule": sched,
+            "tuesday_pick": dict(tue_row) if tue_row else None,
+            "thursday_pick": dict(thu_row) if thu_row else None,
             "round_entries": round_entries,
-            "finalists": finalists,
+            "voted_today": voted_today,
             "weekly_champion": weekly_champion
         })
     finally:
@@ -623,8 +621,7 @@ def api_contest_upload():
         return jsonify({"ok": False, "error": "Please select a photo to upload."}), 400
 
     sched = get_contest_schedule_context()
-    # Assign entries to Tuesday ('TUE') earlier in the week, or Thursday ('THU') Wed-Thu
-    round_code = "TUE" if sched["weekday"] in (0, 1) else "THU"
+    round_code = "TUE" if sched["weekday"] in (6, 0, 1) else "THU"
 
     safe_name = secure_filename(f"{sched['week_key']}_{round_code}_{random.randint(1000,9999)}_{photo.filename}")
     save_path = os.path.join(UPLOAD_CONTEST_DIR, safe_name)
@@ -657,6 +654,7 @@ def api_contest_vote():
     if not entry_id:
         return jsonify({"ok": False, "error": "Missing entry ID."}), 400
 
+    sched = get_contest_schedule_context()
     conn = get_db_connection()
     if not conn:
         return jsonify({"ok": False, "error": "Database unavailable."}), 500
@@ -665,12 +663,17 @@ def api_contest_vote():
         with conn:
             with conn.cursor() as cur:
                 cur.execute("""
-                    INSERT INTO harbor_contest_votes (entry_id, voter_key)
-                    VALUES (%s, %s) ON CONFLICT DO NOTHING RETURNING id;
-                """, (entry_id, voter_name))
+                    INSERT INTO harbor_contest_daily_votes (week_key, vote_date, voter_key, entry_id)
+                    VALUES (%s, CURRENT_DATE, %s, %s)
+                    ON CONFLICT (week_key, vote_date, voter_key) DO NOTHING
+                    RETURNING id;
+                """, (sched["week_key"], voter_name, entry_id))
                 inserted = cur.fetchone()
                 if not inserted:
-                    return jsonify({"ok": False, "error": "You have already voted for this photo!"}), 400
+                    return jsonify({
+                        "ok": False,
+                        "error": "You already cast today's vote! Come back tomorrow to vote again before Saturday's final tally."
+                    }), 400
                 cur.execute("UPDATE harbor_contest_entries SET votes = votes + 1 WHERE id = %s;", (entry_id,))
         return jsonify({"ok": True})
     finally:
