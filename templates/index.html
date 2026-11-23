@@ -873,7 +873,7 @@
                 <button class="close-btn" onclick="switchView('mainGatewayView')">&times;</button>
             </div>
 
-            <div id="sundayChampionSpotlight" style="{% if not weekly_champion %}display: none;{% endif %} width: 100%; background: linear-gradient(145deg, rgba(15, 23, 42, 0.45), rgba(30, 27, 75, 0.45)); border: 1.5px solid #fde047; border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; backdrop-filter: blur(14px); box-shadow: 0 0 22px rgba(253, 224, 71, 0.2); text-align: center;">
+            <div id="sundayChampionSpotlight" {% if not weekly_champion %}hidden{% endif %} style="width: 100%; background: linear-gradient(145deg, rgba(15, 23, 42, 0.45), rgba(30, 27, 75, 0.45)); border: 1.5px solid #fde047; border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; backdrop-filter: blur(14px); box-shadow: 0 0 22px rgba(253, 224, 71, 0.2); text-align: center;"></div>
                 <div style="font-size: 0.72rem; font-weight: 900; letter-spacing: 0.9px; color: #fde047; text-transform: uppercase; margin-bottom: 6px;">👑 Sunday Winner Acknowledgement • Photo Champion</div>
                 <img id="loginChampImg" src="{{ weekly_champion.image_url if weekly_champion else '' }}" alt="Sunday Photo Champion" style="width: 100%; max-height: 185px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(253, 224, 71, 0.4); margin-bottom: 6px;">
                 <div id="loginChampCaption" style="font-size: 0.86rem; font-weight: 800; color: #ffffff;">{{ weekly_champion.caption if weekly_champion else '' }}</div>
@@ -919,9 +919,14 @@
                                 window.currentHarborMemberName = d.display_name || u;
                                 if(typeof setHubGreetingAndBadges === 'function') setHubGreetingAndBadges(d.display_name || u, d.caregiver_role || '');
                                 if(d.bio && typeof extractYouthProfilesFromBio === 'function') extractYouthProfilesFromBio(d.bio);
-                                var adminNavBtn = document.getElementById('hubAdminPanelBtn');
+                              var adminNavBtn = document.getElementById('hubAdminPanelBtn');
+                                window.currentAdminRole = d.admin_role || '';
                                 if(d.is_admin){
-                                    if(adminNavBtn) adminNavBtn.style.display='inline-flex';
+                                    if(adminNavBtn){
+                                        adminNavBtn.style.display='inline-flex';
+                                        adminNavBtn.textContent = (d.admin_role === 'owner') ? '👑 Owner Command Center' : '🛡️ Moderator Desk';
+                                    }
+                                    if(typeof applyAdminRolePermissions === 'function') applyAdminRolePermissions(d.admin_role);
                                     if(typeof loadAdminDashboardData === 'function') loadAdminDashboardData();
                                 } else if(adminNavBtn){
                                     adminNavBtn.style.display='none';
@@ -1193,19 +1198,35 @@
             </div>
         </div>
 
-        <!-- DEDICATED ADMIN DASHBOARD VIEW -->
+      <!-- DEDICATED ADMIN / MODERATOR COMMAND CENTER VIEW -->
         <div id="adminDashboardView" class="view-screen" style="max-width: 860px; border-color: #fde047;">
             <div class="screen-header" style="border-bottom-color: rgba(253, 224, 71, 0.35);">
                 <div>
-                    <div class="screen-title" style="color: #fde047;">🛡️ Admin Command Center</div>
-                    <div style="font-size: 0.76rem; color: #cbd5e1;">Review member applications, reports, contributions &amp; guest inquiries</div>
+                    <div id="adminCenterHeading" class="screen-title" style="color: #fde047;">👑 Owner Command Center</div>
+                    <div id="adminCenterSubheading" style="font-size: 0.76rem; color: #cbd5e1;">Full Owner Access — Approvals, Community Q&amp;A, Sponsors &amp; Direct Mail</div>
                 </div>
                 <button class="back-hub-btn" style="border-color: #fde047; color: #fde047;" onclick="switchView('communityDashboardView')">← Back to Hub</button>
             </div>
 
+            <!-- Direct One-Click Email Folder Launchers -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; margin-bottom: 14px;">
+                <a href="https://mail.google.com/mail/u/0/#search/New+Harbor+Member+Pending+Review" target="_blank" rel="noopener"
+                   style="display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 12px; border-radius: 10px; background: rgba(13, 148, 136, 0.32); border: 1.5px solid #5eead4; color: #5eead4; font-size: 0.78rem; font-weight: 800; text-decoration: none; text-align: center;">
+                    ✉️ Open Approval Request Emails ↗
+                </a>
+                <a id="ownerEmailBtn_sponsors" href="https://mail.google.com/mail/u/0/#search/Sponsor+OR+Contribute+OR+Donation" target="_blank" rel="noopener"
+                   style="display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 12px; border-radius: 10px; background: rgba(245, 158, 11, 0.25); border: 1.5px solid #fde047; color: #fde047; font-size: 0.78rem; font-weight: 800; text-decoration: none; text-align: center;">
+                    🤝 Open Sponsor &amp; Contribution Mail ↗
+                </a>
+                <a id="ownerEmailBtn_mission" href="https://mail.google.com/mail/u/0/#inbox" target="_blank" rel="noopener"
+                   style="display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 12px; border-radius: 10px; background: rgba(56, 189, 248, 0.24); border: 1.5px solid #38bdf8; color: #7dd3fc; font-size: 0.78rem; font-weight: 800; text-decoration: none; text-align: center;">
+                    👑 Open Owner &amp; Mission Inbox ↗
+                </a>
+            </div>
+
             <div class="admin-tab-bar">
                 <button type="button" class="admin-tab-btn active" id="adminTabBtn_apps" onclick="switchAdminTab('apps')">📋 Applications</button>
-                <button type="button" class="admin-tab-btn" id="adminTabBtn_reports" onclick="switchAdminTab('reports')">🚨 Reports &amp; Problems</button>
+                <button type="button" class="admin-tab-btn" id="adminTabBtn_reports" onclick="switchAdminTab('reports')">🚨 Questions &amp; Problems</button>
                 <button type="button" class="admin-tab-btn" id="adminTabBtn_contrib" onclick="switchAdminTab('contrib')">❤️ Contributions</button>
                 <button type="button" class="admin-tab-btn" id="adminTabBtn_inquiries" onclick="switchAdminTab('inquiries')">💬 Guest Inquiries</button>
             </div>
@@ -1219,7 +1240,7 @@
             </div>
 
             <div id="adminTabPanel_reports" style="display: none;">
-                <strong style="color: #fb7185; font-size: 0.9rem; display: block; margin-bottom: 10px;">Member Reports &amp; Support Flags</strong>
+                <strong style="color: #fb7185; font-size: 0.9rem; display: block; margin-bottom: 10px;">Community Questions, Reports &amp; Support Flags</strong>
                 <div id="adminReportsList" style="font-size: 0.86rem; color: #e2e8f0;">
                     <div class="admin-item-card" style="color: #cbd5e1;">No active member reports or flagged posts right now.</div>
                 </div>
@@ -1805,6 +1826,23 @@
                 const row = document.getElementById('memberBadgeRow');
                 if (row) row.innerHTML = `<span class="icon-legend-badge ${code === 'DMD' ? 'dmd-badge' : ''}" title="${label}">${label}</span>`;
             }
+        }
+
+
+        function applyAdminRolePermissions(role) {
+            const isOwner = (role === 'owner');
+            const heading = document.getElementById('adminCenterHeading');
+            const sub = document.getElementById('adminCenterSubheading');
+            if (heading) heading.textContent = isOwner ? '👑 Owner Command Center' : '🛡️ Community Moderator Desk';
+            if (sub) sub.textContent = isOwner
+                ? 'Full Owner Access — Approvals, Community Q&A, Sponsors & Direct Mail'
+                : 'Moderator Access — Member Verification & Community Questions Only (Owner Mail & Site Settings Locked)';
+
+            ['ownerEmailBtn_sponsors', 'ownerEmailBtn_mission', 'adminTabBtn_contrib', 'adminTabBtn_inquiries'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = isOwner ? '' : 'none';
+            });
+            switchAdminTab('apps');
         }
 
         /* Dedicated Admin Dashboard Controls */

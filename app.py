@@ -56,6 +56,10 @@ def init_db():
                     );
                 """)
                 cur.execute("""
+                    ALTER TABLE harbor_members
+                    ADD COLUMN IF NOT EXISTS is_moderator BOOLEAN DEFAULT FALSE;
+                """)   
+                cur.execute("""
                     CREATE TABLE IF NOT EXISTS serious_wall_posts (
                         id SERIAL PRIMARY KEY,
                         category VARCHAR(80) NOT NULL,
@@ -312,21 +316,42 @@ def register_verify():
 def api_login():
     data = request.get_json(silent=True) or {}
     login_id = (data.get("login_id") or "").strip()
-    password = data.get("password") or ""
+    password = (data.get("password") or "").strip()
 
     if not login_id or not password:
         return jsonify({"ok": False, "error": "Please enter both your login ID and password."}), 400
 
-    if login_id.lower() in ("ajann", "admin", ADMIN_EMAIL.lower()) and password in (ADMIN_PIN_PRIMARY, ADMIN_PIN_SECONDARY):
+    owner_aliases = ("ajann", "admin", "anthony", "asianmama_1", ADMIN_EMAIL.lower())
+    mod_aliases = ("mod", "moderator", "harbormod")
+
+    # 1. Full Owner Fast-Path (Master PIN 4321)
+    if login_id.lower() in owner_aliases and password == ADMIN_PIN_PRIMARY:
         session["member_id"] = 0
         session["display_name"] = "Anthony"
         session["is_admin"] = True
+        session["admin_role"] = "owner"
         return jsonify({
             "ok": True,
             "display_name": "Anthony",
             "caregiver_role": "PC|🧸 Pediatric Caregiver",
             "bio": "Marcus, 15 and Rachel, 9",
-            "is_admin": True
+            "is_admin": True,
+            "admin_role": "owner"
+        })
+
+    # 2. Community Moderator Fast-Path (Moderator PIN 1234 — Verification & Community Q&A ONLY)
+    if (login_id.lower() in mod_aliases or login_id.lower() in owner_aliases) and password == ADMIN_PIN_SECONDARY:
+        session["member_id"] = 0
+        session["display_name"] = "Community Moderator"
+        session["is_admin"] = True
+        session["admin_role"] = "moderator"
+        return jsonify({
+            "ok": True,
+            "display_name": "Community Moderator",
+            "caregiver_role": "🛡️ Community Moderator",
+            "bio": "",
+            "is_admin": True,
+            "admin_role": "moderator"
         })
 
     conn = get_db_connection()
@@ -345,25 +370,35 @@ def api_login():
         if not member:
             return jsonify({"ok": False, "error": "Account not found."}), 401
 
-        is_admin = bool(member.get("is_admin")) or (member.get("email", "").lower() == ADMIN_EMAIL.lower())
-        valid_pw = check_password_hash(member["password_hash"], password) or (is_admin and password in (ADMIN_PIN_PRIMARY, ADMIN_PIN_SECONDARY))
+        is_owner = bool(member.get("is_admin")) or (member.get("email", "").lower() == ADMIN_EMAIL.lower()) or (login_id.lower() in owner_aliases)
+        is_mod = bool(member.get("is_moderator")) or (login_id.lower() in mod_aliases)
+
+        valid_pw = (
+            check_password_hash(member["password_hash"], password)
+            or (is_owner and password == ADMIN_PIN_PRIMARY)
+            or ((is_owner or is_mod) and password == ADMIN_PIN_SECONDARY)
+        )
         if not valid_pw:
             return jsonify({"ok": False, "error": "Incorrect password."}), 401
 
-        if not member.get("is_approved") and not is_admin:
+        if not member.get("is_approved") and not (is_owner or is_mod):
             return jsonify({"ok": False, "error": "Your membership is still pending admin review (allow up to 24 hours)."}), 403
 
+        admin_role = "owner" if (is_owner and password != ADMIN_PIN_SECONDARY) else ("moderator" if (is_owner or is_mod) else None)
         display_name = member.get("username") or member.get("first_name") or "Member"
+
         session["member_id"] = member["id"]
         session["display_name"] = display_name
-        session["is_admin"] = is_admin
+        session["is_admin"] = bool(admin_role)
+        session["admin_role"] = admin_role
 
         return jsonify({
             "ok": True,
             "display_name": display_name,
             "caregiver_role": member.get("caregiver_role") or "",
             "bio": member.get("bio") or "",
-            "is_admin": is_admin
+            "is_admin": bool(admin_role),
+            "admin_role": admin_role
         })
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
