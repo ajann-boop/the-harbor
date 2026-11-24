@@ -343,7 +343,7 @@ def api_login():
             "ok": True,
             "display_name": "Anthony",
             "caregiver_role": "PC|🧸 Pediatric Caregiver",
-            "bio": "Marcus, 15 and Rachel, 9",
+            "bio": "",
             "is_admin": True,
             "admin_role": "owner"
         })

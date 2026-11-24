@@ -1176,7 +1176,7 @@
                         <span>💭 Thought of the day?</span>
                         <span id="checkinSavedTag" style="color: #86efac;">Saved</span>
                     </div>
-                    <input type="text" id="dailyFeelingInput" class="daily-checkin-input" placeholder="Share a quick thought or encouragement for today..." value="Taking it one step at a time and grateful for this crew." oninput="document.getElementById('checkinSavedTag').innerText='Updated ✓'">
+                    <input type="text" id="dailyFeelingInput" class="daily-checkin-input" placeholder="Share a quick thought or encouragement for today..." value="" oninput="document.getElementById('checkinSavedTag').innerText='Updated ✓'">
                 </div>
             </div>
 
@@ -2264,8 +2264,8 @@
             inp.value = '';
         }
 
-        let savedYouthProfiles = JSON.parse(localStorage.getItem('harbor_youth_profiles') || '["Marcus, 15", "Rachel, 9"]');
-        let activeYouthProfile = savedYouthProfiles[0] || 'Marcus, 15';
+        let savedYouthProfiles = JSON.parse(localStorage.getItem('harbor_youth_profiles') || '[]');
+        let activeYouthProfile = savedYouthProfiles[0] || 'Your Name, Age';
 
         function extractYouthProfilesFromBio(bioText) {
             if (!bioText) return;
