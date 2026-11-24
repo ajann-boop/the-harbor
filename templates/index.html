@@ -6,114 +6,118 @@
     <title>The Lewie &amp; Marcus Network - Share Your Walk</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-        html, body { background-color: #0b2e33; color: #ffffff; min-height: 100vh; max-width: 100vw; overflow-x: hidden; position: relative; }
-
-        /* Mosaic Background (Only on Welcome & Learn More Pages) */
-        .mosaic-bg { position: fixed; inset: 0; width: 100vw; height: 100vh; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px; padding: 6px; z-index: 0; pointer-events: none; opacity: 0.94; filter: saturate(1.18) blur(0.2px); transition: opacity 0.25s ease; }
-        .mosaic-bg.hidden-bg, .mosaic-overlay.hidden-bg { display: none !important; }
-        .mosaic-tile { width: 100%; height: 100px; object-fit: cover; border-radius: 6px; }
-        .mosaic-overlay { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(135deg, rgba(11, 46, 51, 0.24), rgba(15, 61, 68, 0.18)); }
-
-        /* "Connecting the Distance" Illuminated Beacon Horizon Backdrop */
-        .distance-bg {
-            position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; display: none;
-            background: radial-gradient(ellipse at 50% 78%, #165e69 0%, #0b343a 55%, #051b1f 100%);
+        html, body {
+            background-color: #092c32;
+            color: #ffffff;
+            min-height: 100vh;
+            max-width: 100vw;
+            overflow-x: hidden;
+            position: relative;
+        }
+        body.stationary-page {
+            height: 100vh;
             overflow: hidden;
         }
-        .distance-bg.active { display: block; }
-        .distance-bg svg { width: 100%; height: 100%; opacity: 0.92; }
-        @keyframes pulseBeacon {
-            0%, 100% { opacity: 0.55; transform: scale(0.96); }
-            50% { opacity: 1; transform: scale(1.22); }
-        }
-        .beacon-node { animation: pulseBeacon 3.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 
-        /* Multi-Directional Awareness Background for Become a Member */
+        /* Inviting Non-Animated Color Display Layer */
+        .color-wash-bg {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 14% 18%, rgba(251, 113, 133, 0.28), transparent 42%),
+                radial-gradient(circle at 86% 20%, rgba(253, 224, 71, 0.24), transparent 44%),
+                radial-gradient(circle at 78% 82%, rgba(168, 85, 247, 0.24), transparent 48%),
+                radial-gradient(circle at 22% 84%, rgba(56, 189, 248, 0.26), transparent 46%),
+                linear-gradient(150deg, #0b3942 0%, #104a54 50%, #092b33 100%);
+        }
+
+        /* Mosaic Background (Only on Welcome & Learn More Pages) */
+        .mosaic-bg {
+            position: fixed; inset: 0; width: 100vw; height: 100vh;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 6px; padding: 6px; z-index: 1; pointer-events: none;
+            opacity: 0.72; filter: saturate(1.22); transition: opacity 0.25s ease;
+        }
+        .mosaic-bg.hidden-bg, .mosaic-overlay.hidden-bg { display: none !important; }
+        .mosaic-tile { width: 100%; height: 100px; object-fit: cover; border-radius: 6px; }
+        .mosaic-overlay {
+            position: fixed; inset: 0; z-index: 2; pointer-events: none;
+            background: linear-gradient(145deg, rgba(11, 57, 66, 0.22), rgba(251, 113, 133, 0.10), rgba(253, 224, 71, 0.08));
+        }
+
+        /* Static Color Backdrops for Inner Views (No Animations) */
+        .distance-bg {
+            position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; display: none;
+            background:
+                radial-gradient(circle at 20% 22%, rgba(56, 189, 248, 0.24), transparent 45%),
+                radial-gradient(circle at 82% 76%, rgba(94, 234, 212, 0.22), transparent 48%),
+                linear-gradient(155deg, #0b3a44 0%, #0d4752 55%, #082930 100%);
+        }
+        .distance-bg.active { display: block; }
+
         .join-bg {
-            position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; display: none; overflow: hidden;
-            background: radial-gradient(circle at 25% 25%, #165863 0%, #0b3239 55%, #051a1e 100%);
+            position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; display: none;
+            background:
+                radial-gradient(circle at 18% 24%, rgba(244, 114, 182, 0.24), transparent 45%),
+                radial-gradient(circle at 80% 72%, rgba(253, 224, 71, 0.22), transparent 48%),
+                linear-gradient(145deg, #0d3b46 0%, #164959 55%, #0a2a33 100%);
         }
         .join-bg.active { display: block; }
-        .awareness-symbol {
-            position: absolute; font-weight: 900; font-size: 1.08rem; white-space: nowrap;
-            padding: 6px 14px; border-radius: 50px; background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.75); user-select: none; opacity: 0;
-        }
-        @keyframes driftNorthEast {
-            0% { opacity: 0; transform: translate(0, 20px) scale(0.88); }
-            25% { opacity: 0.95; }
-            75% { opacity: 0.9; }
-            100% { opacity: 0; transform: translate(85px, -110px) scale(1.06); }
-        }
-        @keyframes driftNorthWest {
-            0% { opacity: 0; transform: translate(0, 25px) scale(0.9); }
-            25% { opacity: 0.95; }
-            75% { opacity: 0.9; }
-            100% { opacity: 0; transform: translate(-90px, -105px) scale(1.05); }
-        }
-        @keyframes driftSouthEast {
-            0% { opacity: 0; transform: translate(0, -20px) scale(0.88); }
-            25% { opacity: 0.92; }
-            75% { opacity: 0.88; }
-            100% { opacity: 0; transform: translate(75px, 95px) scale(1.04); }
-        }
-        @keyframes driftHorizontalPulse {
-            0% { opacity: 0; transform: translateX(-35px) scale(0.9); }
-            30% { opacity: 0.96; }
-            70% { opacity: 0.92; }
-            100% { opacity: 0; transform: translateX(65px) scale(1.05); }
-        }
 
-        /* Dear Guest Background */
         .guest-bg {
-            position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; display: none; overflow: hidden;
-            background: radial-gradient(circle at 70% 20%, rgba(253, 224, 71, 0.2), transparent 45%),
-                        radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.22), transparent 50%),
-                        #08282e;
+            position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; display: none;
+            background:
+                radial-gradient(circle at 75% 22%, rgba(253, 224, 71, 0.24), transparent 45%),
+                radial-gradient(circle at 22% 78%, rgba(56, 189, 248, 0.24), transparent 48%),
+                linear-gradient(150deg, #0a3640 0%, #0e4a56 55%, #07262e 100%);
         }
         .guest-bg.active { display: block; }
         .guest-bg-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 8px;
-            opacity: 0.52; filter: saturate(1.22);
+            opacity: 0.36; filter: saturate(1.22);
         }
         .guest-bg-grid img { width: 100%; height: 120px; object-fit: cover; border-radius: 10px; }
 
         .app-container {
             position: relative; z-index: 5; width: 100%; max-width: 960px; margin: 0 auto;
-            padding: 16px 12px; min-height: 100vh;
-            display: flex; flex-direction: column; justify-content: center;
+            padding: 108px 12px 24px; min-height: 100vh;
+            display: flex; flex-direction: column; justify-content: flex-start; align-items: center;
         }
         .app-container.top-aligned {
             justify-content: flex-start;
-            padding-top: 24px;
+            padding-top: 108px;
             padding-bottom: 36px;
         }
 
         /* WELCOME GATEWAY LAYOUT */
         .gateway-section {
             display: flex; flex-direction: column; align-items: center;
-            gap: 14px; width: 100%; max-width: 680px; margin: auto; padding: 18px 0 12px;
+            gap: 12px; width: 100%; max-width: 680px; margin: 0 auto; padding: 0 0 12px;
         }
         #mainGatewayView.hidden, .gateway-section.hidden { display: none !important; }
 
         .title-wrapper {
             width: 100%;
-            background: rgba(13, 56, 63, 0.22);
+            background: rgba(13, 56, 63, 0.12);
             border: 1.5px solid rgba(94, 234, 212, 0.55);
             border-radius: 18px;
-            padding: 22px 18px 18px;
-            backdrop-filter: blur(14px) saturate(130%);
-            -webkit-backdrop-filter: blur(14px) saturate(130%);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 12px 32px rgba(0,0,0,0.3);
+            padding: 18px 18px 16px;
+            backdrop-filter: blur(6px) saturate(125%);
+            -webkit-backdrop-filter: blur(6px) saturate(125%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 8px 22px rgba(0,0,0,0.22);
             display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
         }
 
         .learn-more-pill {
-            background: rgba(11, 46, 51, 0.34);
-            border: 1.5px solid rgba(94, 234, 212, 0.6);
+            background: rgba(11, 46, 51, 0.28);
+            border: 1.5px solid rgba(94, 234, 212, 0.65);
             color: #ffffff;
             padding: 9px 22px;
             border-radius: 50px;
@@ -121,30 +125,30 @@
             font-weight: 800;
             letter-spacing: 0.03em;
             cursor: pointer;
-            backdrop-filter: blur(14px) saturate(130%);
-            -webkit-backdrop-filter: blur(14px) saturate(130%);
+            backdrop-filter: blur(10px) saturate(130%);
+            -webkit-backdrop-filter: blur(10px) saturate(130%);
             display: inline-flex; align-items: center; gap: 8px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 6px 18px rgba(0,0,0,0.28);
-            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 6px 18px rgba(0,0,0,0.24);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.85);
             transition: all 0.22s ease;
         }
         .learn-more-pill:hover {
-            background: rgba(15, 61, 68, 0.58); border-color: #fde047; color: #fde047; transform: translateY(-2px);
+            background: rgba(15, 61, 68, 0.52); border-color: #fde047; color: #fde047; transform: translateY(-2px);
         }
 
         .twin-buttons {
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 580px;
         }
         .twin-btn-pill-rich {
-            width: 100%; background: rgba(13, 56, 63, 0.32); border: 1.5px solid rgba(94, 234, 212, 0.6);
+            width: 100%; background: rgba(13, 56, 63, 0.24); border: 1.5px solid rgba(94, 234, 212, 0.65);
             padding: 12px 10px; border-radius: 36px; cursor: pointer; color: #ffffff;
-            backdrop-filter: blur(14px) saturate(130%);
-            -webkit-backdrop-filter: blur(14px) saturate(130%);
+            backdrop-filter: blur(10px) saturate(130%);
+            -webkit-backdrop-filter: blur(10px) saturate(130%);
             transition: all 0.25s ease;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 6px 18px rgba(0,0,0,0.35);
-            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 6px 18px rgba(0,0,0,0.28);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.85);
         }
-        .twin-btn-pill-rich:hover { background: rgba(15, 61, 68, 0.58); border-color: #fde047; transform: translateY(-3px); }
+        .twin-btn-pill-rich:hover { background: rgba(15, 61, 68, 0.52); border-color: #fde047; transform: translateY(-2px); }
         .pill-member-stack { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
         .pill-top-label { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.01em; line-height: 1.2; text-align: center; }
         .neon-click-wrap {
@@ -158,164 +162,160 @@
         }
 
         .members-anchor-wrap {
-            margin-top: 4px; margin-bottom: 2px;
+            margin-top: 2px; margin-bottom: 2px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .members-anchor-btn {
             background: none; border: none; cursor: pointer; padding: 4px;
             display: flex; flex-direction: column; align-items: center;
-            transition: transform 0.28s ease, filter 0.28s ease;
-            filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.8));
+            transition: transform 0.22s ease, filter 0.22s ease;
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.65));
         }
         .members-anchor-btn:hover {
-            transform: translateY(-4px) scale(1.04);
-            filter: drop-shadow(0 0 18px rgba(94, 234, 212, 0.85)) drop-shadow(0 10px 22px rgba(0,0,0,0.85));
+            transform: translateY(-3px) scale(1.03);
+            filter: drop-shadow(0 0 16px rgba(94, 234, 212, 0.75)) drop-shadow(0 10px 20px rgba(0,0,0,0.75));
         }
 
         .welcome-text {
             font-size: 1.15rem; font-weight: 800; color: #ffffff; letter-spacing: 0.12em; text-transform: uppercase;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.92); animation: fadeInWelcome 1s ease forwards;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.85);
         }
-        @keyframes fadeInWelcome { 0% { opacity: 0; transform: translateY(-10px); } 100% { opacity: 1; transform: translateY(0); } }
-
         .to-text {
             font-size: 0.88rem; font-weight: 600; color: #e2e8f0; margin: 2px 0;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.92); opacity: 0; animation: fadeInTo 0.8s ease forwards; animation-delay: 0.9s;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.85);
         }
-        @keyframes fadeInTo { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
-
         .harbor-title-container {
             position: relative; display: flex; align-items: baseline; justify-content: center; margin-top: 6px;
-            opacity: 0; animation: fadeInHarborContainer 0.8s ease forwards; animation-delay: 1.8s;
         }
-        @keyframes fadeInHarborContainer { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
-
         .catty-the {
             position: absolute; top: -15px; left: -12px; font-size: 0.98rem; font-weight: 800; color: #5eead4;
             letter-spacing: 0.05em; text-transform: uppercase; transform: rotate(-6deg);
-            text-shadow: 0 2px 6px rgba(0,0,0,0.95); display: flex; gap: 2px;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.9); display: flex; gap: 2px;
         }
-        .letter-t { opacity: 0; animation: dropLetter 0.4s ease forwards; animation-delay: 2.2s; }
-        .letter-h-the { opacity: 0; animation: dropLetter 0.4s ease forwards; animation-delay: 2.5s; }
-        .letter-e-the { opacity: 0; animation: dropLetter 0.4s ease forwards; animation-delay: 2.8s; }
-        @keyframes dropLetter { 0% { opacity: 0; transform: translateY(-15px) rotate(-10deg); } 100% { opacity: 1; transform: translateY(0) rotate(-6deg); } }
-
         .harbor-main-text {
             font-size: 3.7rem; font-weight: 900; letter-spacing: 0.04em; line-height: 1.02;
-            -webkit-text-stroke: 1.3px rgba(255, 255, 255, 0.35);
-            animation: medicalAwarenessGlow 6s infinite;
+            color: #5eead4;
+            -webkit-text-stroke: 1.2px rgba(255, 255, 255, 0.35);
+            text-shadow: 0 0 18px rgba(94, 234, 212, 0.65), 0 3px 8px rgba(0,0,0,0.85);
         }
         @media (min-width: 600px) { .harbor-main-text { font-size: 4.2rem; } }
-        @keyframes medicalAwarenessGlow {
-            0% { color: #38bdf8; text-shadow: 0 0 22px rgba(56, 189, 248, 0.95), 0 3px 8px rgba(0,0,0,0.95); }
-            33% { color: #fb7185; text-shadow: 0 0 22px rgba(251, 113, 133, 0.95), 0 3px 8px rgba(0,0,0,0.95); }
-            66% { color: #fde047; text-shadow: 0 0 22px rgba(253, 224, 71, 0.95), 0 3px 8px rgba(0,0,0,0.95); }
-            100% { color: #38bdf8; text-shadow: 0 0 22px rgba(56, 189, 248, 0.95), 0 3px 8px rgba(0,0,0,0.95); }
-        }
 
         .harbor-subtitle {
             font-size: 0.88rem; font-weight: 700; color: #f0fdfa; margin-top: 10px;
             letter-spacing: 0.015em; max-width: 520px; line-height: 1.4; text-align: center;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.98);
+            text-shadow: 0 2px 6px rgba(0,0,0,0.9);
         }
 
-        .neon-click-flash { color: #ffffff; animation: flashClickWord 1.1s infinite; }
-        @keyframes flashClickWord {
-            0%, 49% { opacity: 1; color: #ffffff; text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 20px rgba(56, 189, 248, 0.75); }
-            50%, 100% { opacity: 0.35; color: #94a3b8; text-shadow: none; }
-        }
-        .neon-here-pulse { color: #5eead4; font-weight: 900; animation: neonPulseHere 1.2s infinite alternate; }
-        @keyframes neonPulseHere {
-            0% { color: #5eead4; text-shadow: 0 0 6px #5eead4, 0 0 14px #2dd4bf; opacity: 0.78; }
-            100% { color: #fde047; text-shadow: 0 0 10px #fde047, 0 0 22px #f59e0b, 0 0 32px #fde047; opacity: 1; }
-        }
+        .neon-click-flash { color: #ffffff; font-weight: 900; text-shadow: 0 0 8px rgba(255, 255, 255, 0.75); }
+        .neon-here-pulse { color: #fde047; font-weight: 900; text-shadow: 0 0 10px rgba(253, 224, 71, 0.75); }
 
-        /* FROSTED FRONT-DOOR GLASS — View Screens & Inner Cards */
+        /* FROSTED GLASS — View Screens & Inner Cards */
         .view-screen {
-            display: none; width: 100%; max-width: 720px; margin: 92px auto 24px;
-            background: linear-gradient(145deg, rgba(14, 58, 66, 0.26), rgba(7, 32, 37, 0.34));
+            display: none !important;
+            width: 100%; max-width: 720px; margin: 0 auto 24px;
+            background: linear-gradient(145deg, rgba(14, 58, 66, 0.24), rgba(7, 32, 37, 0.32));
             border: 1.5px solid rgba(255, 255, 255, 0.28);
             border-top-color: rgba(94, 234, 212, 0.65);
             border-left-color: rgba(94, 234, 212, 0.52);
             border-radius: 18px; padding: 18px;
-            backdrop-filter: blur(18px) saturate(140%);
-            -webkit-backdrop-filter: blur(18px) saturate(140%);
-            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 18px 40px rgba(0, 0, 0, 0.42);
+            backdrop-filter: blur(14px) saturate(135%);
+            -webkit-backdrop-filter: blur(14px) saturate(135%);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.22), 0 14px 32px rgba(0, 0, 0, 0.35);
             text-align: left; position: relative; z-index: 20;
         }
-        .view-screen.active { display: block; }
+        .view-screen.active { display: block !important; }
+        .view-screen.compact-stationary {
+            max-height: calc(100vh - 132px);
+            overflow-y: auto;
+        }
+
         .screen-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.16); padding-bottom: 10px; gap: 8px;
+            margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.16); padding-bottom: 10px; gap: 8px;
         }
         .screen-title { font-size: 1.15rem; font-weight: 800; color: #5eead4; text-shadow: 0 1px 4px rgba(0,0,0,0.65); }
         .close-btn { background: none; border: none; color: #cbd5e1; font-size: 1.4rem; cursor: pointer; flex-shrink: 0; }
         .close-btn:hover { color: #ffffff; }
 
-        .form-group { margin-bottom: 12px; }
-        .form-label { display: block; font-size: 0.84rem; font-weight: 700; color: #e2e8f0; margin-bottom: 5px; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+        .form-group { margin-bottom: 10px; }
+        .form-label { display: block; font-size: 0.82rem; font-weight: 700; color: #e2e8f0; margin-bottom: 4px; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
         .dark-input {
-            width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 8px;
+            width: 100%; box-sizing: border-box; padding: 9px 12px; border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.26);
-            background: rgba(7, 34, 38, 0.36);
-            color: #ffffff; font-size: 0.9rem; outline: none;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(7, 34, 38, 0.34);
+            color: #ffffff; font-size: 0.88rem; outline: none;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
         .dark-input:focus { border-color: #5eead4; box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.22); }
         select.dark-input option { background: #0b2e33; color: #ffffff; }
-        .action-btn { width: 100%; background: #5eead4; color: #0b2e33; font-weight: 800; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; margin-top: 8px; }
+        .action-btn { width: 100%; background: #5eead4; color: #0b2e33; font-weight: 800; padding: 11px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.92rem; transition: background 0.2s; margin-top: 6px; }
         .action-btn:hover { background: #2dd4bf; }
 
         .mission-callout {
-            background: rgba(15, 61, 68, 0.3);
+            background: rgba(15, 61, 68, 0.26);
             border: 1px solid rgba(255, 255, 255, 0.16);
             border-left: 4px solid #5eead4;
-            padding: 12px 14px; border-radius: 0 10px 10px 0;
-            font-size: 0.86rem; line-height: 1.5; color: #f8fafc; margin-bottom: 14px;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            padding: 11px 14px; border-radius: 0 10px 10px 0;
+            font-size: 0.84rem; line-height: 1.48; color: #f8fafc; margin-bottom: 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             text-shadow: 0 1px 3px rgba(0,0,0,0.65);
         }
 
+        /* Fixed-height quote/motivation banner so longer quotes never resize the box */
         .sanctuary-quote-banner {
-            background: rgba(13, 56, 63, 0.28); border: 1.5px solid rgba(94, 234, 212, 0.42);
-            border-radius: 12px; padding: 12px 16px; margin-bottom: 14px;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 6px 20px rgba(0,0,0,0.28);
-            text-align: center; width: 100%; min-height: 94px;
-            display: flex; flex-direction: column; justify-content: center;
+            background: rgba(13, 56, 63, 0.22);
+            border: 1.5px solid rgba(94, 234, 212, 0.45);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 14px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 6px 20px rgba(0,0,0,0.22);
+            text-align: center;
+            width: 100%;
+            height: 128px;
+            min-height: 128px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
-        .sanctuary-quote-text { font-size: 0.88rem; font-weight: 700; color: #ffffff; line-height: 1.38; margin-bottom: 4px; text-shadow: 0 1px 4px rgba(0,0,0,0.75); }
+        .sanctuary-quote-text {
+            font-size: 0.86rem; font-weight: 700; color: #ffffff;
+            line-height: 1.36; margin-bottom: 4px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.75);
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+        }
         .sanctuary-quote-author { font-size: 0.74rem; font-weight: 700; color: #5eead4; }
 
         /* Agreement Radio Pills & I'm Not a Robot Box */
-        .agree-choice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .agree-choice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
         .agree-pill {
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            background: rgba(11, 46, 51, 0.32); border: 1.5px solid rgba(94, 234, 212, 0.45);
-            padding: 9px 10px; border-radius: 10px; cursor: pointer; font-size: 0.84rem; font-weight: 700; color: #ffffff;
-            backdrop-filter: blur(12px);
+            background: rgba(11, 46, 51, 0.28); border: 1.5px solid rgba(94, 234, 212, 0.45);
+            padding: 8px 10px; border-radius: 10px; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: #ffffff;
+            backdrop-filter: blur(10px);
         }
         .agree-pill input { accent-color: #5eead4; width: 16px; height: 16px; cursor: pointer; }
         .robot-captcha-box {
             display: flex; align-items: center; justify-content: space-between;
-            background: rgba(15, 23, 42, 0.34); border: 1.5px solid rgba(255, 255, 255, 0.28);
-            border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; max-width: 310px;
-            backdrop-filter: blur(12px);
+            background: rgba(15, 23, 42, 0.30); border: 1.5px solid rgba(255, 255, 255, 0.26);
+            border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; max-width: 310px;
+            backdrop-filter: blur(10px);
         }
-        .robot-captcha-left { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.86rem; font-weight: 700; color: #f8fafc; }
-        .robot-captcha-left input { width: 20px; height: 20px; accent-color: #4ade80; cursor: pointer; }
+        .robot-captcha-left { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.84rem; font-weight: 700; color: #f8fafc; }
+        .robot-captcha-left input { width: 18px; height: 18px; accent-color: #4ade80; cursor: pointer; }
 
         /* COMMUNITY HUB DASHBOARD */
         .dashboard-screen { max-width: 960px; }
         .member-profile-bar {
             display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;
-            background: rgba(13, 56, 63, 0.32); border: 1px solid rgba(255, 255, 255, 0.24);
+            background: rgba(13, 56, 63, 0.28); border: 1px solid rgba(255, 255, 255, 0.24);
             border-radius: 14px; padding: 12px 14px; margin-bottom: 12px;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(12px);
         }
         .active-status-pill {
             display: inline-flex; align-items: center; gap: 6px; background: rgba(34, 197, 94, 0.18);
@@ -327,67 +327,49 @@
         .legend-badge-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
         .icon-legend-badge {
             display: inline-flex; align-items: center; justify-content: center; gap: 4px;
-            background: rgba(11, 46, 51, 0.55); border: 1.5px solid #5eead4; color: #ffffff;
+            background: rgba(11, 46, 51, 0.5); border: 1.5px solid #5eead4; color: #ffffff;
             font-size: 0.74rem; font-weight: 800; padding: 3px 9px; border-radius: 8px;
         }
         .dmd-badge { border-color: #fb7185; color: #fda4af; background: rgba(136, 19, 55, 0.35); }
 
-        .daily-checkin-box { flex: 1; min-width: 240px; max-width: 430px; background: rgba(11, 46, 51, 0.34); border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 10px; padding: 8px 10px; backdrop-filter: blur(12px); }
+        .daily-checkin-box { flex: 1; min-width: 240px; max-width: 430px; background: rgba(11, 46, 51, 0.3); border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 10px; padding: 8px 10px; backdrop-filter: blur(10px); }
         .daily-checkin-label { font-size: 0.7rem; font-weight: 800; color: #5eead4; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; display: flex; justify-content: space-between; }
-        .daily-checkin-input { width: 100%; background: rgba(15, 61, 68, 0.36); border: 1px solid rgba(94, 234, 212, 0.35); color: #ffffff; font-size: 0.82rem; padding: 7px 9px; border-radius: 6px; outline: none; }
+        .daily-checkin-input { width: 100%; background: rgba(15, 61, 68, 0.34); border: 1px solid rgba(94, 234, 212, 0.35); color: #ffffff; font-size: 0.82rem; padding: 7px 9px; border-radius: 6px; outline: none; }
         .daily-checkin-input:focus { border-color: #5eead4; }
 
-        /* Frosted Room Cards for Community Hub */
-        .hub-rooms-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(265px, 1fr)); gap: 14px; width: 100%;
-        }
+        .hub-rooms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(265px, 1fr)); gap: 14px; width: 100%; }
         .hub-room-card {
             display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
             width: 100%; padding: 16px; border-radius: 14px; cursor: pointer; text-align: left;
             border: 1.5px solid rgba(255, 255, 255, 0.28);
-            backdrop-filter: blur(16px) saturate(135%);
-            -webkit-backdrop-filter: blur(16px) saturate(135%);
+            backdrop-filter: blur(14px) saturate(135%);
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 8px 20px rgba(0,0,0,0.3);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 8px 20px rgba(0,0,0,0.25);
             text-shadow: 0 1px 3px rgba(0,0,0,0.7);
         }
-        .hub-room-card:hover { transform: translateY(-3px); border-color: #fde047; box-shadow: 0 12px 26px rgba(0,0,0,0.45); }
+        .hub-room-card:hover { transform: translateY(-3px); border-color: #fde047; }
         .hub-room-title { font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
         .hub-room-desc { font-size: 0.8rem; line-height: 1.38; opacity: 0.94; margin-top: 4px; }
         .hub-room-cta { align-self: flex-end; font-size: 0.76rem; font-weight: 800; padding: 5px 12px; border-radius: 50px; background: rgba(255,255,255,0.18); }
 
-        .room-feed { background: linear-gradient(135deg, rgba(3, 105, 161, 0.34), rgba(13, 148, 136, 0.34)); border-color: rgba(56, 189, 248, 0.65); color: #f0f9ff; }
-        .room-wall { background: linear-gradient(135deg, rgba(67, 56, 202, 0.34), rgba(49, 46, 129, 0.4)); border-color: rgba(129, 140, 248, 0.65); color: #e0e7ff; }
-        .room-youth { background: linear-gradient(135deg, rgba(190, 24, 93, 0.34), rgba(109, 40, 217, 0.38)); border-color: rgba(244, 114, 182, 0.65); color: #fdf2f8; }
-        .room-rec { background: linear-gradient(135deg, rgba(13, 148, 136, 0.34), rgba(6, 95, 70, 0.4)); border-color: rgba(94, 234, 212, 0.65); color: #ecfdf5; }
-        .room-wood {
-            background: linear-gradient(135deg, rgba(120, 68, 28, 0.4), rgba(78, 44, 18, 0.46));
-            border: 1.5px solid rgba(217, 155, 96, 0.7); color: #fef3c7;
-        }
-        .room-res { background: linear-gradient(135deg, rgba(15, 118, 110, 0.36), rgba(180, 83, 9, 0.32)); border-color: rgba(253, 224, 71, 0.65); color: #fefce8; }
+        .room-feed { background: linear-gradient(135deg, rgba(3, 105, 161, 0.32), rgba(13, 148, 136, 0.32)); border-color: rgba(56, 189, 248, 0.65); color: #f0f9ff; }
+        .room-wall { background: linear-gradient(135deg, rgba(67, 56, 202, 0.32), rgba(49, 46, 129, 0.38)); border-color: rgba(129, 140, 248, 0.65); color: #e0e7ff; }
+        .room-youth { background: linear-gradient(135deg, rgba(190, 24, 93, 0.32), rgba(109, 40, 217, 0.36)); border-color: rgba(244, 114, 182, 0.65); color: #fdf2f8; }
+        .room-rec { background: linear-gradient(135deg, rgba(13, 148, 136, 0.32), rgba(6, 95, 70, 0.38)); border-color: rgba(94, 234, 212, 0.65); color: #ecfdf5; }
+        .room-wood { background: linear-gradient(135deg, rgba(120, 68, 28, 0.38), rgba(78, 44, 18, 0.44)); border: 1.5px solid rgba(217, 155, 96, 0.7); color: #fef3c7; }
+        .room-res { background: linear-gradient(135deg, rgba(15, 118, 110, 0.34), rgba(180, 83, 9, 0.3)); border-color: rgba(253, 224, 71, 0.65); color: #fefce8; }
 
-        /* THE HARBOR FEED — Chat Window on Top, Thumb Composer Underneath */
+        /* THE HARBOR FEED & PLANNER / MED DRAWER */
+        .feed-submode-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
         .open-chat-stream-box {
-            background: rgba(7, 27, 32, 0.32);
-            border: 1.5px solid rgba(255, 255, 255, 0.22);
-            border-radius: 14px;
-            padding: 12px;
-            min-height: 310px;
-            max-height: 430px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 12px;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            background: rgba(7, 27, 32, 0.30); border: 1.5px solid rgba(255, 255, 255, 0.22);
+            border-radius: 14px; padding: 12px; min-height: 280px; max-height: 410px;
+            overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+            margin-bottom: 12px; backdrop-filter: blur(12px);
         }
-
         .fb-composer-card {
-            background: rgba(15, 45, 54, 0.4); border: 1.5px solid rgba(56, 189, 248, 0.55);
-            border-radius: 14px; padding: 12px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 22px rgba(0,0,0,0.32);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: rgba(15, 45, 54, 0.36); border: 1.5px solid rgba(56, 189, 248, 0.55);
+            border-radius: 14px; padding: 12px; backdrop-filter: blur(14px);
         }
         .fb-composer-top { display: flex; align-items: center; gap: 10px; }
         .fb-avatar-circle {
@@ -396,7 +378,7 @@
             font-weight: 900; font-size: 0.88rem; display: flex; align-items: center; justify-content: center;
         }
         .fb-pill-input {
-            flex: 1; background: rgba(7, 27, 32, 0.46); border: 1px solid rgba(255, 255, 255, 0.25);
+            flex: 1; background: rgba(7, 27, 32, 0.42); border: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 50px; padding: 9px 15px; color: #ffffff; font-size: 0.86rem; outline: none;
         }
         .fb-pill-input:focus { border-color: #38bdf8; }
@@ -414,215 +396,127 @@
         .fb-post-btn {
             background: linear-gradient(135deg, #38bdf8, #0284c7); color: #ffffff;
             border: none; border-radius: 50px; padding: 8px 24px; font-weight: 800; font-size: 0.86rem;
-            cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4); transition: transform 0.15s;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
         }
-        .fb-post-btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
-
         .fb-feed-post {
-            background: rgba(13, 42, 50, 0.42); border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 14px; padding: 12px; backdrop-filter: blur(12px);
+            background: rgba(13, 42, 50, 0.38); border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 14px; padding: 12px; backdrop-filter: blur(10px);
         }
         .fb-post-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
         .fb-post-author-wrap { display: flex; align-items: center; gap: 9px; }
         .fb-post-media { width: 100%; max-height: 250px; object-fit: cover; border-radius: 10px; margin-top: 8px; border: 1px solid rgba(94, 234, 212, 0.3); }
-        .fb-action-bar {
-            display: flex; gap: 8px; border-top: 1px solid rgba(255,255,255,0.12);
-            margin-top: 8px; padding-top: 7px;
-        }
+        .fb-action-bar { display: flex; gap: 8px; border-top: 1px solid rgba(255,255,255,0.12); margin-top: 8px; padding-top: 7px; }
         .fb-action-chip {
             flex: 1; background: rgba(255,255,255,0.08); border: none; color: #e2e8f0;
             padding: 5px 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 700; cursor: pointer;
-            transition: background 0.18s, color 0.18s;
         }
         .fb-action-chip:hover { background: rgba(94, 234, 212, 0.22); color: #5eead4; }
         .chat-reply-indicator { font-size: 0.75rem; color: #7dd3fc; margin-top: 6px; background: rgba(56, 189, 248, 0.16); padding: 6px 10px; border-radius: 8px; border-left: 3px solid #38bdf8; }
 
-        /* THE YOUTH COVE (21 & UNDER) — Top Positive/Support Banner Queue + Chat + Bottom "Post" */
+        .planner-section-card {
+            background: rgba(11, 46, 51, 0.34); border: 1.5px solid rgba(94, 234, 212, 0.45);
+            border-radius: 14px; padding: 14px; margin-bottom: 12px; backdrop-filter: blur(12px);
+        }
+        .planner-scope-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+        .planner-item-row {
+            background: rgba(7, 27, 32, 0.44); border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 10px; padding: 10px 12px; margin-bottom: 8px;
+            display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+        }
+
+        /* YOUTH COVE */
         .ig-youth-screen {
-            background: linear-gradient(155deg, rgba(46, 26, 86, 0.32), rgba(76, 29, 149, 0.3), rgba(15, 23, 42, 0.38)) !important;
+            background: linear-gradient(155deg, rgba(46, 26, 86, 0.30), rgba(76, 29, 149, 0.28), rgba(15, 23, 42, 0.35)) !important;
             border: 1.5px solid rgba(244, 114, 182, 0.65) !important;
         }
-        .youth-chip-bar {
-            display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
-            margin-bottom: 10px;
-        }
+        .youth-chip-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 10px; }
         .youth-member-chip {
-            background: rgba(15, 23, 42, 0.45);
-            border: 1.5px solid rgba(244, 114, 182, 0.55);
-            color: #fdf2f8;
-            padding: 5px 12px;
-            border-radius: 50px;
-            font-size: 0.78rem;
-            font-weight: 800;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            transition: all 0.18s ease;
+            background: rgba(15, 23, 42, 0.42); border: 1.5px solid rgba(244, 114, 182, 0.55);
+            color: #fdf2f8; padding: 5px 12px; border-radius: 50px; font-size: 0.78rem; font-weight: 800; cursor: pointer;
         }
-        .youth-member-chip.active {
-            background: linear-gradient(135deg, #f43f5e, #a855f7);
-            border-color: #fde047;
-            color: #ffffff;
-            box-shadow: 0 0 12px rgba(244, 114, 182, 0.5);
-        }
+        .youth-member-chip.active { background: linear-gradient(135deg, #f43f5e, #a855f7); border-color: #fde047; color: #ffffff; }
         .youth-positive-banner {
-            background: linear-gradient(135deg, rgba(244, 63, 94, 0.24), rgba(168, 85, 247, 0.26));
-            border: 1.5px solid rgba(253, 224, 71, 0.55);
-            border-radius: 14px;
-            padding: 11px 12px;
-            margin-bottom: 10px;
-            backdrop-filter: blur(14px);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.22), rgba(168, 85, 247, 0.24));
+            border: 1.5px solid rgba(253, 224, 71, 0.55); border-radius: 14px; padding: 11px 12px; margin-bottom: 10px;
         }
         .youth-open-chat-box {
-            background: rgba(15, 23, 42, 0.32);
-            border: 1.5px solid rgba(244, 114, 182, 0.42);
-            border-radius: 14px;
-            padding: 10px;
-            min-height: 220px;
-            max-height: 330px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 10px;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            background: rgba(15, 23, 42, 0.30); border: 1.5px solid rgba(244, 114, 182, 0.42);
+            border-radius: 14px; padding: 10px; min-height: 220px; max-height: 330px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;
         }
         .fb-youth-bubble-row { display: flex; align-items: flex-start; gap: 8px; }
         .fb-youth-avatar {
             width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
-            background: linear-gradient(135deg, #f43f5e, #a855f7);
-            color: #ffffff; font-size: 0.72rem; font-weight: 900;
-            display: flex; align-items: center; justify-content: center;
-            margin-top: 2px;
+            background: linear-gradient(135deg, #f43f5e, #a855f7); color: #ffffff;
+            font-size: 0.72rem; font-weight: 900; display: flex; align-items: center; justify-content: center; margin-top: 2px;
         }
         .fb-youth-bubble {
-            background: rgba(30, 27, 75, 0.5);
-            border: 1px solid rgba(244, 114, 182, 0.35);
-            border-radius: 14px;
-            padding: 7px 12px;
-            max-width: 88%;
-            backdrop-filter: blur(10px);
+            background: rgba(30, 27, 75, 0.46); border: 1px solid rgba(244, 114, 182, 0.35);
+            border-radius: 14px; padding: 7px 12px; max-width: 88%;
         }
-        .fb-youth-bubble-meta {
-            display: flex; align-items: center; gap: 8px; margin-top: 3px; padding-left: 6px;
-            font-size: 0.7rem; color: #f5d0fe; font-weight: 700;
-        }
-        .fb-youth-mini-btn {
-            background: none; border: none; color: #f5d0fe; font-size: 0.7rem; font-weight: 800; cursor: pointer; padding: 0;
-        }
+        .fb-youth-bubble-meta { display: flex; align-items: center; gap: 8px; margin-top: 3px; padding-left: 6px; font-size: 0.7rem; color: #f5d0fe; font-weight: 700; }
+        .fb-youth-mini-btn { background: none; border: none; color: #f5d0fe; font-size: 0.7rem; font-weight: 800; cursor: pointer; padding: 0; }
         .fb-youth-mini-btn:hover { color: #fde047; }
 
         /* REC AREA & TABS */
         .rec-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 14px; }
         @media (min-width: 640px) { .rec-tabs { grid-template-columns: repeat(6, 1fr); } }
-        .rec-tab-btn { width: 100%; padding: 8px 6px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(15, 61, 68, 0.34); color: #e2e8f0; font-weight: 700; font-size: 0.74rem; cursor: pointer; text-align: center; backdrop-filter: blur(10px); }
+        .rec-tab-btn { width: 100%; padding: 8px 6px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(15, 61, 68, 0.32); color: #e2e8f0; font-weight: 700; font-size: 0.74rem; cursor: pointer; text-align: center; }
         .rec-tab-btn.active { background: #5eead4; color: #0b2e33; border-color: #5eead4; }
         .finalist-tag { background: rgba(251, 191, 36, 0.2); border: 1px solid #fbbf24; color: #fde047; font-size: 0.68rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
         .back-hub-btn {
             background: rgba(94, 234, 212, 0.16); border: 1px solid #5eead4; color: #5eead4;
             padding: 6px 12px; border-radius: 50px; font-size: 0.76rem; font-weight: 700;
-            cursor: pointer; white-space: nowrap; flex-shrink: 0; backdrop-filter: blur(8px);
+            cursor: pointer; white-space: nowrap; flex-shrink: 0;
         }
         .back-hub-btn:hover { background: #5eead4; color: #0b2e33; }
 
-        /* Side-by-Side Head-to-Head Tuesday vs. Thursday Showdown */
-        .showdown-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
-            position: relative;
-        }
+        .showdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; position: relative; }
         .showdown-card {
-            background: rgba(15, 23, 42, 0.44);
-            border: 1.5px solid rgba(253, 224, 71, 0.48);
-            border-radius: 14px;
-            padding: 9px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            gap: 6px;
-            backdrop-filter: blur(12px);
-            text-align: center;
+            background: rgba(15, 23, 42, 0.38); border: 1.5px solid rgba(253, 224, 71, 0.48);
+            border-radius: 14px; padding: 9px; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; text-align: center;
         }
         .showdown-vs-pill {
-            position: absolute;
-            top: 42%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #fde047, #f59e0b);
-            color: #0b2e33;
-            font-weight: 900;
-            font-size: 0.78rem;
-            padding: 5px 9px;
-            border-radius: 50px;
-            border: 2px solid #0b2e33;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.65);
-            z-index: 4;
-            pointer-events: none;
+            position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #fde047, #f59e0b); color: #0b2e33;
+            font-weight: 900; font-size: 0.78rem; padding: 5px 9px; border-radius: 50px; border: 2px solid #0b2e33; z-index: 4; pointer-events: none;
         }
 
-        /* True 3x3 Square Tic-Tac-Toe Board (Never Sideways) */
         .ttt-square-grid {
-            display: grid !important;
-            grid-template-columns: repeat(3, 72px) !important;
-            grid-template-rows: repeat(3, 72px) !important;
-            gap: 8px !important;
-            justify-content: center !important;
-            margin: 0 auto 12px !important;
-            width: max-content !important;
+            display: grid !important; grid-template-columns: repeat(3, 72px) !important;
+            grid-template-rows: repeat(3, 72px) !important; gap: 8px !important;
+            justify-content: center !important; margin: 0 auto 12px !important; width: max-content !important;
         }
         .ttt-cell-btn {
-            width: 72px !important;
-            height: 72px !important;
-            border-radius: 12px !important;
-            border: 1.5px solid #5eead4 !important;
-            background: rgba(11, 46, 51, 0.55) !important;
-            font-size: 1.65rem !important;
-            font-weight: 900 !important;
-            color: #ffffff !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            cursor: pointer;
+            width: 72px !important; height: 72px !important; border-radius: 12px !important;
+            border: 1.5px solid #5eead4 !important; background: rgba(11, 46, 51, 0.5) !important;
+            font-size: 1.65rem !important; font-weight: 900 !important; color: #ffffff !important;
+            display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer;
         }
+        .trivia-2x2-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; width: 100% !important; }
 
-        /* Clean 2x2 Trivia Options Grid (Never Sideways) */
-        .trivia-2x2-grid {
-            display: grid !important;
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 8px !important;
-            width: 100% !important;
-        }
-
-        .video-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; background: #041518; border-radius: 12px; overflow: hidden; margin-bottom: 14px; border: 1px solid rgba(94, 234, 212, 0.35); }
+        .video-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; background: #041518; border-radius: 12px; overflow: hidden; margin-bottom: 12px; border: 1px solid rgba(94, 234, 212, 0.35); }
         .video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
 
-        /* RESOURCES & FOUNDATIONS */
         .resources-screen {
             max-width: 960px;
-            background: linear-gradient(145deg, rgba(11, 46, 51, 0.3), rgba(15, 61, 68, 0.36)) !important;
+            background: linear-gradient(145deg, rgba(11, 46, 51, 0.28), rgba(15, 61, 68, 0.34)) !important;
             border: 1.5px solid rgba(94, 234, 212, 0.6) !important;
         }
 
-        /* Dear Guest Portal Buttons & Modal Pop-Ups */
-        .uniform-portal-btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+        .uniform-portal-btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
         .uniform-portal-btn {
-            flex: 1; min-width: 210px;
-            background: linear-gradient(135deg, rgba(13, 148, 136, 0.38), rgba(3, 105, 161, 0.44));
-            border: 1.5px solid rgba(94, 234, 212, 0.65); color: #ffffff; font-weight: 700; font-size: 0.84rem;
-            padding: 11px 14px; border-radius: 50px; cursor: pointer; text-align: center;
+            flex: 1; min-width: 190px;
+            background: linear-gradient(135deg, rgba(13, 148, 136, 0.34), rgba(3, 105, 161, 0.38));
+            border: 1.5px solid rgba(94, 234, 212, 0.65); color: #ffffff; font-weight: 700; font-size: 0.82rem;
+            padding: 10px 14px; border-radius: 50px; cursor: pointer; text-align: center;
             display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-            backdrop-filter: blur(12px);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 14px rgba(0,0,0,0.3);
             transition: all 0.22s ease;
         }
         .uniform-portal-btn:hover { transform: translateY(-2px); border-color: #fde047; }
         .contribution-impact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; margin-top: 10px; }
-        .impact-item-card { background: rgba(15, 61, 68, 0.34); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; padding: 9px 11px; font-size: 0.76rem; color: #e2e8f0; backdrop-filter: blur(10px); }
+        .impact-item-card { background: rgba(15, 61, 68, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; padding: 9px 11px; font-size: 0.76rem; color: #e2e8f0; }
 
-        /* Modal Overlay */
         .harbor-modal-backdrop {
             display: none; position: fixed; inset: 0; z-index: 999;
             background: rgba(4, 20, 24, 0.38); backdrop-filter: blur(6px);
@@ -630,40 +524,36 @@
         }
         .harbor-modal-backdrop.active { display: flex; }
         .harbor-modal-box {
-            width: 100%; max-width: 460px; background: rgba(11, 46, 51, 0.56); border: 1.5px solid rgba(255, 255, 255, 0.32);
-            border-radius: 16px; padding: 20px; box-shadow: 0 18px 40px rgba(0,0,0,0.65); text-align: left;
-            backdrop-filter: blur(18px) saturate(135%);
-            -webkit-backdrop-filter: blur(18px) saturate(135%);
+            width: 100%; max-width: 460px; background: rgba(11, 46, 51, 0.62); border: 1.5px solid rgba(255, 255, 255, 0.32);
+            border-radius: 16px; padding: 20px; box-shadow: 0 18px 40px rgba(0,0,0,0.65); text-align: left; backdrop-filter: blur(16px);
         }
 
-        /* Admin Dashboard Tabs */
         .admin-tab-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
         .admin-tab-btn {
             flex: 1; min-width: 135px; padding: 9px 10px; border-radius: 10px;
-            border: 1px solid rgba(253, 224, 71, 0.45); background: rgba(15, 23, 42, 0.42);
+            border: 1px solid rgba(253, 224, 71, 0.45); background: rgba(15, 23, 42, 0.38);
             color: #fde047; font-size: 0.78rem; font-weight: 800; cursor: pointer; text-align: center;
-            backdrop-filter: blur(10px);
         }
         .admin-tab-btn.active { background: #fde047; color: #0f172a; }
-        .admin-item-card {
-            background: rgba(15, 23, 42, 0.44); border: 1px solid rgba(255, 255, 255, 0.22);
-            border-radius: 12px; padding: 12px; margin-bottom: 10px; font-size: 0.84rem;
-            backdrop-filter: blur(12px);
-        }
+        .admin-item-card { background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 12px; padding: 12px; margin-bottom: 10px; font-size: 0.84rem; }
 
         @media (max-width: 600px) {
-            .app-container { padding: 10px 8px; }
-            .app-container.top-aligned { padding-top: 104px; }
+            .app-container { padding: 108px 8px 20px; }
+            .app-container.top-aligned { padding-top: 108px; }
+            .sanctuary-quote-banner { height: 134px; min-height: 134px; }
             .view-screen { width: 96% !important; max-width: 100% !important; padding: 14px 12px !important; margin: 0 auto 20px !important; }
             .hub-rooms-grid { grid-template-columns: 1fr !important; }
             .member-profile-bar { flex-direction: column; align-items: stretch; }
             .daily-checkin-box { max-width: 100%; min-width: 0; }
-            .dark-input, select { font-size: 16px !important; min-height: 44px !important; }
+            .dark-input, select { font-size: 16px !important; min-height: 42px !important; }
         }
     </style>
 </head>
 <body>
     {% set first_mosaic = mosaic_images[0] if mosaic_images and mosaic_images|length > 0 else '' %}
+
+    <!-- Inviting Non-Animated Color Display -->
+    <div id="colorWashBg" class="color-wash-bg"></div>
 
     <!-- Welcome & Learn More Mosaic Background -->
     <div id="mosaicBg" class="mosaic-bg">
@@ -675,7 +565,7 @@
 
     <!-- CONTRIBUTE / SPONSOR MODAL -->
     <div id="contributeModalBackdrop" style="display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.38); backdrop-filter: blur(6px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;" onclick="if(event.target === this) closeContributeModal()">
-        <div class="modal-card" style="max-width: 460px; width: 94%; background: rgba(15, 23, 42, 0.56); border: 1.5px solid rgba(255, 255, 255, 0.3); border-radius: 16px; padding: 20px; color: #f8fafc; backdrop-filter: blur(18px) saturate(135%);">
+        <div class="modal-card" style="max-width: 460px; width: 94%; background: rgba(15, 23, 42, 0.62); border: 1.5px solid rgba(255, 255, 255, 0.3); border-radius: 16px; padding: 20px; color: #f8fafc; backdrop-filter: blur(16px);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <h3 style="color: #5eead4; margin: 0;">🤝 Support &amp; Contribute</h3>
                 <button type="button" onclick="closeContributeModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">&times;</button>
@@ -713,47 +603,9 @@
         </div>
     </div>
 
-    <!-- "Connecting the Distance" Beacon Horizon Backdrop (Silhouettes Visible Through Frosted Glass) -->
-    <div id="distanceBg" class="distance-bg">
-        <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-            <defs>
-                <radialGradient id="beaconGlow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#fde047" stop-opacity="0.98"/>
-                    <stop offset="45%" stop-color="#5eead4" stop-opacity="0.55"/>
-                    <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
-                </radialGradient>
-            </defs>
-            <path d="M 140 580 Q 380 280 620 490" stroke="#5eead4" stroke-width="2.2" stroke-dasharray="6 6" fill="none" opacity="0.62"/>
-            <path d="M 620 490 Q 840 240 1060 540" stroke="#38bdf8" stroke-width="2.2" stroke-dasharray="6 6" fill="none" opacity="0.62"/>
-            <path d="M 260 660 Q 600 360 940 630" stroke="#fde047" stroke-width="1.8" stroke-dasharray="4 8" fill="none" opacity="0.5"/>
-            <path d="M 140 580 Q 600 180 1060 540" stroke="#5eead4" stroke-width="1.6" fill="none" opacity="0.38"/>
-            <path d="M 0 690 Q 600 620 1200 690" stroke="rgba(94,234,212,0.4)" stroke-width="2.4" fill="none"/>
-            <circle class="beacon-node" cx="140" cy="580" r="36" fill="url(#beaconGlow)"/>
-            <circle cx="140" cy="580" r="6" fill="#fde047"/>
-            <circle class="beacon-node" cx="620" cy="490" r="46" fill="url(#beaconGlow)" style="animation-delay: 1.1s;"/>
-            <circle cx="620" cy="490" r="7" fill="#5eead4"/>
-            <circle class="beacon-node" cx="1060" cy="540" r="38" fill="url(#beaconGlow)" style="animation-delay: 2.2s;"/>
-            <circle cx="1060" cy="540" r="6" fill="#38bdf8"/>
-            <circle class="beacon-node" cx="380" cy="390" r="30" fill="url(#beaconGlow)" style="animation-delay: 0.7s;"/>
-            <circle cx="380" cy="390" r="5" fill="#fb7185"/>
-            <circle class="beacon-node" cx="840" cy="370" r="32" fill="url(#beaconGlow)" style="animation-delay: 1.8s;"/>
-            <circle cx="840" cy="370" r="5" fill="#fde047"/>
-        </svg>
-    </div>
-
-    <!-- Multi-Directional Awareness Background for Become a Member -->
-    <div id="joinBg" class="join-bg">
-        <div class="awareness-symbol" style="top: 18%; left: 8%; color: #fb7185; border-color: #fb7185; animation: driftNorthEast 9s ease-in-out infinite;">🎗️ DMD Warrior</div>
-        <div class="awareness-symbol" style="top: 68%; left: 72%; color: #c084fc; border-color: #c084fc; animation: driftNorthWest 10s ease-in-out infinite 1.2s;">💜 Cancer Caregiver</div>
-        <div class="awareness-symbol" style="top: 28%; left: 68%; color: #38bdf8; border-color: #38bdf8; animation: driftSouthEast 11s ease-in-out infinite 2.4s;">🩺 MD &amp; Neuromuscular</div>
-        <div class="awareness-symbol" style="top: 76%; left: 14%; color: #fde047; border-color: #fde047; animation: driftNorthEast 10.5s ease-in-out infinite 0.8s;">☀️ Polio &amp; Mobility Support</div>
-        <div class="awareness-symbol" style="top: 46%; left: 10%; color: #f472b6; border-color: #f472b6; animation: driftHorizontalPulse 8.5s ease-in-out infinite 1.8s;">🧩 Autism &amp; Sensory</div>
-        <div class="awareness-symbol" style="top: 14%; left: 44%; color: #34d399; border-color: #34d399; animation: driftSouthEast 9.5s ease-in-out infinite 3s;">🧸 Pediatric Caregiver</div>
-        <div class="awareness-symbol" style="top: 58%; left: 48%; color: #fbbf24; border-color: #fbbf24; animation: driftNorthWest 11.5s ease-in-out infinite 2s;">🦓 Rare Disease Family</div>
-        <div class="awareness-symbol" style="top: 82%; left: 46%; color: #5eead4; border-color: #5eead4; animation: driftNorthEast 9s ease-in-out infinite 3.6s;">⚓ Lived Experience</div>
-    </div>
-
-    <!-- Dear Guest Soft Activity Background -->
+    <!-- Non-Animated Color Backdrops for Inner Views -->
+    <div id="distanceBg" class="distance-bg"></div>
+    <div id="joinBg" class="join-bg"></div>
     <div id="guestBg" class="guest-bg">
         <div class="guest-bg-grid">
             {% for img in mosaic_images %}
@@ -777,12 +629,17 @@
                 <div class="harbor-subtitle">A caregiver sanctuary where lived experiences and survived struggles light the way for someone else.</div>
             </div>
 
+            <div class="sanctuary-quote-banner" style="margin-bottom: 0; background: rgba(13, 56, 63, 0.14); backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);">
+                <div id="welcomeMotivationText" class="sanctuary-quote-text">"You don't have to weather the storm by yourself. Your lived experiences light the path for fellow caregivers walking right beside you."</div>
+                <div id="welcomeMotivationAuthor" class="sanctuary-quote-author">— The Harbor Community</div>
+            </div>
+
             <button type="button" class="learn-more-pill" onclick="switchView('learnMoreView')">
                 <span>⚓ Learn More About The Harbor</span>
             </button>
 
             <div class="members-anchor-wrap">
-                <button type="button" class="members-anchor-btn" onclick="switchView('memberLoginView')" aria-label="Members Only Login">
+                <button type="button" class="members-anchor-btn" onclick="switchView('memberLoginView')" aria-label="Members Only Enter Here">
                     <svg width="232" height="252" viewBox="0 0 220 240" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <linearGradient id="anchorMetal" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -823,18 +680,18 @@
             </div>
 
             <div class="twin-buttons">
-                <button class="twin-btn-pill-rich pill-member-stack" onclick="switchView('becomeMemberView')">
+                <button type="button" class="twin-btn-pill-rich pill-member-stack" onclick="switchView('becomeMemberView')">
                     <span class="pill-top-label">🤝 Become a Member</span>
                     <span class="neon-click-wrap"><span class="neon-click-flash">CLICK</span><span class="neon-here-pulse">HERE</span></span>
                 </button>
-                <button class="twin-btn-pill-rich pill-member-stack" onclick="switchView('donorVisitorView')">
+                <button type="button" class="twin-btn-pill-rich pill-member-stack" onclick="switchView('donorVisitorView')">
                     <span class="pill-top-label">❤️ Guests &amp; Contributors</span>
                     <span class="neon-click-wrap"><span class="neon-click-flash">CLICK</span><span class="neon-here-pulse">HERE</span></span>
                 </button>
             </div>
         </div>
 
-        <!-- LEARN MORE PAGE -->
+        <!-- LEARN MORE PAGE (Read Instead + Separate Virtual Tour + Reason Behind Mission) -->
         <div id="learnMoreView" class="view-screen" style="max-width: 740px;">
             <div class="screen-header">
                 <div class="screen-title">⚓ Learn More About The Harbor</div>
@@ -846,6 +703,44 @@
                 <p style="font-style: italic; color: #ffffff;">"A place where caregivers can pass on learned experiences from their caregiving journey—where survived struggles and real-world wisdom light the path for someone walking right behind you."</p>
             </div>
 
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                <button type="button" id="readInsteadBtn" class="uniform-portal-btn" style="min-width: 0; border-color: #fde047; color: #fde047;" onclick="toggleLearnMode('read')">
+                    📖 Read Instead
+                </button>
+                <button type="button" id="virtualTourBtn" class="uniform-portal-btn" style="min-width: 0; border-color: #5eead4; color: #5eead4;" onclick="toggleLearnMode('tour')">
+                    🧭 Virtual Tour
+                </button>
+            </div>
+
+            <!-- Read Instead Panel -->
+            <div id="learnReadPanel" style="display: none; background: rgba(11, 46, 51, 0.36); border: 1.5px solid #fde047; border-radius: 12px; padding: 14px; margin-bottom: 12px;">
+                <div style="font-size: 0.92rem; font-weight: 800; color: #fde047; margin-bottom: 6px;">📖 Written Overview — How The Harbor Works</div>
+                <p style="font-size: 0.84rem; color: #f8fafc; line-height: 1.5; margin-bottom: 8px;">
+                    Caregivers often hear textbook advice without talking to someone actually walking—or who has walked—the same road. The Harbor is 100% free for caregivers and brings real-world support together in one judgment-free space.
+                </p>
+                <p style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.45;">
+                    Inside the Community Hub, members can connect in <strong>The Harbor Feed</strong> with daily planner notes, appointments, and medication reorder tracking, pin urgent questions on <strong>The Wall of Seriousness</strong>, give kids and young adults 21 and under their own space in <strong>The Youth Cove</strong>, unwind in <strong>The Rec Area</strong>, and share usable equipment on <strong>Pass It On</strong>.
+                </p>
+            </div>
+
+            <!-- Separate Virtual Tour Panel -->
+            <div id="learnVirtualTourPanel" style="display: none; background: rgba(11, 46, 51, 0.36); border: 1.5px solid #5eead4; border-radius: 12px; padding: 14px; margin-bottom: 12px;">
+                <div style="font-size: 0.92rem; font-weight: 800; color: #5eead4; margin-bottom: 6px;">🧭 Virtual Tour of The Harbor</div>
+                <div class="video-container" style="margin-bottom: 8px;">
+                    <video controls playsinline preload="metadata"
+                           {% if first_mosaic %}poster="{{ url_for('static', filename='images/mosaic/' + first_mosaic) }}"{% endif %}
+                           onerror="this.style.display='none'; document.getElementById('virtualTourFallback').style.display='flex';">
+                        <source src="{{ url_for('static', filename='videos/harbor_tour.mp4') }}" type="video/mp4">
+                    </video>
+                    <div id="virtualTourFallback" style="display: none; position: absolute; inset: 0; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 18px; background: radial-gradient(circle, rgba(15,61,68,0.6), rgba(7,34,38,0.78));">
+                        <div style="font-size: 1.8rem; margin-bottom: 6px;">🧭</div>
+                        <div style="font-weight: 800; color: #5eead4; font-size: 0.92rem;">Guided Virtual Tour</div>
+                        <p style="font-size: 0.78rem; color: #e2e8f0; max-width: 420px; margin-top: 4px;">Tour The Harbor Feed &amp; Caregiver Planner, The Wall of Seriousness, The Youth Cove, The Rec Area, Pass It On, and Resources &amp; Foundations.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reason Behind the Mission -->
             <div style="font-size: 0.95rem; font-weight: 800; color: #fde047; margin-bottom: 8px;">▶ The Reason Behind the Mission — The Lewie &amp; Marcus Network</div>
             <div class="video-container">
                 <video id="missionIntroPlayer" controls playsinline preload="metadata"
@@ -866,14 +761,14 @@
             </div>
         </div>
 
-        <!-- 1. MEMBERS LOGIN VIEW (Includes Sunday Winner Acknowledgement Spotlight) -->
+        <!-- 1. MEMBERS LOGIN VIEW (Includes Fixed Sunday Winner Acknowledgement Spotlight) -->
         <div id="memberLoginView" class="view-screen">
             <div class="screen-header">
                 <div class="screen-title">Welcome back</div>
                 <button class="close-btn" onclick="switchView('mainGatewayView')">&times;</button>
             </div>
 
-            <div id="sundayChampionSpotlight" {% if not weekly_champion %}hidden{% endif %} style="width: 100%; background: linear-gradient(145deg, rgba(15, 23, 42, 0.45), rgba(30, 27, 75, 0.45)); border: 1.5px solid #fde047; border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; backdrop-filter: blur(14px); box-shadow: 0 0 22px rgba(253, 224, 71, 0.2); text-align: center;"></div>
+            <div id="sundayChampionSpotlight" {% if not weekly_champion %}hidden{% endif %} style="width: 100%; background: linear-gradient(145deg, rgba(15, 23, 42, 0.45), rgba(30, 27, 75, 0.45)); border: 1.5px solid #fde047; border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; backdrop-filter: blur(14px); box-shadow: 0 0 22px rgba(253, 224, 71, 0.2); text-align: center;">
                 <div style="font-size: 0.72rem; font-weight: 900; letter-spacing: 0.9px; color: #fde047; text-transform: uppercase; margin-bottom: 6px;">👑 Sunday Winner Acknowledgement • Photo Champion</div>
                 <img id="loginChampImg" src="{{ weekly_champion.image_url if weekly_champion else '' }}" onerror="this.style.display='none'" alt="Sunday Photo Champion" style="width: 100%; max-height: 185px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(253, 224, 71, 0.4); margin-bottom: 6px;">
                 <div id="loginChampCaption" style="font-size: 0.86rem; font-weight: 800; color: #ffffff;">{{ weekly_champion.caption if weekly_champion else '' }}</div>
@@ -919,7 +814,7 @@
                                 window.currentHarborMemberName = d.display_name || u;
                                 if(typeof setHubGreetingAndBadges === 'function') setHubGreetingAndBadges(d.display_name || u, d.caregiver_role || '');
                                 if(d.bio && typeof extractYouthProfilesFromBio === 'function') extractYouthProfilesFromBio(d.bio);
-                              var adminNavBtn = document.getElementById('hubAdminPanelBtn');
+                                var adminNavBtn = document.getElementById('hubAdminPanelBtn');
                                 window.currentAdminRole = d.admin_role || '';
                                 if(d.is_admin){
                                     if(adminNavBtn){
@@ -949,15 +844,15 @@
             </form>
         </div>
 
-        <!-- 2. BECOME A MEMBER VIEW -->
-        <div id="becomeMemberView" class="view-screen">
+        <!-- 2. BECOME A MEMBER VIEW (Compact Stationary Layout) -->
+        <div id="becomeMemberView" class="view-screen compact-stationary">
             <div class="screen-header">
                 <div class="screen-title">Ready to join the Harbor? Share your walk of life.</div>
                 <button class="close-btn" onclick="switchView('mainGatewayView')">&times;</button>
             </div>
 
-            <div class="mission-callout">
-                <strong>Please Read Before Joining:</strong> This is a helping community and a strictly <strong>judgment-free zone</strong>. Our members are all walking through different stages of their caregiving journeys. You don't have to agree with every opinion or approach you see here, and not everyone will agree with yours—but we ask that you acknowledge and agree to treat every member with genuine respect and kindness.
+            <div class="mission-callout" style="padding: 9px 12px; font-size: 0.8rem; margin-bottom: 10px;">
+                <strong>Judgment-Free Zone:</strong> You don't have to agree with every opinion or approach here—only agree to treat every caregiver with genuine respect and kindness.
             </div>
 
             <div id="verificationStep1">
@@ -980,8 +875,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Caregiver Screen Name / Username (Optional — or we'll greet you by first name)</label>
-                        <input type="text" id="regUsername" class="dark-input" placeholder="e.g. BuffaloMom or HopeWalker" autocomplete="username">
+                        <label class="form-label">Caregiver Screen Name / Username (Optional)</label>
+                        <input type="text" id="regUsername" class="dark-input" placeholder="e.g. HopeWalker" autocomplete="username">
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -1008,13 +903,15 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" id="regEmailInput" class="dark-input" required placeholder="you@example.com" autocomplete="email">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Create a Password</label>
-                        <input type="password" id="regPasswordInput" class="dark-input" minlength="8" required placeholder="At least 8 characters" autocomplete="new-password">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" id="regEmailInput" class="dark-input" required placeholder="you@example.com" autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Create a Password</label>
+                            <input type="password" id="regPasswordInput" class="dark-input" minlength="8" required placeholder="8+ characters" autocomplete="new-password">
+                        </div>
                     </div>
 
                     <button type="submit" class="action-btn" style="width: auto; padding: 10px 22px; font-size: 0.88rem; border-radius: 50px;">✉️ Send Confirmation Code</button>
@@ -1023,15 +920,15 @@
 
             <div id="verificationStep2" style="display: none;">
                 <form onsubmit="event.preventDefault(); submitJoinStep2ForApproval();">
-                    <div style="background: rgba(15, 61, 68, 0.38); border: 1.5px solid #5eead4; border-radius: 12px; padding: 14px; margin-bottom: 14px; backdrop-filter: blur(12px);">
+                    <div style="background: rgba(15, 61, 68, 0.38); border: 1.5px solid #5eead4; border-radius: 12px; padding: 14px; margin-bottom: 14px;">
                         <div style="font-size: 0.9rem; font-weight: 800; color: #fde047; margin-bottom: 6px;">🔐 Verify Here</div>
                         <label class="form-label">Enter the 6-digit confirmation code sent to your email:</label>
                         <input type="text" id="regVerifyCodeInput" class="dark-input" style="max-width: 210px; letter-spacing: 0.2em; font-weight: 800;" required placeholder="123456" maxlength="6">
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Tell us a little bit about yourself &amp; your caregiving journey (if you mention your kids' names &amp; ages, we'll pre-fill them in Youth Cove!):</label>
-                        <textarea id="regBioNoteInput" class="dark-input" rows="3" required placeholder="Share a few sentences about who you care for (e.g. Marcus, 15 and Rachel, 9) or what brought you to The Harbor..."></textarea>
+                        <label class="form-label">Tell us a little bit about yourself &amp; your caregiving journey:</label>
+                        <textarea id="regBioNoteInput" class="dark-input" rows="3" required placeholder="Share a few sentences about who you care for or what brought you to The Harbor..."></textarea>
                     </div>
 
                     <button type="submit" class="action-btn">Submit Application for Admin Review</button>
@@ -1042,14 +939,14 @@
                 <div style="font-size: 2.2rem; margin-bottom: 8px;">⚓</div>
                 <div style="font-size: 1.1rem; font-weight: 800; color: #5eead4; margin-bottom: 8px;">Verification Received — Pending Admin Approval</div>
                 <div class="mission-callout" style="text-align: left; border-left-color: #fde047;">
-                    Thank you for verifying your email and sharing a little about yourself! Because we protect our members carefully, please allow <strong>at least 24 hours</strong> for us to review your application and reply to your email with your official <strong>Welcome to The Harbor</strong> access link.
+                    Thank you for verifying your email and sharing a little about yourself! Please allow <strong>at least 24 hours</strong> for us to review your application and reply to your email with your <strong>Welcome to The Harbor</strong> access link.
                 </div>
                 <button type="button" class="action-btn" style="max-width: 260px;" onclick="resetJoinFormAndGoHome()">Return to Welcome Page</button>
             </div>
         </div>
 
-        <!-- 3. DEAR GUEST VIEW -->
-        <div id="donorVisitorView" class="view-screen">
+        <!-- 3. DEAR GUEST VIEW (Stationary Clean Framing) -->
+        <div id="donorVisitorView" class="view-screen compact-stationary">
             <div class="screen-header">
                 <div>
                     <div class="screen-title" style="font-size: 1.35rem;">❤️ Dear Guest,</div>
@@ -1100,7 +997,7 @@
                 <div id="tourVideoFallback" style="display: none; position: absolute; inset: 0; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; background: radial-gradient(circle, rgba(15,61,68,0.6), rgba(7,34,38,0.75));">
                     <div style="font-size: 2rem; margin-bottom: 6px;">🧭</div>
                     <div style="font-weight: 800; color: #fde047; font-size: 0.95rem;">The Harbor Mission &amp; Platform Tour</div>
-                    <p style="font-size: 0.8rem; color: #e2e8f0; max-width: 440px; margin-top: 6px;">Explore our live peer feed, priority Q&amp;A wall, Youth Cove, Rec Area trivia &amp; games, and Pass It On gear exchange—built to connect caregivers across every mile.</p>
+                    <p style="font-size: 0.8rem; color: #e2e8f0; max-width: 440px; margin-top: 6px;">Explore our live peer feed, caregiver planner &amp; med tracker, priority Q&amp;A wall, Youth Cove, Rec Area trivia &amp; games, and Pass It On gear exchange.</p>
                 </div>
             </div>
 
@@ -1126,10 +1023,6 @@
                 </div>
             </div>
 
-            <div class="mission-callout" style="border-left-color: #5eead4; margin-bottom: 10px;">
-                If you're ready to support and contribute, please click below:
-            </div>
-
             <div class="uniform-portal-btn-row">
                 <button type="button" class="uniform-portal-btn" onclick="openContributeModal()">🤝 I would like to contribute</button>
                 <button type="button" class="uniform-portal-btn" onclick="switchView('donorVisitorView')">← Back to Dear Guest</button>
@@ -1151,7 +1044,7 @@
                 <button type="button" class="hub-room-card room-feed" onclick="switchView('harborFeedView')">
                     <div>
                         <div class="hub-room-title">⚓ Join The Harbor Feed</div>
-                        <div class="hub-room-desc">Connect across the distance—share updates, photos, videos, and encouragement with fellow caregivers.</div>
+                        <div class="hub-room-desc">Live caregiver chat plus your Calendar, Daily/Weekly/Monthly Planner, appointments &amp; med reorder tracker.</div>
                     </div>
                     <span class="hub-room-cta">Enter Feed →</span>
                 </button>
@@ -1198,7 +1091,7 @@
             </div>
         </div>
 
-      <!-- DEDICATED ADMIN / MODERATOR COMMAND CENTER VIEW -->
+        <!-- DEDICATED ADMIN / MODERATOR COMMAND CENTER VIEW -->
         <div id="adminDashboardView" class="view-screen" style="max-width: 860px; border-color: #fde047;">
             <div class="screen-header" style="border-bottom-color: rgba(253, 224, 71, 0.35);">
                 <div>
@@ -1208,7 +1101,6 @@
                 <button class="back-hub-btn" style="border-color: #fde047; color: #fde047;" onclick="switchView('communityDashboardView')">← Back to Hub</button>
             </div>
 
-            <!-- Direct One-Click Email Folder Launchers -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; margin-bottom: 14px;">
                 <a href="https://mail.google.com/mail/u/0/#search/New+Harbor+Member+Pending+Review" target="_blank" rel="noopener"
                    style="display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 12px; border-radius: 10px; background: rgba(13, 148, 136, 0.32); border: 1.5px solid #5eead4; color: #5eead4; font-size: 0.78rem; font-weight: 800; text-decoration: none; text-align: center;">
@@ -1257,8 +1149,8 @@
             </div>
         </div>
 
-        <!-- 5A. THE HARBOR FEED (Chat Window on Top, Thumb/Keyboard Composer Underneath) -->
-        <div id="harborFeedView" class="view-screen" style="max-width: 760px;">
+        <!-- 5A. THE HARBOR FEED + CALENDAR, PLANNER & MED REORDER TRACKER -->
+        <div id="harborFeedView" class="view-screen" style="max-width: 780px;">
             <div class="screen-header">
                 <div class="screen-title">⚓ The Harbor Feed</div>
                 <button class="back-hub-btn" onclick="switchView('communityDashboardView')">← Back to Hub</button>
@@ -1288,57 +1180,134 @@
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 4px 8px; font-size: 0.78rem;">
-                <span style="display: inline-flex; align-items: center; gap: 6px; color: #86efac; font-weight: 800;">
-                    <span class="active-dot"></span>
-                    <span id="feedActiveCount">1</span> online in chat
-                </span>
-                <span style="font-size: 0.72rem; color: #cbd5e1;">Live Caregiver Chat</span>
+            <!-- Feed vs. Calendar, Planner & Meds Switcher -->
+            <div class="feed-submode-bar">
+                <button type="button" id="feedChatModeBtn" class="rec-tab-btn active" style="padding: 9px; font-size: 0.82rem;" onclick="switchFeedSubmode('chat')">💬 Live Caregiver Feed</button>
+                <button type="button" id="feedPlannerModeBtn" class="rec-tab-btn" style="padding: 9px; font-size: 0.82rem;" onclick="switchFeedSubmode('planner')">📅 Calendar, Planner &amp; Meds</button>
             </div>
 
-            <div id="communityChatFeed" class="open-chat-stream-box">
-                <div class="fb-feed-post">
-                    <div class="fb-post-header">
-                        <div class="fb-post-author-wrap">
-                            <div class="fb-avatar-circle">TH</div>
-                            <div>
-                                <div style="font-size: 0.86rem; font-weight: 800; color: #ffffff;">The Harbor Welcome Desk <span class="icon-legend-badge" style="font-size: 0.66rem; padding: 1px 6px; margin-left: 4px;">⚓ Host</span></div>
-                                <div style="font-size: 0.7rem; color: #cbd5e1;">Live Room Open</div>
+            <!-- Live Caregiver Chat Panel -->
+            <div id="feedChatPanel">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 4px 8px; font-size: 0.78rem;">
+                    <span style="display: inline-flex; align-items: center; gap: 6px; color: #86efac; font-weight: 800;">
+                        <span class="active-dot"></span>
+                        <span id="feedActiveCount">1</span> online in chat
+                    </span>
+                    <span style="font-size: 0.72rem; color: #cbd5e1;">Live Caregiver Chat</span>
+                </div>
+
+                <div id="communityChatFeed" class="open-chat-stream-box">
+                    <div class="fb-feed-post">
+                        <div class="fb-post-header">
+                            <div class="fb-post-author-wrap">
+                                <div class="fb-avatar-circle">TH</div>
+                                <div>
+                                    <div style="font-size: 0.86rem; font-weight: 800; color: #ffffff;">The Harbor Welcome Desk <span class="icon-legend-badge" style="font-size: 0.66rem; padding: 1px 6px; margin-left: 4px;">⚓ Host</span></div>
+                                    <div style="font-size: 0.7rem; color: #cbd5e1;">Live Room Open</div>
+                                </div>
                             </div>
                         </div>
+                        <div style="font-size: 0.86rem; color: #f8fafc; line-height: 1.45;">Welcome into The Harbor Feed! Jump in anytime—check in, share how today is going, or encourage another caregiver walking right beside you.</div>
+                        <div class="fb-action-bar">
+                            <button type="button" class="fb-action-chip" onclick="this.innerText='❤️ Supported (1)'">🤍 Support</button>
+                            <button type="button" class="fb-action-chip" onclick="setReplyTarget('The Harbor Welcome Desk')">💬 Reply</button>
+                        </div>
                     </div>
-                    <div style="font-size: 0.86rem; color: #f8fafc; line-height: 1.45;">Welcome into The Harbor Feed! Jump in anytime—check in, share how today is going, or encourage another caregiver walking right beside you.</div>
-                    <div class="fb-action-bar">
-                        <button type="button" class="fb-action-chip" onclick="this.innerText='❤️ Supported (1)'">🤍 Support</button>
-                        <button type="button" class="fb-action-chip" onclick="setReplyTarget('The Harbor Welcome Desk')">💬 Reply</button>
+                </div>
+
+                <div class="fb-composer-card">
+                    <div id="replyBanner" style="font-size: 0.76rem; color: #38bdf8; margin-bottom: 8px; display: none;">
+                        Replying to <strong id="replyTargetName"></strong>
+                        <span onclick="cancelReply()" style="cursor:pointer; color:#fb7185; margin-left:8px;">[&times; cancel]</span>
+                    </div>
+
+                    <div class="fb-composer-top">
+                        <div class="fb-avatar-circle" id="composerAvatarInitial">A</div>
+                        <input type="text" id="chatCaptionInput" class="fb-pill-input" placeholder="Write a message to the chat...">
+                    </div>
+
+                    <div id="selectedMediaPreviewChip" style="display: none; margin-top: 8px; padding: 6px 12px; background: rgba(56, 189, 248, 0.18); border: 1px solid #38bdf8; border-radius: 8px; font-size: 0.76rem; color: #bae6fd; justify-content: space-between; align-items: center;">
+                        <span id="selectedMediaLabel">📎 Photo attached</span>
+                        <button type="button" onclick="clearFeedAttachment()" style="background: none; border: none; color: #fb7185; font-weight: 800; cursor: pointer;">&times;</button>
+                    </div>
+
+                    <div class="fb-composer-bottom">
+                        <button type="button" class="paperclip-icon-btn" title="Attach Photo or Video" onclick="openFeedAttachModal()">📎 Photo / Video</button>
+                        <button type="button" class="fb-post-btn" onclick="postChatSubmission()">Post</button>
                     </div>
                 </div>
             </div>
 
-            <div class="fb-composer-card">
-                <div id="replyBanner" style="font-size: 0.76rem; color: #38bdf8; margin-bottom: 8px; display: none;">
-                    Replying to <strong id="replyTargetName"></strong>
-                    <span onclick="cancelReply()" style="cursor:pointer; color:#fb7185; margin-left:8px;">[&times; cancel]</span>
+            <!-- Calendar, Daily/Weekly/Monthly Planner & Medication Tracker Panel -->
+            <div id="feedPlannerPanel" style="display: none;">
+                <!-- Optional Notifications Master Switch (Off by Default) -->
+                <div class="planner-section-card" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <div>
+                        <div style="font-size: 0.86rem; font-weight: 800; color: #fde047;">🔔 Optional Appointment &amp; Med Notifications</div>
+                        <div style="font-size: 0.74rem; color: #cbd5e1;">Off by default—turn on only when you want advance reminders (1 or 2 days prior to appointments).</div>
+                    </div>
+                    <label style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 800; color: #5eead4; cursor: pointer;">
+                        <input type="checkbox" id="optionalNotificationsToggle" onchange="toggleOptionalNotifications(this.checked)" style="width: 17px; height: 17px; accent-color: #5eead4;">
+                        <span id="optionalNotifStatusLabel">Notifications: OFF</span>
+                    </label>
                 </div>
 
-                <div class="fb-composer-top">
-                    <div class="fb-avatar-circle" id="composerAvatarInitial">A</div>
-                    <input type="text" id="chatCaptionInput" class="fb-pill-input" placeholder="Write a message to the chat...">
+                <!-- Appointments + Advance Notice (Default 2 Days / Option 1 Day) -->
+                <div class="planner-section-card">
+                    <div style="font-size: 0.92rem; font-weight: 800; color: #5eead4; margin-bottom: 8px;">🩺 Appointments &amp; Advance Notice</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-bottom: 8px;">
+                        <input type="text" id="apptTitleInput" class="dark-input" placeholder="Appointment (e.g. PT, Neurology, Lab)">
+                        <input type="date" id="apptDateInput" class="dark-input">
+                        <input type="time" id="apptTimeInput" class="dark-input">
+                        <select id="apptNoticeSelect" class="dark-input">
+                            <option value="2" selected>2 Days Advance Notice (Default)</option>
+                            <option value="1">1 Day Advance Notice</option>
+                        </select>
+                    </div>
+                    <button type="button" class="action-btn" style="margin-top: 0; padding: 9px;" onclick="addCaregiverAppointment()">+ Add Appointment Reminder</button>
+                    <div id="appointmentsListBox" style="margin-top: 10px;"></div>
                 </div>
 
-                <div id="selectedMediaPreviewChip" style="display: none; margin-top: 8px; padding: 6px 12px; background: rgba(56, 189, 248, 0.18); border: 1px solid #38bdf8; border-radius: 8px; font-size: 0.76rem; color: #bae6fd; justify-content: space-between; align-items: center;">
-                    <span id="selectedMediaLabel">📎 Photo attached</span>
-                    <button type="button" onclick="clearFeedAttachment()" style="background: none; border: none; color: #fb7185; font-weight: 800; cursor: pointer;">&times;</button>
+                <!-- Daily / Weekly / Monthly Planner Notes -->
+                <div class="planner-section-card">
+                    <div style="font-size: 0.92rem; font-weight: 800; color: #fde047; margin-bottom: 8px;">🗓️ Daily / Weekly / Monthly Planner Notes</div>
+                    <div class="planner-scope-tabs">
+                        <button type="button" id="plannerScopeDailyBtn" class="rec-tab-btn active" onclick="setPlannerScope('Daily')">Daily</button>
+                        <button type="button" id="plannerScopeWeeklyBtn" class="rec-tab-btn" onclick="setPlannerScope('Weekly')">Weekly</button>
+                        <button type="button" id="plannerScopeMonthlyBtn" class="rec-tab-btn" onclick="setPlannerScope('Monthly')">Monthly</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 165px 1fr; gap: 8px; margin-bottom: 8px;">
+                        <input type="date" id="plannerDateInput" class="dark-input" onchange="renderPlannerNotesList()">
+                        <input type="text" id="plannerNoteInput" class="dark-input" placeholder="Write a note for this day / week / month...">
+                    </div>
+                    <button type="button" class="back-hub-btn" style="width: 100%; padding: 8px; font-weight: 800;" onclick="savePlannerNote()">+ Save Planner Note</button>
+                    <div id="plannerNotesListBox" style="margin-top: 10px;"></div>
                 </div>
 
-                <div class="fb-composer-bottom">
-                    <button type="button" class="paperclip-icon-btn" title="Attach Photo or Video" onclick="openFeedAttachModal()">📎 Photo / Video</button>
-                    <button type="button" class="fb-post-btn" onclick="postChatSubmission()">Post</button>
+                <!-- Medication Tracker + Bottle Scan + Disbursement Confirmation + Reorder Estimator -->
+                <div class="planner-section-card" style="border-color: #fde047;">
+                    <div style="font-size: 0.92rem; font-weight: 800; color: #fde047; margin-bottom: 6px;">💊 Medication Reminders, Bottle Scan &amp; Reorder Estimator</div>
+                    <div style="font-size: 0.74rem; color: #cbd5e1; margin-bottom: 8px;">Scan a medicine bottle label (or edit any field below), confirm each disbursement, and estimate the next reorder date.</div>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px;">
+                        <label for="medBottleScanInput" class="back-hub-btn" style="border-color: #fde047; color: #fde047; cursor: pointer;">📷 Scan Medicine Bottle</label>
+                        <input type="file" id="medBottleScanInput" accept="image/*" capture="environment" style="display: none;" onchange="scanMedicineBottle(this)">
+                        <span id="medScanStatusText" style="font-size: 0.74rem; color: #5eead4;">Ready to scan label or type details manually</span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 8px;">
+                        <input type="text" id="medNameInput" class="dark-input" placeholder="Medication Name">
+                        <input type="text" id="medDosageInput" class="dark-input" placeholder="Dosage (e.g. 5mg / 2mL)">
+                        <input type="number" id="medRemainingInput" class="dark-input" min="1" placeholder="Amount Remaining">
+                        <input type="number" id="medDailyRateInput" class="dark-input" min="0.5" step="0.5" placeholder="Units Taken / Day" value="1">
+                    </div>
+                    <button type="button" class="action-btn" style="background: #fde047; color: #0b2e33; margin-top: 0; padding: 9px;" onclick="saveMedicationTracker()">+ Save Medication to Tracker</button>
+                    <div id="medicationsListBox" style="margin-top: 10px;"></div>
                 </div>
             </div>
         </div>
 
-        <!-- 5B. THE YOUTH COVE (21 & UNDER) — Top Positive/Support Banner Queue + Chat Window + Bottom "Post" -->
+        <!-- 5B. THE YOUTH COVE (21 & UNDER) -->
         <div id="youthCoveView" class="view-screen ig-youth-screen" style="max-width: 720px;">
             <div class="screen-header" style="border-bottom-color: rgba(244, 114, 182, 0.35);">
                 <div>
@@ -1348,20 +1317,18 @@
                 <button class="back-hub-btn" style="border-color: #f472b6; color: #f472b6;" onclick="switchView('communityDashboardView')">← Back to Hub</button>
             </div>
 
-            <!-- One-Tap Pre-Filled Youth Profile Chips (Name & Age) -->
             <div class="youth-chip-bar" id="youthProfileChipsBar"></div>
             <div id="addYouthChipDrawer" style="display: none; background: rgba(15, 23, 42, 0.48); border: 1px solid rgba(244, 114, 182, 0.45); border-radius: 10px; padding: 8px; margin-bottom: 10px; gap: 6px; align-items: center;">
                 <input type="text" id="newYouthChipInput" class="dark-input" style="padding: 6px 10px; font-size: 0.8rem;" placeholder="Name & Age (e.g. Rachel, 9)">
                 <button type="button" class="back-hub-btn" style="border-color: #f472b6; color: #f472b6;" onclick="saveNewYouthChip()">Save</button>
             </div>
 
-            <!-- Top Rotating Positive & Crisis Support Banner + Add-to-Queue Bar -->
             <div class="youth-positive-banner">
                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.68rem; font-weight: 800; color: #fde047; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px;">
                     <span>💛 You Matter • Positive &amp; Support Stream</span>
                     <span id="youthQueueCountLabel">Queue Active</span>
                 </div>
-                <div id="youthPositiveBannerText" style="font-size: 0.86rem; font-weight: 800; color: #ffffff; line-height: 1.4; min-height: 38px; text-shadow: 0 1px 3px rgba(0,0,0,0.75);">
+                <div id="youthPositiveBannerText" style="font-size: 0.86rem; font-weight: 800; color: #ffffff; line-height: 1.4; min-height: 38px;">
                     "You are stronger than you know, and you never have to carry heavy days alone—people here genuinely care about you."
                 </div>
                 <div id="youthPositiveBannerAuthor" style="font-size: 0.72rem; color: #f5d0fe; margin-top: 3px; margin-bottom: 8px;">— The Youth Cove Crew</div>
@@ -1371,11 +1338,9 @@
                 </div>
             </div>
 
-            <!-- Open Youth Cove Chat Window -->
             <div id="kidsCornerFeed" class="youth-open-chat-box"></div>
 
-            <!-- Bottom Composer with "Post" Button in Bottom Right-Hand Corner -->
-            <form onsubmit="event.preventDefault(); postKidsJourney();" style="background: rgba(15, 23, 42, 0.42); border: 1px solid rgba(244, 114, 182, 0.45); padding: 10px; border-radius: 14px; backdrop-filter: blur(14px);">
+            <form onsubmit="event.preventDefault(); postKidsJourney();" style="background: rgba(15, 23, 42, 0.42); border: 1px solid rgba(244, 114, 182, 0.45); padding: 10px; border-radius: 14px;">
                 <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
                     <input type="text" id="kidJourneyInput" class="dark-input" style="flex: 1; border-color: rgba(244, 114, 182, 0.45);" placeholder="Say what's up or share a caption...">
                 </div>
@@ -1390,7 +1355,7 @@
             </form>
         </div>
 
-        <!-- 5C. THE REC AREA (Side-by-Side Tues/Thurs Showdown on Top + Once-a-Day Vote + Upload Below) -->
+        <!-- 5C. THE REC AREA -->
         <div id="recAreaView" class="view-screen" style="max-width: 820px;">
             <div class="screen-header">
                 <div class="screen-title">☕ The Rec Area</div>
@@ -1417,50 +1382,37 @@
                 <button class="rec-tab-btn" id="recTabColorBtn" onclick="switchRecTab('color')">🎨 Coloring</button>
             </div>
 
-            <!-- TAB 1: SIDE-BY-SIDE TUESDAY VS. THURSDAY SHOWDOWN ON TOP, SUBMISSION BOX AT BOTTOM -->
             <div id="recVotePanel">
                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px;">
                     <div style="font-size: 0.92rem; font-weight: 800; color: #fde047;">🏆 Tuesday vs. Thursday Photo Showdown</div>
                     <button type="button" class="back-hub-btn" style="border-color: #fde047; color: #fde047; padding: 4px 10px; font-size: 0.72rem;" onclick="toggleVoteMoreInfo()">ℹ️ More Info</button>
                 </div>
 
-                <!-- Side-by-Side Matchup Cards -->
                 <div id="showdownMatchupContainer" class="showdown-grid">
                     <div class="showdown-vs-pill">VS</div>
-
-                    <!-- Left: Tuesday Winner -->
                     <div class="showdown-card" id="tuesdayShowdownCard">
                         <div style="font-size: 0.72rem; font-weight: 900; color: #38bdf8; text-transform: uppercase;">📅 Tuesday Pick</div>
-                        <div id="tueCardBody" style="padding: 18px 8px; font-size: 0.76rem; color: #cbd5e1;">
-                            Waiting for Tuesday's featured photo!
-                        </div>
+                        <div id="tueCardBody" style="padding: 18px 8px; font-size: 0.76rem; color: #cbd5e1;">Waiting for Tuesday's featured photo!</div>
                     </div>
-
-                    <!-- Right: Thursday Winner -->
                     <div class="showdown-card" id="thursdayShowdownCard">
                         <div style="font-size: 0.72rem; font-weight: 900; color: #f472b6; text-transform: uppercase;">📅 Thursday Pick</div>
-                        <div id="thuCardBody" style="padding: 18px 8px; font-size: 0.76rem; color: #cbd5e1;">
-                            Waiting for Thursday's featured photo!
-                        </div>
+                        <div id="thuCardBody" style="padding: 18px 8px; font-size: 0.76rem; color: #cbd5e1;">Waiting for Thursday's featured photo!</div>
                     </div>
                 </div>
 
-                <!-- Exciting Saturday Tally Announcement -->
                 <div class="mission-callout" style="border-left-color: #fde047; text-align: center; padding: 9px 12px; font-size: 0.78rem; margin-bottom: 12px;">
                     ⚡ <strong>Come back once a day to cast your pick!</strong> You can vote for <strong>one</strong> photo per day—and on <strong>Saturday</strong>, every daily vote from both sides gets tallied up so the winning picture takes center stage in <strong>Members Login</strong> on <strong>Sunday</strong>!
                 </div>
 
-                <!-- Collapsible Schedule & Rules Drawer -->
-                <div id="voteMoreInfoBox" style="display: none; background: rgba(15, 23, 42, 0.48); border: 1px solid rgba(253, 224, 71, 0.45); border-radius: 12px; padding: 11px 13px; margin-bottom: 12px; font-size: 0.78rem; color: #e2e8f0; line-height: 1.48; backdrop-filter: blur(12px);">
+                <div id="voteMoreInfoBox" style="display: none; background: rgba(15, 23, 42, 0.48); border: 1px solid rgba(253, 224, 71, 0.45); border-radius: 12px; padding: 11px 13px; margin-bottom: 12px; font-size: 0.78rem; color: #e2e8f0; line-height: 1.48;">
                     <strong style="color: #fde047; display: block; margin-bottom: 4px;">📅 Showdown Schedule &amp; Rules:</strong>
                     • <strong>Tuesday 5:00 PM Cutoff:</strong> Submissions from Sunday through Tuesday at 5:00 PM lock in the Tuesday Pick.<br>
                     • <strong>Thursday 5:00 PM Cutoff:</strong> Submissions from Wednesday through Thursday at 5:00 PM lock in the Thursday Pick.<br>
-                    • <strong>1 Vote Per Day:</strong> Visit once a day to vote for whichever finalist you love most that day—vote totals stay blind until Saturday's tally!<br>
+                    • <strong>1 Vote Per Day:</strong> Visit once a day to vote for whichever finalist you love most that day.<br>
                     • <strong>Saturday Tally → Sunday Spotlight:</strong> Saturday's tally crowns the weekly champion for Sunday's Members Login &amp; Pass It On spotlight.
                 </div>
 
-                <!-- Photo Submission Box Tucked Toward the Bottom -->
-                <div id="contestUploadBox" style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.22); padding: 11px; border-radius: 12px; backdrop-filter: blur(12px);">
+                <div id="contestUploadBox" style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.22); padding: 11px; border-radius: 12px;">
                     <div style="font-size: 0.78rem; font-weight: 800; color: #5eead4; margin-bottom: 6px;">📸 Submit a Photo for the Next Tuesday / Thursday Round</div>
                     <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
                         <input type="text" id="contestCaptionInput" class="dark-input" style="flex: 1; min-width: 170px; margin-bottom: 0;" placeholder="Photo caption...">
@@ -1472,9 +1424,8 @@
                 </div>
             </div>
 
-            <!-- TAB 2: FUNNY PICS -->
             <div id="recPicsPanel" style="display: none;">
-                <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.22); padding: 12px; border-radius: 12px; margin-bottom: 12px; backdrop-filter: blur(12px);">
+                <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.22); padding: 12px; border-radius: 12px; margin-bottom: 12px;">
                     <div style="font-size: 0.82rem; font-weight: 800; color: #5eead4; margin-bottom: 8px;">😂 Share a Funny Pic</div>
                     <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
                         <input type="text" id="funnyPicCaption" class="dark-input" style="flex: 1; min-width: 180px;" placeholder="Add a funny caption...">
@@ -1485,9 +1436,8 @@
                 <div id="funnyPicsStream" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;"></div>
             </div>
 
-            <!-- TAB 3: FUNNY VIDEOS -->
             <div id="recVideosPanel" style="display: none;">
-                <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.22); padding: 12px; border-radius: 12px; margin-bottom: 12px; backdrop-filter: blur(12px);">
+                <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.22); padding: 12px; border-radius: 12px; margin-bottom: 12px;">
                     <div style="font-size: 0.82rem; font-weight: 800; color: #5eead4; margin-bottom: 8px;">🎬 Share a Short Clip (&le;30s)</div>
                     <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
                         <input type="text" id="funnyVidCaption" class="dark-input" style="flex: 1; min-width: 180px;" placeholder="Clip title...">
@@ -1498,14 +1448,13 @@
                 <div id="funnyVideosStream" style="display: flex; flex-direction: column; gap: 10px;"></div>
             </div>
 
-            <!-- TAB 4: TRIVIA (2x2 Options Grid — Never Sideways) -->
             <div id="recTriviaPanel" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <div style="font-size: 0.92rem; color: #5eead4; font-weight: 800;">🧠 Harbor Trivia Lounge</div>
                     <div style="font-size: 0.9rem; font-weight: 900; color: #fde047;" id="recTimerDisplay">⏱️ Ready</div>
                 </div>
 
-                <div id="triviaLobbyBox" style="background: rgba(15, 61, 68, 0.36); border: 1.5px solid rgba(255, 255, 255, 0.24); border-radius: 12px; padding: 16px; backdrop-filter: blur(12px);">
+                <div id="triviaLobbyBox" style="background: rgba(15, 61, 68, 0.36); border: 1.5px solid rgba(255, 255, 255, 0.24); border-radius: 12px; padding: 16px;">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
                         <div style="background: rgba(7, 34, 38, 0.45); border: 1.5px solid #fde047; border-radius: 10px; padding: 14px; text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
                             <div>
@@ -1525,7 +1474,7 @@
                     </div>
                 </div>
 
-                <div id="triviaPlayBox" style="display: none; background: rgba(15, 61, 68, 0.42); border: 1.5px solid #5eead4; border-radius: 10px; padding: 14px; backdrop-filter: blur(12px);">
+                <div id="triviaPlayBox" style="display: none; background: rgba(15, 61, 68, 0.42); border: 1.5px solid #5eead4; border-radius: 10px; padding: 14px;">
                     <div style="display: flex; justify-content: space-between; font-size: 0.76rem; font-weight: 700; margin-bottom: 6px;">
                         <span id="recCategoryLabel" style="color: #38bdf8; text-transform: uppercase;">Category</span>
                         <span id="recScoreText" style="color: #4ade80;">Score: 0 / 0</span>
@@ -1537,7 +1486,7 @@
                     </div>
                 </div>
 
-                <div style="margin-top: 12px; background: rgba(11, 46, 51, 0.36); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; padding: 10px; backdrop-filter: blur(10px);">
+                <div style="margin-top: 12px; background: rgba(11, 46, 51, 0.36); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; padding: 10px;">
                     <div style="font-size: 0.78rem; font-weight: 800; color: #fde047; margin-bottom: 6px;">🏆 30-Second Trivia Leaderboard</div>
                     <div id="triviaLeaderboardList" style="display: flex; flex-direction: column; gap: 4px; font-size: 0.76rem; color: #cbd5e1;">
                         <div>No scores recorded yet — play "Dare to Compete?" to claim the #1 spot!</div>
@@ -1545,7 +1494,6 @@
                 </div>
             </div>
 
-            <!-- TAB 5: QUICK GAMES (True 3x3 Square Tic-Tac-Toe + Hangman + Memory + Reflex + RPS) -->
             <div id="recGamesPanel" style="display: none;">
                 <div style="display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 12px;">
                     <button type="button" class="back-hub-btn" onclick="selectQuickGame('ttt')">⭕❌ Tic-Tac-Toe</button>
@@ -1555,14 +1503,14 @@
                     <button type="button" class="back-hub-btn" onclick="selectQuickGame('rps')">✊✋✌️ RPS</button>
                 </div>
 
-                <div id="gameBox_ttt" style="background: rgba(15, 61, 68, 0.4); border: 1.5px solid #5eead4; border-radius: 12px; padding: 16px; text-align: center; backdrop-filter: blur(12px);">
+                <div id="gameBox_ttt" style="background: rgba(15, 61, 68, 0.4); border: 1.5px solid #5eead4; border-radius: 12px; padding: 16px; text-align: center;">
                     <div style="font-size: 0.96rem; font-weight: 800; color: #fde047; margin-bottom: 4px;">⭕❌ Quick Tic-Tac-Toe</div>
                     <div id="tttStatusText" style="font-size: 0.78rem; color: #cbd5e1; margin-bottom: 12px;">Your turn (You are ❌)</div>
                     <div id="tttBoardGrid" class="ttt-square-grid"></div>
                     <button type="button" class="back-hub-btn" onclick="resetTicTacToe()">🔄 New Board</button>
                 </div>
 
-                <div id="gameBox_hangman" style="display: none; background: rgba(15, 61, 68, 0.4); border: 1.5px solid #38bdf8; border-radius: 12px; padding: 16px; text-align: center; backdrop-filter: blur(12px);">
+                <div id="gameBox_hangman" style="display: none; background: rgba(15, 61, 68, 0.4); border: 1.5px solid #38bdf8; border-radius: 12px; padding: 16px; text-align: center;">
                     <div style="font-size: 0.96rem; font-weight: 800; color: #38bdf8; margin-bottom: 4px;">🔤 Word Guess Hangman</div>
                     <div id="hmLivesText" style="font-size: 0.76rem; color: #fda4af; font-weight: 700; margin-bottom: 6px;">Tries Left: 6</div>
                     <div id="hmWordDisplay" style="font-size: 1.4rem; font-weight: 900; letter-spacing: 0.28em; color: #ffffff; margin: 10px 0;">_ _ _ _ _</div>
@@ -1571,14 +1519,14 @@
                     <button type="button" class="back-hub-btn" onclick="resetHangmanGame()">🔄 New Word</button>
                 </div>
 
-                <div id="gameBox_memory" style="display: none; background: rgba(15, 61, 68, 0.4); border: 1.5px solid #c084fc; border-radius: 12px; padding: 16px; text-align: center; backdrop-filter: blur(12px);">
+                <div id="gameBox_memory" style="display: none; background: rgba(15, 61, 68, 0.4); border: 1.5px solid #c084fc; border-radius: 12px; padding: 16px; text-align: center;">
                     <div style="font-size: 0.96rem; font-weight: 800; color: #e9d5ff; margin-bottom: 4px;">🃏 Harbor Memory Match</div>
                     <div id="memStatusText" style="font-size: 0.78rem; color: #cbd5e1; margin-bottom: 10px;">Tap two tiles to find matching pairs! (Moves: 0)</div>
                     <div id="memBoardGrid" style="display: grid; grid-template-columns: repeat(4, 62px); gap: 8px; justify-content: center; margin-bottom: 12px;"></div>
                     <button type="button" class="back-hub-btn" onclick="resetMemoryGame()">🔄 Shuffle Tiles</button>
                 </div>
 
-                <div id="gameBox_reflex" style="display: none; background: rgba(15, 61, 68, 0.4); border: 1.5px solid #fde047; border-radius: 12px; padding: 16px; text-align: center; backdrop-filter: blur(12px);">
+                <div id="gameBox_reflex" style="display: none; background: rgba(15, 61, 68, 0.4); border: 1.5px solid #fde047; border-radius: 12px; padding: 16px; text-align: center;">
                     <div style="font-size: 0.96rem; font-weight: 800; color: #fde047; margin-bottom: 4px;">⚡ 15-Second Anchor Reflex Tap</div>
                     <div id="reflexStatusText" style="font-size: 0.78rem; color: #cbd5e1; margin-bottom: 10px;">Tap the glowing ⚓ as fast as it jumps! Score: 0 | 15s</div>
                     <div id="reflexArena" style="position: relative; width: 100%; max-width: 340px; height: 180px; margin: 0 auto 12px; background: rgba(7, 34, 38, 0.52); border: 1px dashed rgba(94, 234, 212, 0.45); border-radius: 10px; overflow: hidden;">
@@ -1587,7 +1535,7 @@
                     <button type="button" class="action-btn" style="max-width: 220px; margin: 0 auto; padding: 8px;" onclick="startReflexGame()">🚀 Start 15s Tap</button>
                 </div>
 
-                <div id="gameBox_rps" style="display: none; background: rgba(15, 61, 68, 0.4); border: 1.5px solid #fb7185; border-radius: 12px; padding: 16px; text-align: center; backdrop-filter: blur(12px);">
+                <div id="gameBox_rps" style="display: none; background: rgba(15, 61, 68, 0.4); border: 1.5px solid #fb7185; border-radius: 12px; padding: 16px; text-align: center;">
                     <div style="font-size: 0.96rem; font-weight: 800; color: #fda4af; margin-bottom: 4px;">✊✋✌️ Rock, Paper, Scissors</div>
                     <div id="rpsScoreText" style="font-size: 0.78rem; color: #5eead4; font-weight: 700; margin-bottom: 8px;">You: 0 &bull; Harbor Bot: 0</div>
                     <div id="rpsResultText" style="font-size: 0.88rem; color: #ffffff; font-weight: 800; min-height: 24px; margin-bottom: 12px;">Pick your move below!</div>
@@ -1599,9 +1547,8 @@
                 </div>
             </div>
 
-            <!-- TAB 6: COLORING PAGE -->
             <div id="recColorPanel" style="display: none;">
-                <div style="background: rgba(15, 61, 68, 0.4); border: 1.5px solid #f472b6; border-radius: 12px; padding: 14px; backdrop-filter: blur(12px);">
+                <div style="background: rgba(15, 61, 68, 0.4); border: 1.5px solid #f472b6; border-radius: 12px; padding: 14px;">
                     <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px;">
                         <div>
                             <div style="font-size: 0.94rem; font-weight: 800; color: #f472b6;">🎨 Relaxing Coloring Pages (50 Designs)</div>
@@ -1629,7 +1576,7 @@
                 <button class="back-hub-btn" style="border-color: #818cf8; color: #c7d2fe;" onclick="switchView('communityDashboardView')">← Back to Hub</button>
             </div>
 
-            <form onsubmit="event.preventDefault(); postToSeriousWall();" style="background: rgba(15, 23, 42, 0.38); border: 1.5px solid rgba(129, 140, 248, 0.5); border-radius: 14px; padding: 14px; margin-bottom: 14px; backdrop-filter: blur(12px);">
+            <form onsubmit="event.preventDefault(); postToSeriousWall();" style="background: rgba(15, 23, 42, 0.38); border: 1.5px solid rgba(129, 140, 248, 0.5); border-radius: 14px; padding: 14px; margin-bottom: 14px;">
                 <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
                     <select id="wallCategorySelect" class="dark-input" style="max-width: 245px; border-color: rgba(129, 140, 248, 0.5); margin-bottom: 0;">
                         <option value="⏳ Time-Sensitive">⏳ Time-Sensitive</option>
@@ -1649,15 +1596,7 @@
 
             <div id="seriousWallBoard" style="
                 min-height: 440px; padding: 18px; border-radius: 16px;
-                border: 2px solid rgba(129, 140, 248, 0.45); background-color: rgba(17, 24, 39, 0.48);
-                background-image:
-                    linear-gradient(335deg, rgba(30, 41, 59, 0.55) 23px, transparent 23px),
-                    linear-gradient(155deg, rgba(30, 41, 59, 0.55) 23px, transparent 23px),
-                    linear-gradient(335deg, rgba(30, 41, 59, 0.55) 23px, transparent 23px),
-                    linear-gradient(155deg, rgba(30, 41, 59, 0.55) 23px, transparent 23px);
-                background-size: 58px 58px; background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
-                backdrop-filter: blur(12px);
-                box-shadow: inset 0 0 36px rgba(2, 6, 23, 0.65);
+                border: 2px solid rgba(129, 140, 248, 0.45); background-color: rgba(17, 24, 39, 0.44);
                 display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; align-content: start;
             ">
                 <div id="seriousWallEmpty" style="grid-column: 1 / -1; text-align: center; padding: 48px 18px; background: rgba(15, 23, 42, 0.45); border: 1px dashed rgba(129, 140, 248, 0.5); border-radius: 12px; color: #e2e8f0; font-size: 0.88rem;">
@@ -1666,7 +1605,7 @@
             </div>
         </div>
 
-        <!-- 5E. PASS IT ON (Quality of Life Banner + Two-Mode Toggle + Bottom Weekly Winner Spotlight) -->
+        <!-- 5E. PASS IT ON -->
         <div id="passItOnView" class="view-screen" style="max-width: 780px;">
             <div class="screen-header">
                 <div>
@@ -1676,8 +1615,8 @@
                 <button class="back-hub-btn" style="border-color: #f59e0b; color: #fde68a;" onclick="switchView('communityDashboardView')">← Back to Hub</button>
             </div>
 
-            <div class="mission-callout" style="border-left-color: #f59e0b; background: rgba(69, 26, 3, 0.34);">
-                When you're living paycheck to paycheck, battling insurance prior authorizations, and paying out of pocket, finding essential equipment is physically and mentally exhausting—and no loved one should ever feel like a burden waiting on gear they need. <strong>That spare wheelchair battery, ramp, or sensory tool sitting in your garage could change someone's quality of life 20 miles away today.</strong>
+            <div class="mission-callout" style="border-left-color: #f59e0b; background: rgba(69, 26, 3, 0.32);">
+                When you're living paycheck to paycheck, battling insurance prior authorizations, and paying out of pocket, finding essential equipment is physically and mentally exhausting. <strong>That spare wheelchair battery, ramp, or sensory tool sitting in your garage could change someone's quality of life nearby today.</strong>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
@@ -1685,7 +1624,7 @@
                 <button type="button" id="gearModeGiveBtn" class="rec-tab-btn" style="padding: 10px; font-size: 0.82rem; border-color: #f59e0b;" onclick="switchGearMode('give')">🤝 Pass On Spare Gear</button>
             </div>
 
-            <div id="gearModeNeedPanel" style="background: rgba(69, 26, 3, 0.34); border: 1.5px solid rgba(245, 158, 11, 0.55); border-radius: 12px; padding: 12px; margin-bottom: 12px; backdrop-filter: blur(12px);">
+            <div id="gearModeNeedPanel" style="background: rgba(69, 26, 3, 0.32); border: 1.5px solid rgba(245, 158, 11, 0.55); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
                 <input type="text" id="gearKeywordSearch" class="dark-input" placeholder="Search available gear (e.g., wheelchair battery, ramp, sensory vest)..." oninput="filterStormGear()" style="margin-bottom: 8px;">
                 <div style="display: grid; grid-template-columns: 1fr 125px auto; gap: 8px; align-items: center; margin-bottom: 10px;">
                     <input type="text" id="gearZipSearch" class="dark-input" placeholder="Your ZIP Code" oninput="filterStormGear()">
@@ -1704,7 +1643,7 @@
                 </div>
             </div>
 
-            <div id="gearModeGivePanel" style="display: none; background: rgba(41, 18, 4, 0.42); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 14px; margin-bottom: 12px; backdrop-filter: blur(12px);">
+            <div id="gearModeGivePanel" style="display: none; background: rgba(41, 18, 4, 0.4); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 14px; margin-bottom: 12px;">
                 <div style="font-size: 0.86rem; font-weight: 800; color: #fde047; margin-bottom: 8px;">List Usable Gear to Ease Another Family's Walk</div>
                 <input type="text" id="gearItemInput" class="dark-input" placeholder="What are you passing on? (e.g., Power Wheelchair Battery, Bath Chair)" style="margin-bottom: 8px;">
                 <div style="display: grid; grid-template-columns: 1fr 140px; gap: 8px; margin-bottom: 8px;">
@@ -1716,10 +1655,9 @@
 
             <div id="stormGearList" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px;"></div>
 
-            <!-- Bottom Weekly Photo Winner Spotlight on Pass It On -->
-           <div id="passItOnChampionSpotlight" {% if not weekly_champion %}hidden{% endif %} style="width: 100%; background: linear-gradient(145deg, rgba(15, 23, 42, 0.45), rgba(30, 27, 75, 0.45)); border: 1.5px solid #fde047; border-radius: 14px; padding: 12px 14px; backdrop-filter: blur(14px); text-align: center;">
+            <div id="passItOnChampionSpotlight" {% if not weekly_champion %}hidden{% endif %} style="width: 100%; background: linear-gradient(145deg, rgba(15, 23, 42, 0.45), rgba(30, 27, 75, 0.45)); border: 1.5px solid #fde047; border-radius: 14px; padding: 12px 14px; text-align: center;">
                 <div style="font-size: 0.72rem; font-weight: 900; letter-spacing: 0.9px; color: #fde047; text-transform: uppercase; margin-bottom: 6px;">👑 Weekly Favorite Picture Winner</div>
-                <img id="passItOnChampImg" src="{{ weekly_champion.image_url if weekly_champion else '' }}" alt="Weekly Photo Champion" style="width: 100%; max-height: 185px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(253, 224, 71, 0.4); margin-bottom: 6px;">
+                <img id="passItOnChampImg" src="{{ weekly_champion.image_url if weekly_champion else '' }}" onerror="this.style.display='none'" alt="Weekly Photo Champion" style="width: 100%; max-height: 185px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(253, 224, 71, 0.4); margin-bottom: 6px;">
                 <div id="passItOnChampCaption" style="font-size: 0.86rem; font-weight: 800; color: #ffffff;">{{ weekly_champion.caption if weekly_champion else '' }}</div>
                 <div id="passItOnChampMeta" style="font-size: 0.74rem; color: #5eead4; margin-top: 2px;">
                     {% if weekly_champion %}Captured by <strong>{{ weekly_champion.author_name }}</strong> • {{ weekly_champion.votes }} Votes{% endif %}
@@ -1727,7 +1665,7 @@
             </div>
         </div>
 
-        <!-- 5F. RESOURCES & FOUNDATIONS ("May I help you look for something?" + "All Topics" + Urgent Essentials Always Ready) -->
+        <!-- 5F. RESOURCES & FOUNDATIONS -->
         <div id="resourcesFoundationsView" class="view-screen resources-screen">
             <div class="screen-header">
                 <div>
@@ -1737,7 +1675,6 @@
                 <button class="back-hub-btn" onclick="switchView('communityDashboardView')">← Back to Hub</button>
             </div>
 
-            <!-- Two Primary Action Buttons: "May I help you look for something?" & "All Topics" -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
                 <button type="button" id="resHelpSearchBtn" class="uniform-portal-btn" style="min-width: 0; border-color: #fde047; color: #fde047; border-radius: 12px; padding: 11px 10px; font-size: 0.8rem;" onclick="toggleResourceHelpSearch()">
                     🔍 May I help you look for something?
@@ -1747,8 +1684,7 @@
                 </button>
             </div>
 
-            <!-- Collapsible Focused Search Drawer (Opens when "May I help you look for something?" is clicked) -->
-            <div id="resourceSearchDrawer" style="display: none; background: rgba(15, 61, 68, 0.42); border: 1.5px solid #fde047; border-radius: 12px; padding: 12px; margin-bottom: 12px; backdrop-filter: blur(12px);">
+            <div id="resourceSearchDrawer" style="display: none; background: rgba(15, 61, 68, 0.42); border: 1.5px solid #fde047; border-radius: 12px; padding: 12px; margin-bottom: 12px;">
                 <div style="font-size: 0.8rem; font-weight: 800; color: #fde047; margin-bottom: 6px;">Type what you're looking for (e.g. DMD, cancer, senior, autism, epilepsy, respite):</div>
                 <div style="display: flex; gap: 8px; align-items: center;">
                     <input type="text" id="resourceSearchInput" class="dark-input" placeholder="Search condition, topic, or organization..." oninput="filterResourcesDirectory()">
@@ -1756,7 +1692,6 @@
                 </div>
             </div>
 
-            <!-- Directory Cards (Defaults to Urgent Essentials: 988, Poison Control, CDC; expands on search or All Topics) -->
             <div id="resourceDirectoryList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 10px;"></div>
         </div>
 
@@ -1780,7 +1715,7 @@
 
     <!-- Change Password Modal -->
     <div id="changePwModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter: blur(6px); z-index:9999; align-items:center; justify-content:center;">
-        <form onsubmit="event.preventDefault(); submitPasswordChange();" style="background:rgba(22,32,42,0.75); border:1px solid rgba(255,255,255,0.28); border-radius:14px; padding:24px; width:90%; max-width:380px; color:#f4f6f8; backdrop-filter:blur(18px);">
+        <form onsubmit="event.preventDefault(); submitPasswordChange();" style="background:rgba(22,32,42,0.82); border:1px solid rgba(255,255,255,0.28); border-radius:14px; padding:24px; width:90%; max-width:380px; color:#f4f6f8; backdrop-filter:blur(16px);">
             <h3 style="margin:0 0 14px; color:#5eead4;">Change Password</h3>
             <input type="text" autocomplete="username" style="display:none;" aria-hidden="true">
             <input id="curPwInput" type="password" placeholder="Current password" autocomplete="current-password" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #334155; background:rgba(15,23,42,0.55); color:#fff; box-sizing:border-box;">
@@ -1795,7 +1730,18 @@
     </div>
 
     <script>
-        /* Active Visibility Toggle */
+        function toggleLearnMode(mode) {
+            const readPanel = document.getElementById('learnReadPanel');
+            const tourPanel = document.getElementById('learnVirtualTourPanel');
+            if (mode === 'read') {
+                readPanel.style.display = (readPanel.style.display === 'block') ? 'none' : 'block';
+                tourPanel.style.display = 'none';
+            } else {
+                tourPanel.style.display = (tourPanel.style.display === 'block') ? 'none' : 'block';
+                readPanel.style.display = 'none';
+            }
+        }
+
         let isMemberActive = true;
         function toggleActiveVisibility() {
             isMemberActive = !isMemberActive;
@@ -1828,7 +1774,6 @@
             }
         }
 
-
         function applyAdminRolePermissions(role) {
             const isOwner = (role === 'owner');
             const heading = document.getElementById('adminCenterHeading');
@@ -1845,7 +1790,6 @@
             switchAdminTab('apps');
         }
 
-        /* Dedicated Admin Dashboard Controls */
         function openAdminDashboard() {
             switchView('adminDashboardView');
             loadAdminDashboardData();
@@ -1962,7 +1906,246 @@
             switchView('tourView');
         }
 
-        /* The Harbor Feed */
+        /* Feed Sub-mode (Chat vs. Calendar, Planner & Meds) */
+        function switchFeedSubmode(mode) {
+            const chatBtn = document.getElementById('feedChatModeBtn');
+            const plannerBtn = document.getElementById('feedPlannerModeBtn');
+            const chatPanel = document.getElementById('feedChatPanel');
+            const plannerPanel = document.getElementById('feedPlannerPanel');
+            if (mode === 'planner') {
+                plannerBtn.classList.add('active'); chatBtn.classList.remove('active');
+                plannerPanel.style.display = 'block'; chatPanel.style.display = 'none';
+                renderAllPlannerSections();
+            } else {
+                chatBtn.classList.add('active'); plannerBtn.classList.remove('active');
+                chatPanel.style.display = 'block'; plannerPanel.style.display = 'none';
+            }
+        }
+
+        /* Optional Notifications (Off by Default) */
+        function toggleOptionalNotifications(enabled) {
+            const lbl = document.getElementById('optionalNotifStatusLabel');
+            localStorage.setItem('harbor_optional_notifs', enabled ? '1' : '0');
+            if (lbl) lbl.innerText = enabled ? 'Notifications: ON' : 'Notifications: OFF';
+            if (enabled && 'Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission().catch(() => {});
+            }
+        }
+
+        /* Appointments (Default 2 Days Advance Notice, Option 1 Day) */
+        let harborAppointments = JSON.parse(localStorage.getItem('harbor_appointments') || '[]');
+        function addCaregiverAppointment() {
+            const title = (document.getElementById('apptTitleInput').value || '').trim();
+            const date = document.getElementById('apptDateInput').value;
+            const time = document.getElementById('apptTimeInput').value || '09:00';
+            const noticeDays = parseInt(document.getElementById('apptNoticeSelect').value, 10) || 2;
+            if (!title || !date) { alert('Please enter an appointment name and date.'); return; }
+            harborAppointments.push({ id: Date.now(), title, date, time, noticeDays });
+            localStorage.setItem('harbor_appointments', JSON.stringify(harborAppointments));
+            document.getElementById('apptTitleInput').value = '';
+            renderAppointmentsList();
+        }
+        function deleteAppointment(id) {
+            harborAppointments = harborAppointments.filter(a => a.id !== id);
+            localStorage.setItem('harbor_appointments', JSON.stringify(harborAppointments));
+            renderAppointmentsList();
+        }
+        function renderAppointmentsList() {
+            const box = document.getElementById('appointmentsListBox');
+            if (!box) return;
+            const notifsOn = localStorage.getItem('harbor_optional_notifs') === '1';
+            if (!harborAppointments.length) {
+                box.innerHTML = `<div style="font-size:0.78rem; color:#cbd5e1;">No upcoming appointments scheduled yet.</div>`;
+                return;
+            }
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            box.innerHTML = harborAppointments.map(a => {
+                const apptDt = new Date(a.date + 'T00:00:00');
+                const daysUntil = Math.round((apptDt - today) / 86400000);
+                const advanceAlert = daysUntil >= 0 && daysUntil <= a.noticeDays;
+                const badgeText = advanceAlert
+                    ? `⏰ Within ${a.noticeDays}-day notice (${daysUntil === 0 ? 'Today' : daysUntil + 'd left'})`
+                    : `${a.noticeDays}d advance notice set`;
+                return `
+                    <div class="planner-item-row">
+                        <div>
+                            <strong style="color:#ffffff; font-size:0.84rem;">${escapeHtmlSafe(a.title)}</strong>
+                            <div style="font-size:0.74rem; color:#5eead4;">${a.date} at ${a.time} • <span style="color:#fde047;">${badgeText}</span> ${notifsOn ? '• 🔔 Alert Armed' : '• 🔕 Alert Off'}</div>
+                        </div>
+                        <button type="button" class="back-hub-btn" style="border-color:#fb7185; color:#fda4af; padding:4px 10px; font-size:0.72rem;" onclick="deleteAppointment(${a.id})">Remove</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /* Daily / Weekly / Monthly Planner Notes */
+        let activePlannerScope = 'Daily';
+        let harborPlannerNotes = JSON.parse(localStorage.getItem('harbor_planner_notes') || '[]');
+        function setPlannerScope(scope) {
+            activePlannerScope = scope;
+            ['Daily', 'Weekly', 'Monthly'].forEach(s => {
+                const btn = document.getElementById('plannerScope' + s + 'Btn');
+                if (btn) btn.classList.toggle('active', s === scope);
+            });
+            renderPlannerNotesList();
+        }
+        function savePlannerNote() {
+            const dateVal = document.getElementById('plannerDateInput').value || new Date().toISOString().slice(0, 10);
+            const noteVal = (document.getElementById('plannerNoteInput').value || '').trim();
+            if (!noteVal) { alert('Please enter a planner note first.'); return; }
+            harborPlannerNotes.unshift({ id: Date.now(), scope: activePlannerScope, date: dateVal, note: noteVal });
+            localStorage.setItem('harbor_planner_notes', JSON.stringify(harborPlannerNotes));
+            document.getElementById('plannerNoteInput').value = '';
+            renderPlannerNotesList();
+        }
+        function deletePlannerNote(id) {
+            harborPlannerNotes = harborPlannerNotes.filter(n => n.id !== id);
+            localStorage.setItem('harbor_planner_notes', JSON.stringify(harborPlannerNotes));
+            renderPlannerNotesList();
+        }
+        function renderPlannerNotesList() {
+            const box = document.getElementById('plannerNotesListBox');
+            if (!box) return;
+            const filtered = harborPlannerNotes.filter(n => n.scope === activePlannerScope);
+            if (!filtered.length) {
+                box.innerHTML = `<div style="font-size:0.78rem; color:#cbd5e1;">No ${activePlannerScope.toLowerCase()} planner notes saved yet.</div>`;
+                return;
+            }
+            box.innerHTML = filtered.map(n => `
+                <div class="planner-item-row">
+                    <div>
+                        <div style="font-size:0.72rem; color:#fde047; font-weight:800;">${n.scope} • ${n.date}</div>
+                        <div style="font-size:0.82rem; color:#ffffff; margin-top:2px;">${escapeHtmlSafe(n.note)}</div>
+                    </div>
+                    <button type="button" class="back-hub-btn" style="border-color:#fb7185; color:#fda4af; padding:4px 10px; font-size:0.72rem;" onclick="deletePlannerNote(${n.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        /* Medication Bottle Scan + Disbursement Confirmation + Reorder Date Estimator */
+        let harborMedications = JSON.parse(localStorage.getItem('harbor_medications') || '[]');
+        async function scanMedicineBottle(input) {
+            if (!input.files || !input.files[0]) return;
+            const statusEl = document.getElementById('medScanStatusText');
+            if (statusEl) statusEl.innerText = '🔍 Scanning medicine bottle label...';
+            try {
+                if (window.Tesseract) {
+                    const result = await Tesseract.recognize(input.files[0], 'eng');
+                    const raw = (result.data && result.data.text || '').trim();
+                    const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                    if (lines.length > 0 && !document.getElementById('medNameInput').value) {
+                        document.getElementById('medNameInput').value = lines[0].slice(0, 60);
+                    }
+                    const doseMatch = raw.match(/\b(\d+\s*(?:mg|mcg|g|ml|mL|iu|units))\b/i);
+                    if (doseMatch && !document.getElementById('medDosageInput').value) {
+                        document.getElementById('medDosageInput').value = doseMatch[1];
+                    }
+                    const qtyMatch = raw.match(/\b(?:qty|count|#|tabs|tablets|caps|capsules)?\s*[:\-]?\s*(\d{1,3})\b/i);
+                    if (qtyMatch && !document.getElementById('medRemainingInput').value) {
+                        document.getElementById('medRemainingInput').value = qtyMatch[1];
+                    }
+                    if (statusEl) statusEl.innerText = '✓ Label scanned — review & edit any field below before saving';
+                } else {
+                    if (statusEl) statusEl.innerText = 'Enter or edit the bottle details below';
+                }
+            } catch (e) {
+                if (statusEl) statusEl.innerText = 'Could not read automatically—type or edit the bottle details below';
+            }
+            input.value = '';
+        }
+
+        function computeReorderDateStr(remaining, dailyRate) {
+            const rem = parseFloat(remaining) || 0;
+            const rate = parseFloat(dailyRate) || 1;
+            const daysLeft = Math.max(0, Math.floor(rem / Math.max(0.25, rate)));
+            const dt = new Date();
+            dt.setDate(dt.getDate() + daysLeft);
+            return { daysLeft, dateStr: dt.toISOString().slice(0, 10) };
+        }
+
+        function saveMedicationTracker() {
+            const name = (document.getElementById('medNameInput').value || '').trim();
+            const dosage = (document.getElementById('medDosageInput').value || '').trim() || 'As prescribed';
+            const remaining = parseFloat(document.getElementById('medRemainingInput').value);
+            const dailyRate = parseFloat(document.getElementById('medDailyRateInput').value) || 1;
+            if (!name || isNaN(remaining) || remaining < 0) {
+                alert('Please enter a medication name and amount remaining.');
+                return;
+            }
+            harborMedications.unshift({
+                id: Date.now(),
+                name,
+                dosage,
+                remaining,
+                dailyRate,
+                lastConfirmed: 'Not confirmed yet'
+            });
+            localStorage.setItem('harbor_medications', JSON.stringify(harborMedications));
+            document.getElementById('medNameInput').value = '';
+            document.getElementById('medDosageInput').value = '';
+            document.getElementById('medRemainingInput').value = '';
+            renderMedicationsList();
+        }
+
+        function confirmMedDisbursement(id) {
+            harborMedications = harborMedications.map(m => {
+                if (m.id !== id) return m;
+                const nextRem = Math.max(0, Number((m.remaining - m.dailyRate).toFixed(2)));
+                return { ...m, remaining: nextRem, lastConfirmed: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+            });
+            localStorage.setItem('harbor_medications', JSON.stringify(harborMedications));
+            renderMedicationsList();
+        }
+
+        function deleteMedication(id) {
+            harborMedications = harborMedications.filter(m => m.id !== id);
+            localStorage.setItem('harbor_medications', JSON.stringify(harborMedications));
+            renderMedicationsList();
+        }
+
+        function renderMedicationsList() {
+            const box = document.getElementById('medicationsListBox');
+            if (!box) return;
+            if (!harborMedications.length) {
+                box.innerHTML = `<div style="font-size:0.78rem; color:#cbd5e1;">No medications tracked yet. Scan a bottle or add one above.</div>`;
+                return;
+            }
+            box.innerHTML = harborMedications.map(m => {
+                const est = computeReorderDateStr(m.remaining, m.dailyRate);
+                return `
+                    <div class="planner-item-row">
+                        <div>
+                            <strong style="color:#ffffff; font-size:0.86rem;">${escapeHtmlSafe(m.name)}</strong>
+                            <span style="color:#5eead4; font-size:0.76rem; font-weight:700;">(${escapeHtmlSafe(m.dosage)})</span>
+                            <div style="font-size:0.76rem; color:#e2e8f0; margin-top:2px;">
+                                Remaining: <strong style="color:#fde047;">${m.remaining}</strong> • Rate: <strong>${m.dailyRate}/day</strong> • Est. Reorder: <strong style="color:#86efac;">${est.dateStr}</strong> (${est.daysLeft}d)
+                            </div>
+                            <div style="font-size:0.7rem; color:#cbd5e1;">Last disbursement confirmed: ${escapeHtmlSafe(m.lastConfirmed)}</div>
+                        </div>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <button type="button" class="action-btn" style="width:auto; margin:0; padding:6px 12px; font-size:0.76rem;" onclick="confirmMedDisbursement(${m.id})">✓ Confirm Given</button>
+                            <button type="button" class="back-hub-btn" style="border-color:#fb7185; color:#fda4af; padding:5px 9px; font-size:0.72rem;" onclick="deleteMedication(${m.id})">&times;</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAllPlannerSections() {
+            const notifsOn = localStorage.getItem('harbor_optional_notifs') === '1';
+            const toggleEl = document.getElementById('optionalNotificationsToggle');
+            const labelEl = document.getElementById('optionalNotifStatusLabel');
+            if (toggleEl) toggleEl.checked = notifsOn;
+            if (labelEl) labelEl.innerText = notifsOn ? 'Notifications: ON' : 'Notifications: OFF';
+            const dateInp = document.getElementById('plannerDateInput');
+            if (dateInp && !dateInp.value) dateInp.value = new Date().toISOString().slice(0, 10);
+            renderAppointmentsList();
+            renderPlannerNotesList();
+            renderMedicationsList();
+        }
+
+        /* The Harbor Feed Chat */
         let currentReplyTo = null;
         let pendingAttachmentDataUrl = null;
         let pendingAttachmentIsVideo = false;
@@ -2046,7 +2229,7 @@
             cancelReply();
         }
 
-        /* Youth Cove: Rotating Positive & Crisis Support Banner Queue + Pre-Filled Chips + Compact FB Bubbles */
+        /* Youth Cove */
         const defaultYouthBannerQueue = [
             { text: "You are stronger than you know, and you never have to carry heavy days alone—people here genuinely care about you.", author: "The Youth Cove Crew" },
             { text: "If things ever feel overwhelming, you matter and help is always free & confidential: Call or Text 988 anytime (24/7 Lifeline).", author: "988 Support & Care" },
@@ -2174,7 +2357,6 @@
             pendingGatheringPhotoUrl = null;
         }
 
-        /* Funny Pics & Funny Videos Quick Uploaders */
         function postFunnyPic(input) {
             if (!input.files || !input.files[0]) return;
             const cap = document.getElementById('funnyPicCaption').value.trim() || 'Caregiver laugh break 😂';
@@ -2182,7 +2364,7 @@
             reader.onload = function(e) {
                 const stream = document.getElementById('funnyPicsStream');
                 const card = document.createElement('div');
-                card.style.cssText = 'background:rgba(15,23,42,0.42); border:1px solid rgba(255,255,255,0.22); border-radius:12px; padding:10px; backdrop-filter:blur(10px);';
+                card.style.cssText = 'background:rgba(15,23,42,0.42); border:1px solid rgba(255,255,255,0.22); border-radius:12px; padding:10px;';
                 card.innerHTML = `<img src="${e.target.result}" style="width:100%; height:180px; object-fit:cover; border-radius:8px; margin-bottom:6px;"><div style="font-size:0.82rem; font-weight:700; color:#ffffff;">${cap}</div>`;
                 stream.prepend(card);
                 document.getElementById('funnyPicCaption').value = '';
@@ -2197,14 +2379,13 @@
             const url = URL.createObjectURL(input.files[0]);
             const stream = document.getElementById('funnyVideosStream');
             const card = document.createElement('div');
-            card.style.cssText = 'background:rgba(15,23,42,0.42); border:1px solid rgba(255,255,255,0.22); border-radius:12px; padding:10px; backdrop-filter:blur(10px);';
+            card.style.cssText = 'background:rgba(15,23,42,0.42); border:1px solid rgba(255,255,255,0.22); border-radius:12px; padding:10px;';
             card.innerHTML = `<video src="${url}" controls style="width:100%; max-height:240px; border-radius:8px; margin-bottom:6px;"></video><div style="font-size:0.82rem; font-weight:700; color:#ffffff;">${cap}</div>`;
             stream.prepend(card);
             document.getElementById('funnyVidCaption').value = '';
             input.value = '';
         }
 
-        /* Rec Area Tabs, Collapsible More Info, Quick Games & Trivia */
         function toggleVoteMoreInfo() {
             const box = document.getElementById('voteMoreInfoBox');
             if (box) box.style.display = (box.style.display === 'block') ? 'none' : 'block';
@@ -2366,7 +2547,6 @@
             document.getElementById('triviaLobbyBox').style.display = 'block';
         }
 
-        /* Mini Games */
         let tttCells = Array(9).fill(''), tttOver = false;
         function resetTicTacToe() { tttCells = Array(9).fill(''); tttOver = false; document.getElementById('tttStatusText').innerText = 'Your turn (You are ❌)'; renderTicTacToe(); }
         function renderTicTacToe() {
@@ -2481,7 +2661,6 @@
             document.getElementById('rpsResultText').innerText = `You: ${userChoice} vs Bot: ${botChoice} — ${outcome}`;
         }
 
-        /* Coloring Pages */
         const coloringThemes = Array.from({ length: 50 }, (_, i) => `${i + 1}. Harbor Design #${i + 1}`);
         const coloringSwatches = ['#f43f5e', '#f59e0b', '#fde047', '#4ade80', '#38bdf8', '#818cf8', '#c084fc', '#f472b6', '#94a3b8', '#ffffff'];
         let activeBrushColor = '#38bdf8', coloringInitialized = false;
@@ -2515,7 +2694,6 @@
             });
         }
 
-        /* Pass It On Board */
         function switchGearMode(mode) {
             const needBtn = document.getElementById('gearModeNeedBtn');
             const giveBtn = document.getElementById('gearModeGiveBtn');
@@ -2576,7 +2754,7 @@
             const list = document.getElementById('stormGearList');
             const card = document.createElement('div');
             card.className = 'gear-post-card'; card.dataset.zip = postal;
-            card.style.cssText = 'background: rgba(41, 18, 4, 0.44); border: 1px solid rgba(245, 158, 11, 0.55); border-radius: 12px; padding: 12px; backdrop-filter: blur(12px);';
+            card.style.cssText = 'background: rgba(41, 18, 4, 0.44); border: 1px solid rgba(245, 158, 11, 0.55); border-radius: 12px; padding: 12px;';
             card.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px;">
                     <strong style="color: #ffffff; font-size: 0.92rem;">🤝 AVAILABLE: ${item}</strong>
@@ -2598,7 +2776,7 @@
             const list = document.getElementById('stormGearList');
             const card = document.createElement('div');
             card.className = 'gear-post-card'; card.dataset.zip = userZip;
-            card.style.cssText = 'background: rgba(15, 61, 68, 0.44); border: 1.5px solid #5eead4; border-radius: 12px; padding: 12px; backdrop-filter: blur(12px);';
+            card.style.cssText = 'background: rgba(15, 61, 68, 0.44); border: 1.5px solid #5eead4; border-radius: 12px; padding: 12px;';
             card.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px;">
                     <strong style="color: #5eead4; font-size: 0.92rem;">📣 LOOKING FOR: ${keyword}</strong>
@@ -2610,7 +2788,6 @@
             list.prepend(card);
         }
 
-        /* Resources & Foundations ("May I help you look for something?" + "All Topics" + Urgent Essentials Always Ready) */
         const harborFoundations = [
             { name: "988 Suicide & Crisis Lifeline", essential: true, cat: "CRISIS_CDC", tag: "24/7 Immediate Crisis", desc: "Free, confidential 24/7 call or text support for anyone in emotional distress or crisis.", url: "https://988lifeline.org", phone: "Call or Text 988" },
             { name: "Poison Control Center (Poison Help)", essential: true, cat: "CRISIS_CDC", tag: "24/7 Emergency Poison Help", desc: "Immediate, free expert help for accidental exposures, medication mix-ups, or household toxins.", url: "https://www.poison.org", phone: "1-800-222-1222" },
@@ -2642,13 +2819,11 @@
             { name: "Leukemia & Lymphoma Society (LLS)", essential: false, cat: "CANCER", tag: "Blood Cancers", desc: "Co-pay assistance, travel grants, and 1-on-1 caregiver support.", url: "https://www.lls.org", phone: "1-800-955-4572" }
         ];
 
-        let resourceViewMode = 'ESSENTIALS'; // 'ESSENTIALS', 'SEARCH', or 'ALL'
-
         function renderResourceCards(items) {
             const list = document.getElementById('resourceDirectoryList');
             if (!list) return;
             list.innerHTML = items.map(f => `
-                <div style="background: rgba(11, 46, 51, 0.42); border: 1.5px solid rgba(255, 255, 255, 0.22); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; backdrop-filter: blur(12px);">
+                <div style="background: rgba(11, 46, 51, 0.42); border: 1.5px solid rgba(255, 255, 255, 0.22); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between;">
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; margin-bottom: 4px;">
                             <strong style="color: #ffffff; font-size: 0.9rem;">${f.name}</strong>
@@ -2670,7 +2845,6 @@
             if (drawer.style.display === 'block') {
                 resetResourcesToEssentials();
             } else {
-                resourceViewMode = 'SEARCH';
                 drawer.style.display = 'block';
                 if (inp) { inp.value = ''; inp.focus(); }
                 renderResourceCards(harborFoundations.filter(f => f.essential));
@@ -2678,14 +2852,12 @@
         }
 
         function showAllResourceTopics() {
-            resourceViewMode = 'ALL';
             const drawer = document.getElementById('resourceSearchDrawer');
             if (drawer) drawer.style.display = 'none';
             renderResourceCards(harborFoundations);
         }
 
         function resetResourcesToEssentials() {
-            resourceViewMode = 'ESSENTIALS';
             const drawer = document.getElementById('resourceSearchDrawer');
             const inp = document.getElementById('resourceSearchInput');
             if (drawer) drawer.style.display = 'none';
@@ -2707,7 +2879,6 @@
             renderResourceCards(filtered);
         }
 
-        /* Background Switcher */
         function switchView(viewId) {
             const gateway = document.getElementById('mainGatewayView');
             if (gateway) gateway.classList.add('hidden');
@@ -2728,13 +2899,18 @@
             distanceBg.classList.remove('active');
             joinBg.classList.remove('active');
             guestBg.classList.remove('active');
+            document.body.classList.remove('stationary-page');
 
             if (viewId === 'mainGatewayView' || viewId === 'learnMoreView') {
                 mosaicBg.classList.remove('hidden-bg');
                 mosaicOverlay.classList.remove('hidden-bg');
             } else if (viewId === 'becomeMemberView') {
                 joinBg.classList.add('active');
-            } else if (viewId === 'donorVisitorView' || viewId === 'tourView') {
+                document.body.classList.add('stationary-page');
+            } else if (viewId === 'donorVisitorView') {
+                guestBg.classList.add('active');
+                document.body.classList.add('stationary-page');
+            } else if (viewId === 'tourView') {
                 guestBg.classList.add('active');
             } else {
                 distanceBg.classList.add('active');
@@ -2750,6 +2926,10 @@
                     targetEl.classList.add('active');
                     targetEl.style.display = 'block';
                 }
+            }
+            if (viewId === 'harborFeedView') {
+                switchFeedSubmode('chat');
+                renderAllPlannerSections();
             }
             if (viewId === 'resourcesFoundationsView') resetResourcesToEssentials();
             if (viewId === 'youthCoveView') renderYouthProfileChips();
@@ -2773,12 +2953,19 @@
                 qText.innerText = `"${sanctuaryQuotes[quoteIdx].text}"`;
                 qAuth.innerText = `— ${sanctuaryQuotes[quoteIdx].author}`;
             }
+            const wText = document.getElementById('welcomeMotivationText');
+            const wAuth = document.getElementById('welcomeMotivationAuthor');
+            if (wText && wAuth) {
+                wText.innerText = `"${sanctuaryQuotes[quoteIdx].text}"`;
+                wAuth.innerText = `— ${sanctuaryQuotes[quoteIdx].author}`;
+            }
         }, 6500);
 
         document.addEventListener('DOMContentLoaded', () => {
             resetResourcesToEssentials();
             renderYouthProfileChips();
             resetTicTacToe();
+            renderAllPlannerSections();
         });
     </script>
 
@@ -2850,8 +3037,10 @@
             const nw = document.getElementById('newPwInput').value;
             const conf = document.getElementById('confirmPwInput').value;
             const status = document.getElementById('pwStatusMsg');
-            if (!cur || !nw) { status.style.color = '#fb7185'; status.textContent = 'Please fill in all fields.'; return; }
-            if (nw !== conf) { status.style.color = '#fb7185'; status.textContent = 'New passwords do not match.'; return; }
+            if (!cur || !nw) { status.style.color = '#f87171'; status.textContent = 'Please fill in both password fields.'; return; }
+            if (nw.length < 6) { status.style.color = '#f87171'; status.textContent = 'New password must be at least 6 characters.'; return; }
+            if (nw !== conf) { status.style.color = '#f87171'; status.textContent = 'New passwords do not match.'; return; }
+            status.style.color = '#94a3b8'; status.textContent = 'Updating...';
             try {
                 const res = await fetch('/api/change-password', {
                     method: 'POST',
@@ -2859,14 +3048,14 @@
                     body: JSON.stringify({ current_password: cur, new_password: nw })
                 });
                 const data = await res.json();
-                if (!res.ok || !data.ok) { status.style.color = '#fb7185'; status.textContent = data.error || 'Could not update password.'; return; }
+                if (!res.ok || !data.ok) { status.style.color = '#f87171'; status.textContent = data.error || 'Could not update password.'; return; }
                 status.style.color = '#4ade80'; status.textContent = data.message || 'Password updated!';
-                setTimeout(closeChangePwModal, 1200);
-            } catch (err) { status.style.color = '#fb7185'; status.textContent = 'Network error updating password.'; }
+                setTimeout(closeChangePwModal, 1100);
+            } catch (e) { status.style.color = '#f87171'; status.textContent = 'Network error. Please try again.'; }
         }
 
         function escapeHtmlSafe(str) {
-            return String(str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            return String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
         }
 
         async function loadSeriousWallPosts() {
@@ -2875,39 +3064,42 @@
             try {
                 const res = await fetch('/api/wall');
                 const data = await res.json();
-                if (!data.ok) return;
-                const posts = data.posts || [];
-                if (posts.length === 0) {
+                if (!data.ok || !Array.isArray(data.posts) || data.posts.length === 0) {
                     board.innerHTML = `<div id="seriousWallEmpty" style="grid-column: 1 / -1; text-align: center; padding: 48px 18px; background: rgba(15, 23, 42, 0.45); border: 1px dashed rgba(129, 140, 248, 0.5); border-radius: 12px; color: #e2e8f0; font-size: 0.88rem;">🧱 The Wall is open and listening — pin a question or honest message above, and fellow caregivers can reply right on your card.</div>`;
                     return;
                 }
-                const currentMember = (document.getElementById('dashMemberName')?.textContent || window.currentHarborMemberName || '').trim();
-                board.innerHTML = posts.map(p => {
-                    let accent = '#fde047';
-                    if ((p.category || '').includes('Time-Sensitive')) accent = '#fb7185';
-                    else if ((p.category || '').includes('Take Your Time')) accent = '#34d399';
-                    const canDelete = (currentMember && currentMember.toLowerCase() === (p.author_name || '').toLowerCase()) || (currentMember.toLowerCase() === 'anthony');
-                    const repliesHtml = (p.replies || []).map(r => `<div style="background: rgba(15,23,42,0.5); padding: 7px 10px; border-radius: 8px; border-left: 2.5px solid #5eead4; font-size: 0.78rem; color: #e2e8f0;"><strong style="color:#5eead4;">${escapeHtmlSafe(r.author_name)}:</strong> ${escapeHtmlSafe(r.reply_text)}</div>`).join('');
+                const colors = [
+                    'linear-gradient(155deg, rgba(254, 249, 195, 0.96), rgba(253, 240, 138, 0.92))',
+                    'linear-gradient(155deg, rgba(224, 242, 254, 0.96), rgba(186, 230, 253, 0.92))',
+                    'linear-gradient(155deg, rgba(252, 231, 243, 0.96), rgba(251, 207, 232, 0.92))',
+                    'linear-gradient(155deg, rgba(220, 252, 231, 0.96), rgba(187, 247, 208, 0.92))'
+                ];
+                board.innerHTML = data.posts.map((p, idx) => {
+                    const repliesHtml = (p.replies || []).map(rep => `
+                        <div style="background: rgba(15, 23, 42, 0.07); border-left: 2px solid #4f46e5; padding: 5px 8px; border-radius: 0 6px 6px 0; margin-top: 5px; font-size: 0.76rem; color: #1e293b;">
+                            <strong>${escapeHtmlSafe(rep.author_name)}:</strong> ${escapeHtmlSafe(rep.reply_text)}
+                        </div>
+                    `).join('');
                     return `
-                        <div style="background: rgba(15, 23, 42, 0.56); border: 1.5px solid ${accent}; border-radius: 14px; padding: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.45); display: flex; flex-direction: column; gap: 8px; backdrop-filter: blur(12px);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
-                                <span style="font-size: 0.7rem; font-weight: 800; color: ${accent}; text-transform: uppercase;">${escapeHtmlSafe(p.category)}</span>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 0.72rem; color: #cbd5e1; font-weight: 700;">— ${escapeHtmlSafe(p.author_name)}</span>
-                                    ${canDelete ? `<button type="button" onclick="deleteSeriousWallPost(${p.id})" style="background:none; border:none; color:#fb7185; font-size:0.78rem; cursor:pointer; font-weight:800;">🗑️</button>` : ''}
+                        <div style="background: ${colors[idx % colors.length]}; color: #0f172a; border-radius: 10px; padding: 14px; box-shadow: 0 10px 22px rgba(0,0,0,0.38); border-top: 8px solid rgba(15, 23, 42, 0.14); display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
+                            <div>
+                                <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:6px; font-size:0.7rem; font-weight:800; color:#4338ca;">
+                                    <span>${escapeHtmlSafe(p.category)}</span>
+                                    <button type="button" onclick="deleteSeriousWallPost(${p.id})" style="background:none; border:none; color:#be123c; font-weight:900; cursor:pointer; font-size:0.85rem;" title="Remove pin">&times;</button>
                                 </div>
+                                <div style="font-size:0.95rem; font-weight:900; color:#0f172a; margin-bottom:5px;">${escapeHtmlSafe(p.topic)}</div>
+                                <div style="font-size:0.82rem; color:#1e293b; line-height:1.45; white-space:pre-wrap;">${escapeHtmlSafe(p.message)}</div>
+                                <div style="font-size:0.72rem; font-weight:700; color:#475569; margin-top:8px;">— ${escapeHtmlSafe(p.author_name)}</div>
+                                <div id="wallReplies_${p.id}">${repliesHtml}</div>
                             </div>
-                            <div style="font-size: 0.94rem; font-weight: 800; color: #ffffff;">${escapeHtmlSafe(p.topic)}</div>
-                            <div style="font-size: 0.84rem; color: #f8fafc; line-height: 1.48; white-space: pre-wrap;">${escapeHtmlSafe(p.message)}</div>
-                            <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">${repliesHtml}</div>
-                            <div style="display: flex; gap: 6px; margin-top: 6px;">
-                                <input type="text" id="wallReplyInput_${p.id}" class="dark-input" style="font-size: 0.78rem; padding: 6px 10px;" placeholder="Share lived advice or encouragement...">
-                                <button type="button" class="back-hub-btn" style="border-color: #818cf8; color: #c7d2fe; padding: 6px 12px;" onclick="submitSeriousWallReply(${p.id})">Reply</button>
+                            <div style="display:flex; gap:5px; margin-top:6px; border-top:1px dashed rgba(15,23,42,0.2); padding-top:7px;">
+                                <input type="text" id="wallReplyInput_${p.id}" placeholder="Write a supportive reply..." style="flex:1; padding:6px 8px; border-radius:6px; border:1px solid rgba(15,23,42,0.25); background:#ffffff; color:#0f172a; font-size:0.76rem;">
+                                <button type="button" onclick="replyToSeriousWall(${p.id})" style="padding:6px 10px; border-radius:6px; border:none; background:#4f46e5; color:#ffffff; font-weight:800; font-size:0.74rem; cursor:pointer;">Reply</button>
                             </div>
                         </div>
                     `;
                 }).join('');
-            } catch (err) { console.error("Error loading Wall posts:", err); }
+            } catch (e) { console.error(e); }
         }
 
         async function postToSeriousWall() {
@@ -2915,140 +3107,131 @@
             const topic = document.getElementById('wallTopicInput').value.trim();
             const message = document.getElementById('wallMessageInput').value.trim();
             const isAnon = document.getElementById('wallPostAnonCheck').checked;
-            if (!topic || !message) { alert("Please enter both a headline and your question."); return; }
-            const memberName = isAnon ? 'A Fellow Caregiver' : ((document.getElementById('dashMemberName')?.textContent || window.currentHarborMemberName || 'Anthony').trim());
+            const author_name = isAnon ? 'A Fellow Caregiver' : (window.currentHarborMemberName || document.getElementById('dashMemberName')?.textContent || 'A Fellow Caregiver');
+            if (!topic || !message) { alert('Please add both a headline and your message.'); return; }
             try {
                 const res = await fetch('/api/wall', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ category, topic, message, author_name: memberName })
+                    body: JSON.stringify({ category, topic, message, author_name })
                 });
                 const data = await res.json();
-                if (!res.ok || !data.ok) { alert(data.error || "Could not pin post."); return; }
+                if (!res.ok || !data.ok) { alert(data.error || 'Could not pin note.'); return; }
                 document.getElementById('wallTopicInput').value = '';
                 document.getElementById('wallMessageInput').value = '';
                 document.getElementById('wallPostAnonCheck').checked = false;
-                await loadSeriousWallPosts();
-            } catch (err) { alert("Error pinning post."); }
+                loadSeriousWallPosts();
+            } catch (e) { alert('Network error pinning to the wall.'); }
         }
 
-        async function submitSeriousWallReply(postId) {
+        async function replyToSeriousWall(postId) {
             const inp = document.getElementById(`wallReplyInput_${postId}`);
-            if (!inp || !inp.value.trim()) return;
-            const memberName = (document.getElementById('dashMemberName')?.textContent || window.currentHarborMemberName || 'Anthony').trim();
+            const reply_text = (inp.value || '').trim();
+            const author_name = window.currentHarborMemberName || document.getElementById('dashMemberName')?.textContent || 'A Fellow Caregiver';
+            if (!reply_text) return;
             try {
                 const res = await fetch(`/api/wall/${postId}/reply`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ reply_text: inp.value.trim(), author_name: memberName })
+                    body: JSON.stringify({ reply_text, author_name })
                 });
                 const data = await res.json();
-                if (!res.ok || !data.ok) { alert(data.error || "Could not save reply."); return; }
-                await loadSeriousWallPosts();
-            } catch (err) { alert("Error saving reply."); }
+                if (res.ok && data.ok) { inp.value = ''; loadSeriousWallPosts(); }
+            } catch (e) { alert('Error posting reply.'); }
         }
 
         async function deleteSeriousWallPost(postId) {
-            if (!confirm("Remove this post from The Wall of Seriousness?")) return;
+            if (!confirm('Remove this note from the wall?')) return;
             try {
-                const res = await fetch(`/api/wall/${postId}`, { method: 'DELETE' });
-                const data = await res.json();
-                if (!res.ok || !data.ok) { alert(data.error || "Could not delete post."); return; }
-                await loadSeriousWallPosts();
-            } catch (err) { alert("Error deleting post."); }
+                await fetch(`/api/wall/${postId}`, { method: 'DELETE' });
+                loadSeriousWallPosts();
+            } catch (e) { console.error(e); }
         }
 
-        /* Side-by-Side Tuesday vs. Thursday Showdown + Once-a-Day Voting + Dual Winner Spotlights */
-        function renderShowdownSide(bodyId, entry, dayLabel, votedToday, isRevealPhase) {
-            const body = document.getElementById(bodyId);
-            if (!body) return;
-            if (!entry) {
-                body.innerHTML = `<div style="padding: 20px 6px; font-size: 0.76rem; color: #cbd5e1;">Waiting for ${dayLabel}'s featured photo! Submit below to enter.</div>`;
+        function renderSideBySidePickCard(containerId, pick, dayLabel, accentColor) {
+            const box = document.getElementById(containerId);
+            if (!box) return;
+            if (!pick) {
+                box.innerHTML = `<div style="font-size:0.72rem; font-weight:900; color:${accentColor}; text-transform:uppercase;">${dayLabel}</div><div style="padding:20px 8px; font-size:0.76rem; color:#cbd5e1;">Awaiting ${dayLabel.toLowerCase()} finalist!</div>`;
                 return;
             }
-            const voteBtnHtml = isRevealPhase
-                ? `<div style="font-size: 0.78rem; font-weight: 900; color: #fde047; padding: 6px 0;">🏆 ${entry.votes} Total Votes</div>`
-                : votedToday
-                    ? `<button type="button" disabled style="width:100%; background: rgba(74, 222, 128, 0.22); border: 1px solid #4ade80; color: #86efac; border-radius: 50px; padding: 6px 8px; font-size: 0.74rem; font-weight: 800; cursor: default;">✓ Voted Today</button>`
-                    : `<button type="button" onclick="castContestVote(${entry.id})" style="width:100%; background: linear-gradient(135deg, #fde047, #f59e0b); color: #0b2e33; border: none; border-radius: 50px; padding: 7px 8px; font-size: 0.76rem; font-weight: 900; cursor: pointer;">🗳️ Vote ${dayLabel}</button>`;
-
-            body.innerHTML = `
-                <img src="${entry.image_url}" alt="${escapeHtmlSafe(entry.caption)}" style="width: 100%; height: 145px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2);">
-                <div style="font-size: 0.8rem; font-weight: 800; color: #ffffff; margin-top: 4px; line-height: 1.25;">${escapeHtmlSafe(entry.caption)}</div>
-                <div style="font-size: 0.68rem; color: #5eead4;">by ${escapeHtmlSafe(entry.author_name)}</div>
-                <div style="margin-top: 6px;">${voteBtnHtml}</div>
+            box.innerHTML = `
+                <div style="font-size:0.72rem; font-weight:900; color:${accentColor}; text-transform:uppercase;">${dayLabel}</div>
+                <img src="${escapeHtmlSafe(pick.image_url)}" onerror="this.style.display='none'" alt="${escapeHtmlSafe(pick.caption)}" style="width:100%; height:130px; object-fit:cover; border-radius:9px; border:1px solid rgba(255,255,255,0.22);">
+                <div style="font-size:0.78rem; font-weight:800; color:#ffffff; line-height:1.25;">${escapeHtmlSafe(pick.caption)}</div>
+                <div style="font-size:0.68rem; color:#cbd5e1;">by ${escapeHtmlSafe(pick.author_name)}</div>
+                <div style="font-size:0.8rem; font-weight:900; color:#fde047;">🗳️ ${pick.votes} ${pick.votes === 1 ? 'Vote' : 'Votes'}</div>
+                <button type="button" onclick="voteContestEntry(${pick.id})" style="width:100%; padding:7px 8px; border-radius:8px; border:none; background:linear-gradient(135deg,#fde047,#f59e0b); color:#0b2e33; font-weight:900; font-size:0.76rem; cursor:pointer;">Vote Today</button>
             `;
         }
 
+        function applyChampionSpotlight(champ) {
+            const boxes = [
+                { box: document.getElementById('sundayChampionSpotlight'), img: document.getElementById('loginChampImg'), cap: document.getElementById('loginChampCaption'), meta: document.getElementById('loginChampMeta') },
+                { box: document.getElementById('passItOnChampionSpotlight'), img: document.getElementById('passItOnChampImg'), cap: document.getElementById('passItOnChampCaption'), meta: document.getElementById('passItOnChampMeta') }
+            ];
+            boxes.forEach(item => {
+                if (!item.box) return;
+                if (champ && champ.image_url) {
+                    item.box.removeAttribute('hidden');
+                    item.box.style.display = 'block';
+                    if (item.img) { item.img.src = champ.image_url; item.img.style.display = 'block'; }
+                    if (item.cap) item.cap.textContent = champ.caption || '';
+                    if (item.meta) item.meta.innerHTML = `Captured by <strong>${escapeHtmlSafe(champ.author_name || 'Member')}</strong> • ${champ.votes || 0} Votes`;
+                } else {
+                    item.box.setAttribute('hidden', '');
+                    item.box.style.display = 'none';
+                }
+            });
+        }
+
         async function refreshContestState() {
-            const voterName = (document.getElementById('dashMemberName')?.textContent || window.currentHarborMemberName || 'guest').trim();
+            const voterName = encodeURIComponent(window.currentHarborMemberName || document.getElementById('dashMemberName')?.textContent || 'Guest');
             try {
-                const res = await fetch(`/api/contest/state?voter_name=${encodeURIComponent(voterName)}`);
+                const res = await fetch(`/api/contest/state?voter_name=${voterName}`);
                 const data = await res.json();
                 if (!data.ok) return;
-
-                const isRevealPhase = data.schedule && (data.schedule.weekday === 5 || data.schedule.weekday === 6);
-                renderShowdownSide('tueCardBody', data.tuesday_pick, 'Tuesday', data.voted_today, isRevealPhase);
-                renderShowdownSide('thuCardBody', data.thursday_pick, 'Thursday', data.voted_today, isRevealPhase);
-
-                // Update both Sunday Login Spotlight and Pass It On Bottom Spotlight
-                const champ = data.weekly_champion;
-                const spotlights = [
-                    { box: 'sundayChampionSpotlight', img: 'loginChampImg', cap: 'loginChampCaption', meta: 'loginChampMeta' },
-                    { box: 'passItOnChampionSpotlight', img: 'passItOnChampImg', cap: 'passItOnChampCaption', meta: 'passItOnChampMeta' }
-                ];
-                spotlights.forEach(s => {
-                    const boxEl = document.getElementById(s.box);
-                    if (!boxEl) return;
-                    if (champ) {
-                        boxEl.style.display = 'block';
-                        document.getElementById(s.img).src = champ.image_url;
-                        document.getElementById(s.cap).textContent = champ.caption;
-                        document.getElementById(s.meta).innerHTML = `Captured by <strong>${escapeHtmlSafe(champ.author_name)}</strong> • ${champ.votes} Votes`;
-                    } else {
-                        boxEl.style.display = 'none';
-                    }
-                });
-            } catch (err) { console.error("Contest state refresh error:", err); }
+                renderSideBySidePickCard('tuesdayShowdownCard', data.tuesday_pick, '📅 Tuesday Pick', '#38bdf8');
+                renderSideBySidePickCard('thursdayShowdownCard', data.thursday_pick, '📅 Thursday Pick', '#f472b6');
+                applyChampionSpotlight(data.weekly_champion);
+            } catch (e) { console.error(e); }
         }
 
         async function uploadContestPhoto() {
-            const fileInput = document.getElementById('contestPhotoInput');
-            const captionInput = document.getElementById('contestCaptionInput');
-            if (!fileInput || !fileInput.files || !fileInput.files[0]) { alert("Please select a photo first."); return; }
-            const memberName = (document.getElementById('dashMemberName')?.textContent || window.currentHarborMemberName || 'Anthony').trim();
+            const fileInp = document.getElementById('contestPhotoInput');
+            const capInp = document.getElementById('contestCaptionInput');
+            if (!fileInp.files || !fileInp.files[0]) { alert('Please select a photo first.'); return; }
             const fd = new FormData();
-            fd.append('photo', fileInput.files[0]);
-            fd.append('caption', captionInput.value.trim() || 'Caregiver Snapshot');
-            fd.append('author_name', memberName);
+            fd.append('photo', fileInp.files[0]);
+            fd.append('caption', (capInp.value || 'Caregiver Snapshot').trim());
+            fd.append('author_name', window.currentHarborMemberName || document.getElementById('dashMemberName')?.textContent || 'Member');
             try {
                 const res = await fetch('/api/contest/upload', { method: 'POST', body: fd });
                 const data = await res.json();
-                if (!res.ok || !data.ok) { alert(data.error || "Upload failed."); return; }
-                fileInput.value = '';
-                captionInput.value = '';
-                document.getElementById('contestPhotoLabel').textContent = '';
-                alert("Your photo is entered into the Tuesday vs. Thursday showdown!");
-                await refreshContestState();
-            } catch (err) { alert("Error uploading contest photo."); }
+                if (!res.ok || !data.ok) { alert(data.error || 'Could not upload photo.'); return; }
+                capInp.value = ''; fileInp.value = '';
+                document.getElementById('contestPhotoLabel').textContent = '✓ Photo entered into the weekly showdown!';
+                refreshContestState();
+            } catch (e) { alert('Error uploading photo.'); }
         }
 
-        async function castContestVote(entryId) {
-            const memberName = (document.getElementById('dashMemberName')?.textContent || window.currentHarborMemberName || 'Anthony').trim();
+        async function voteContestEntry(entryId) {
+            const voter_name = window.currentHarborMemberName || document.getElementById('dashMemberName')?.textContent || 'Guest';
             try {
                 const res = await fetch('/api/contest/vote', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ entry_id: entryId, voter_name: memberName })
+                    body: JSON.stringify({ entry_id: entryId, voter_name })
                 });
                 const data = await res.json();
-                if (!res.ok || !data.ok) { alert(data.error || "Could not record vote."); return; }
-                alert("Today's vote is locked in! Come back tomorrow to vote again before Saturday's final tally.");
-                await refreshContestState();
-            } catch (err) { alert("Error casting vote."); }
+                if (!res.ok || !data.ok) { alert(data.error || 'Could not record vote.'); return; }
+                refreshContestState();
+            } catch (e) { alert('Error recording vote.'); }
         }
 
-        document.addEventListener('DOMContentLoaded', () => { refreshContestState(); });
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshContestState();
+        });
     </script>
 </body>
 </html>

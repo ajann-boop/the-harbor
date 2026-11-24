@@ -18,8 +18,9 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 SMTP_EMAIL = os.environ.get("SMTP_EMAIL", "theharborshareyourwalk@gmail.com")
 SMTP_APP_PASSWORD = os.environ.get("SMTP_APP_PASSWORD", "")
 ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "theharborshareyourwalk@gmail.com")
-ADMIN_PIN_PRIMARY = os.environ.get("ADMIN_PIN_PRIMARY", "4321")
+ADMIN_PIN_PRIMARY = os.environ.get("ADMIN_PIN_PRIMARY", "0722")
 ADMIN_PIN_SECONDARY = os.environ.get("ADMIN_PIN_SECONDARY", "1234")
+ADMIN_OWNER_PINS = {"0722", "4321", ADMIN_PIN_PRIMARY}
 
 UPLOAD_CONTEST_DIR = os.path.join("static", "uploads", "contest")
 os.makedirs(UPLOAD_CONTEST_DIR, exist_ok=True)
@@ -58,7 +59,7 @@ def init_db():
                 cur.execute("""
                     ALTER TABLE harbor_members
                     ADD COLUMN IF NOT EXISTS is_moderator BOOLEAN DEFAULT FALSE;
-                """)   
+                """)
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS serious_wall_posts (
                         id SERIAL PRIMARY KEY,
@@ -143,7 +144,7 @@ def get_contest_schedule_context(now=None):
         now = datetime.datetime.now()
     iso_year, iso_week, _ = now.isocalendar()
     week_key = f"{iso_year}-W{iso_week:02d}"
-    wd = now.weekday()  # Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6
+    wd = now.weekday()
 
     if wd == 5:
         phase_label = "Saturday Final Tally & Winner Reveal"
@@ -324,8 +325,8 @@ def api_login():
     owner_aliases = ("ajann", "admin", "anthony", "asianmama_1", ADMIN_EMAIL.lower())
     mod_aliases = ("mod", "moderator", "harbormod")
 
-    # 1. Full Owner Fast-Path (Master PIN 4321)
-    if login_id.lower() in owner_aliases and password == ADMIN_PIN_PRIMARY:
+    # 1. Full Owner Fast-Path (Admin PIN 0722 or configured primary PIN)
+    if login_id.lower() in owner_aliases and password in ADMIN_OWNER_PINS:
         session["member_id"] = 0
         session["display_name"] = "Anthony"
         session["is_admin"] = True
@@ -375,7 +376,7 @@ def api_login():
 
         valid_pw = (
             check_password_hash(member["password_hash"], password)
-            or (is_owner and password == ADMIN_PIN_PRIMARY)
+            or (is_owner and password in ADMIN_OWNER_PINS)
             or ((is_owner or is_mod) and password == ADMIN_PIN_SECONDARY)
         )
         if not valid_pw:
@@ -577,7 +578,7 @@ def api_serious_wall_delete(post_id):
         conn.close()
 
 
-# ---------------- CONTEST (SIDE-BY-SIDE TUES/THURS SHOWDOWN -> 1 VOTE/DAY -> SAT TALLY -> SUN SPOTLIGHT) ---------------- #
+# ---------------- CONTEST ENDPOINTS ---------------- #
 
 @app.route("/api/contest/state", methods=["GET"])
 def api_contest_state():
@@ -619,7 +620,6 @@ def api_contest_state():
             """, (sched["week_key"],))
             thu_row = cur.fetchone()
 
-            # Fallback if only 2 entries exist without separate round codes
             if not tue_row and len(round_entries) >= 1:
                 tue_row = round_entries[0]
             if not thu_row and len(round_entries) >= 2:
