@@ -56,10 +56,17 @@ def init_db():
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     );
                 """)
-                cur.execute("""
-                    ALTER TABLE harbor_members
-                    ADD COLUMN IF NOT EXISTS is_moderator BOOLEAN DEFAULT FALSE;
-                """)
+                cur.execute("ALTER TABLE harbor_members ADD COLUMN IF NOT EXISTS username VARCHAR(80);")
+                cur.execute("ALTER TABLE harbor_members ADD COLUMN IF NOT EXISTS first_name VARCHAR(80);")
+                cur.execute("ALTER TABLE harbor_members ADD COLUMN IF NOT EXISTS last_name VARCHAR(80);")
+                cur.execute("ALTER TABLE harbor_members ADD COLUMN IF NOT EXISTS caregiver_role VARCHAR(120);")
+                cur.execute("ALTER TABLE harbor_members ADD COLUMN IF NOT EXISTS verification_code VARCHAR(10);")
+                cur.execute("ALTER TABLE harbor_members ADD COLUMN IF NOT EXISTS email_verified BOOLEAN DEFAULT FALSE;")
+                cur.execute("ALTER TABLE harbor_members ADD COLUMN IF NOT EXISTS is_approved BOOLEAN DEFAULT FALSE;")
+                cur.execute("ALTER TABLE harbor_members ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;")
+                cur.execute("ALTER TABLE harbor_members ADD COLUMN IF NOT EXISTS is_moderator BOOLEAN DEFAULT FALSE;")
+                cur.execute("ALTER TABLE harbor_members ADD COLUMN IF NOT EXISTS bio TEXT;")
+                
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS serious_wall_posts (
                         id SERIAL PRIMARY KEY,
@@ -231,6 +238,7 @@ def register_send_code():
     code = f"{random.randint(100000, 999999)}"
     pw_hash = generate_password_hash(password)
 
+    init_db()
     conn = get_db_connection()
     if not conn:
         return jsonify({"ok": False, "error": "Database connection unavailable."}), 500
