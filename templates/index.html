@@ -875,7 +875,7 @@
 
             <div id="sundayChampionSpotlight" {% if not weekly_champion %}hidden{% endif %} style="width: 100%; background: linear-gradient(145deg, rgba(15, 23, 42, 0.45), rgba(30, 27, 75, 0.45)); border: 1.5px solid #fde047; border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; backdrop-filter: blur(14px); box-shadow: 0 0 22px rgba(253, 224, 71, 0.2); text-align: center;"></div>
                 <div style="font-size: 0.72rem; font-weight: 900; letter-spacing: 0.9px; color: #fde047; text-transform: uppercase; margin-bottom: 6px;">👑 Sunday Winner Acknowledgement • Photo Champion</div>
-                <img id="loginChampImg" src="{{ weekly_champion.image_url if weekly_champion else '' }}" alt="Sunday Photo Champion" style="width: 100%; max-height: 185px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(253, 224, 71, 0.4); margin-bottom: 6px;">
+                <img id="loginChampImg" src="{{ weekly_champion.image_url if weekly_champion else '' }}" onerror="this.style.display='none'" alt="Sunday Photo Champion" style="width: 100%; max-height: 185px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(253, 224, 71, 0.4); margin-bottom: 6px;">
                 <div id="loginChampCaption" style="font-size: 0.86rem; font-weight: 800; color: #ffffff;">{{ weekly_champion.caption if weekly_champion else '' }}</div>
                 <div id="loginChampMeta" style="font-size: 0.74rem; color: #5eead4; margin-top: 2px;">
                     {% if weekly_champion %}Captured by <strong>{{ weekly_champion.author_name }}</strong> • {{ weekly_champion.votes }} Votes{% endif %}
@@ -1717,7 +1717,7 @@
             <div id="stormGearList" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px;"></div>
 
             <!-- Bottom Weekly Photo Winner Spotlight on Pass It On -->
-            <div id="passItOnChampionSpotlight" style="{% if not weekly_champion %}display: none;{% endif %} width: 100%; background: linear-gradient(145deg, rgba(15, 23, 42, 0.45), rgba(30, 27, 75, 0.45)); border: 1.5px solid #fde047; border-radius: 14px; padding: 12px 14px; backdrop-filter: blur(14px); text-align: center;">
+           <div id="passItOnChampionSpotlight" {% if not weekly_champion %}hidden{% endif %} style="width: 100%; background: linear-gradient(145deg, rgba(15, 23, 42, 0.45), rgba(30, 27, 75, 0.45)); border: 1.5px solid #fde047; border-radius: 14px; padding: 12px 14px; backdrop-filter: blur(14px); text-align: center;">
                 <div style="font-size: 0.72rem; font-weight: 900; letter-spacing: 0.9px; color: #fde047; text-transform: uppercase; margin-bottom: 6px;">👑 Weekly Favorite Picture Winner</div>
                 <img id="passItOnChampImg" src="{{ weekly_champion.image_url if weekly_champion else '' }}" alt="Weekly Photo Champion" style="width: 100%; max-height: 185px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(253, 224, 71, 0.4); margin-bottom: 6px;">
                 <div id="passItOnChampCaption" style="font-size: 0.86rem; font-weight: 800; color: #ffffff;">{{ weekly_champion.caption if weekly_champion else '' }}</div>
