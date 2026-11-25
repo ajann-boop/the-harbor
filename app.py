@@ -256,7 +256,7 @@ def register_send_code():
                     cur.execute("""
                         UPDATE harbor_members
                         SET username = %s, first_name = %s, last_name = %s,
-                            caregiver_role = %s, password_hash = %s, verification_code = %s
+                            caregiver_role = %s, password_hash = %s, verification_code = %s, email_verified = FALSE
                         WHERE email = %s;
                     """, (username, first_name, last_name, caregiver_role, pw_hash, code, email))
                 else:
@@ -266,13 +266,16 @@ def register_send_code():
                         VALUES (%s, %s, %s, %s, %s, %s, %s);
                     """, (username, first_name, last_name, caregiver_role, email, pw_hash, code))
 
-        send_harbor_email(
+        sent = send_harbor_email(
             email,
             "The Harbor — Your 6-Digit Confirmation Code",
             f"<p>Hi {first_name},</p><p>Your confirmation code for <strong>The Harbor</strong> is:</p>"
             f"<h2 style='letter-spacing:4px; color:#0d9488;'>{code}</h2>"
             f"<p>Enter this code on the registration screen to complete your application.</p>"
         )
+        )
+        if not sent:
+            return jsonify({chr(111)+chr(107): False, chr(101)+chr(114)+chr(114)+chr(111)+chr(114): chr(67)+chr(111)+chr(117)+chr(108)+chr(100)+chr(32)+chr(110)+chr(111)+chr(116)+chr(32)+chr(115)+chr(101)+chr(110)+chr(100)+chr(32)+chr(99)+chr(111)+chr(110)+chr(102)+chr(105)+chr(114)+chr(109)+chr(97)+chr(116)+chr(105)+chr(111)+chr(110)+chr(32)+chr(101)+chr(109)+chr(97)+chr(105)+chr(108)+chr(46)+chr(32)+chr(67)+chr(104)+chr(101)+chr(99)+chr(107)+chr(32)+chr(83)+chr(77)+chr(84)+chr(80)+chr(95)+chr(65)+chr(80)+chr(80)+chr(95)+chr(80)+chr(65)+chr(83)+chr(83)+chr(87)+chr(79)+chr(82)+chr(68)+chr(32)+chr(105)+chr(110)+chr(32)+chr(82)+chr(101)+chr(110)+chr(100)+chr(101)+chr(114)+chr(46)})
         return jsonify({"ok": True, "message": f"6-digit confirmation code sent to {email}!"})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
