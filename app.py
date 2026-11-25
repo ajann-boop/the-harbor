@@ -122,13 +122,16 @@ init_db()
 
 def send_harbor_email(to_email, subject, html_body):
     if not SMTP_APP_PASSWORD:
-        print(f"[DEV EMAIL] To: {to_email} | Subject: {subject}")
+        print(f"[DEV EMAIL] Missing MAIL_APP_PASSWORD / SMTP_APP_PASSWORD for To: {to_email} | Subject: {subject}")
         return False
     try:
+        plain_text = re.sub(r"<[^>]+>", " ", html_body)
+        plain_text = re.sub(r"\s+", " ", plain_text).strip()
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
         msg["From"] = f"The Harbor <{SMTP_EMAIL}>"
         msg["To"] = to_email
+        msg.attach(MIMEText(plain_text, "plain"))
         msg.attach(MIMEText(html_body, "html"))
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(SMTP_EMAIL, SMTP_APP_PASSWORD)
@@ -262,8 +265,8 @@ def register_send_code():
                 else:
                     cur.execute("""
                         INSERT INTO harbor_members
-                        (username, first_name, last_name, caregiver_role, email, password_hash, verification_code)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s);
+                        (username, first_name, last_name, caregiver_role, email, password_hash, verification_code, email_verified)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, FALSE);
                     """, (username, first_name, last_name, caregiver_role, email, pw_hash, code))
 
         sent = send_harbor_email(
