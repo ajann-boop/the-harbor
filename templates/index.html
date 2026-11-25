@@ -636,7 +636,109 @@ body.stationary-page .members-anchor-btn {
             .daily-checkin-box { max-width: 100%; min-width: 0; }
             .dark-input, select { font-size: 16px !important; min-height: 42px !important; }
         }
-    </style>
+    /* === HARBOR WELCOME LOCK & NEON ANIMATIONS === */
+        html:has(body.stationary-page),
+        body.stationary-page {
+            height: 100dvh !important;
+            min-height: 100dvh !important;
+            max-height: 100dvh !important;
+            overflow: hidden !important;
+        }
+        body.stationary-page .app-container {
+            height: 100dvh !important;
+            min-height: 100dvh !important;
+            max-height: 100dvh !important;
+            padding-top: 68px !important;
+            padding-bottom: 14px !important;
+            overflow: hidden !important;
+            justify-content: center !important;
+        }
+
+        @keyframes harborTitlePulse {
+            0%, 100% {
+                transform: scale(1);
+                text-shadow: 0 0 10px rgba(94, 234, 212, 0.35), 0 4px 16px rgba(0, 0, 0, 0.45);
+            }
+            50% {
+                transform: scale(1.045);
+                text-shadow: 0 0 22px rgba(94, 234, 212, 0.85), 0 0 38px rgba(56, 189, 248, 0.55), 0 4px 18px rgba(0, 0, 0, 0.5);
+            }
+        }
+
+        @keyframes neonSignFlash {
+            0%, 16%, 20%, 58%, 62%, 100% {
+                opacity: 1;
+                filter: drop-shadow(0 0 6px rgba(103, 232, 249, 0.95)) drop-shadow(0 0 14px rgba(34, 211, 238, 0.85));
+            }
+            18%, 60% {
+                opacity: 0.25;
+                filter: drop-shadow(0 0 1px rgba(103, 232, 249, 0.2));
+            }
+        }
+
+        @keyframes neonHereFlash {
+            0%, 24%, 28%, 72%, 76%, 100% {
+                opacity: 1;
+                filter: drop-shadow(0 0 6px rgba(251, 113, 133, 0.95)) drop-shadow(0 0 14px rgba(253, 224, 71, 0.85));
+            }
+            26%, 74% {
+                opacity: 0.25;
+                filter: drop-shadow(0 0 1px rgba(251, 113, 133, 0.2));
+            }
+        }
+
+        @keyframes twinClickAlternate {
+            0%, 45% {
+                opacity: 1;
+                transform: scale(1.04);
+                text-shadow: 0 0 10px rgba(253, 224, 71, 0.95), 0 0 20px rgba(103, 232, 249, 0.75);
+            }
+            50%, 95% {
+                opacity: 0.32;
+                transform: scale(0.97);
+                text-shadow: none;
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1.04);
+                text-shadow: 0 0 10px rgba(253, 224, 71, 0.95), 0 0 20px rgba(103, 232, 249, 0.75);
+            }
+        }
+
+        body.stationary-page .harbor-main-text {
+            display: inline-block;
+            animation: harborTitlePulse 2.8s ease-in-out infinite !important;
+            transform-origin: center center;
+            will-change: transform, text-shadow;
+        }
+
+        .members-anchor-btn svg .neon-click-flash,
+        .members-anchor-btn svg .neon-here-pulse {
+            transform-box: fill-box;
+            transform-origin: center center;
+        }
+        .members-anchor-btn svg .neon-click-flash {
+            animation: neonSignFlash 2.1s infinite !important;
+            will-change: opacity, filter;
+        }
+        .members-anchor-btn svg .neon-here-pulse {
+            animation: neonHereFlash 2.1s 0.55s infinite !important;
+            will-change: opacity, filter;
+        }
+
+        .twin-buttons .twin-btn-pill-rich:nth-child(1) .neon-click-wrap {
+            display: inline-flex;
+            gap: 4px;
+            animation: twinClickAlternate 1.8s ease-in-out infinite !important;
+            will-change: opacity, transform;
+        }
+        .twin-buttons .twin-btn-pill-rich:nth-child(2) .neon-click-wrap {
+            display: inline-flex;
+            gap: 4px;
+            animation: twinClickAlternate 1.8s ease-in-out 0.9s infinite !important;
+            will-change: opacity, transform;
+        }
+</style>
 </head>
 <body>
     {% set first_mosaic = mosaic_images[0] if mosaic_images and mosaic_images|length > 0 else '' %}
@@ -2990,6 +3092,9 @@ body.stationary-page .members-anchor-btn {
             guestBg.classList.remove('active');
             document.body.classList.remove('stationary-page');
 
+            if (viewId === 'mainGatewayView') {
+                document.body.classList.add('stationary-page');
+            }
             if (viewId === 'mainGatewayView' || viewId === 'learnMoreView') {
                 mosaicBg.classList.remove('hidden-bg');
                 mosaicOverlay.classList.remove('hidden-bg');
@@ -3051,6 +3156,9 @@ body.stationary-page .members-anchor-btn {
         }, 6500);
 
         document.addEventListener('DOMContentLoaded', () => {
+        if (document.getElementById('mainGatewayView') && !document.getElementById('mainGatewayView').classList.contains('hidden')) {
+            document.body.classList.add('stationary-page');
+        }
             resetResourcesToEssentials();
             renderYouthProfileChips();
             resetTicTacToe();
