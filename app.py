@@ -15,8 +15,8 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "the-harbor-share-your-walk-secret-2026")
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
-SMTP_EMAIL = os.environ.get("SMTP_EMAIL", "theharborshareyourwalk@gmail.com")
-SMTP_APP_PASSWORD = os.environ.get("SMTP_APP_PASSWORD", "")
+SMTP_EMAIL = os.environ.get("SMTP_EMAIL") or os.environ.get("MAIL_USERNAME") or "theharborshareyourwalk@gmail.com"
+SMTP_APP_PASSWORD = os.environ.get("SMTP_APP_PASSWORD") or os.environ.get("MAIL_APP_PASSWORD") or ""
 ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "theharborshareyourwalk@gmail.com")
 ADMIN_PIN_PRIMARY = os.environ.get("ADMIN_PIN_PRIMARY", "0722")
 ADMIN_PIN_SECONDARY = os.environ.get("ADMIN_PIN_SECONDARY", "1234")
