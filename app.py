@@ -122,25 +122,67 @@ init_db()
 
 def send_harbor_email(to_email, subject, html_body):
     import re
+    import urllib.request
+    import json
+
+    plain_text = re.sub(r"<[^>]+>", " ", html_body)
+    plain_text = re.sub(r"\s+", " ", plain_text).strip()
+
+    resend_key = os.environ.get("RESEND_API_KEY", "").strip()
+    if resend_key:
+        try:
+            from_addr = os.environ.get("RESEND_FROM", "The Harbor <onboarding@resend.dev>")
+            payload = json.dumps({
+                "from": from_addr,
+                "to": [to_email],
+                "subject": subject,
+                "html": html_body,
+                "text": plain_text,
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                "https://api.resend.com/emails",
+                data=payload,
+                headers={
+                    "Authorization": f"Bearer {resend_key}",
+                    "Content-Type": "application/json",
+                },
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                if 200 <= resp.status < 300:
+                    return True
+        except Exception as e:
+            print("Resend HTTPS email error:", e)
+
     if not SMTP_APP_PASSWORD:
         print(f"[DEV EMAIL] Missing MAIL_APP_PASSWORD / SMTP_APP_PASSWORD for To: {to_email} | Subject: {subject}")
         return False
-    try:
-        plain_text = re.sub(r"<[^>]+>", " ", html_body)
-        plain_text = re.sub(r"\s+", " ", plain_text).strip()
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"] = f"The Harbor <{SMTP_EMAIL}>"
-        msg["To"] = to_email
-        msg.attach(MIMEText(plain_text, "plain"))
-        msg.attach(MIMEText(html_body, "html"))
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(SMTP_EMAIL, SMTP_APP_PASSWORD)
-            server.sendmail(SMTP_EMAIL, to_email, msg.as_string())
-        return True
-    except Exception as e:
-        print("SMTP email error:", e)
-        return False
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = f"The Harbor <{SMTP_EMAIL}>"
+    msg["To"] = to_email
+    msg.attach(MIMEText(plain_text, "plain"))
+    msg.attach(MIMEText(html_body, "html"))
+
+    for mode, port in [("SSL", 465), ("STARTTLS", 587)]:
+        try:
+            if mode == "SSL":
+                with smtplib.SMTP_SSL("smtp.gmail.com", port, timeout=8) as server:
+                    server.login(SMTP_EMAIL, SMTP_APP_PASSWORD)
+                    server.sendmail(SMTP_EMAIL, to_email, msg.as_string())
+            else:
+                with smtplib.SMTP("smtp.gmail.com", port, timeout=8) as server:
+                    server.ehlo()
+                    server.starttls()
+                    server.ehlo()
+                    server.login(SMTP_EMAIL, SMTP_APP_PASSWORD)
+                    server.sendmail(SMTP_EMAIL, to_email, msg.as_string())
+            return True
+        except Exception as e:
+            print(f"SMTP ({mode}:{port}) email error:", e)
+
+    return False
 
 
 def get_mosaic_images():
