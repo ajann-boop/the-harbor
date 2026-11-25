@@ -23,6 +23,13 @@
             max-height: 100dvh;
             overflow: hidden !important;
         }
+        body.stationary-page html:has(body.stationary-page),
+        body.stationary-page {
+            height: 100dvh !important;
+            min-height: 100dvh !important;
+            max-height: 100dvh !important;
+            overflow: hidden !important;
+        }
         body.stationary-page .app-container {
             height: 100dvh !important;
             min-height: 100dvh !important;
@@ -39,23 +46,56 @@
         }
 
         @keyframes harborTitlePulse {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-3px) scale(1.012); }
+            0%, 100% {
+                transform: translateY(0) scale(1);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 8px 22px rgba(0,0,0,0.22), 0 0 14px rgba(94, 234, 212, 0.25);
+            }
+            50% {
+                transform: translateY(-2px) scale(1.015);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 10px 26px rgba(0,0,0,0.28), 0 0 26px rgba(94, 234, 212, 0.55);
+            }
         }
-        @keyframes harborMembersDrift {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        @keyframes harborNeonSign {
+            0%, 18%, 22%, 62%, 66%, 100% {
+                opacity: 1;
+                border-color: #67e8f9;
+                box-shadow: 0 0 10px rgba(103, 232, 249, 0.75), 0 0 24px rgba(34, 211, 238, 0.55), inset 0 0 12px rgba(103, 232, 249, 0.35);
+                text-shadow: 0 0 8px rgba(165, 243, 252, 0.95), 0 0 18px rgba(34, 211, 238, 0.8);
+            }
+            20%, 64% {
+                opacity: 0.78;
+                border-color: rgba(103, 232, 249, 0.55);
+                box-shadow: 0 0 5px rgba(103, 232, 249, 0.35), inset 0 0 6px rgba(103, 232, 249, 0.15);
+                text-shadow: 0 0 4px rgba(165, 243, 252, 0.5);
+            }
         }
-        @keyframes harborTwinBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
+        @keyframes harborButtonFlash {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+                border-color: rgba(94, 234, 212, 0.65);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 6px 18px rgba(0,0,0,0.28), 0 0 8px rgba(94, 234, 212, 0.2);
+            }
+            50% {
+                transform: translateY(-2px) scale(1.02);
+                border-color: #fde047;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 8px 22px rgba(0,0,0,0.32), 0 0 22px rgba(253, 224, 71, 0.65);
+            }
         }
 
         body.stationary-page .title-wrapper {
-            animation: harborTitlePulse 4.5s ease-in-out infinite;
-            will-change: transform;
+            animation: harborTitlePulse 3.6s ease-in-out infinite !important;
+            will-change: transform, box-shadow;
         }
         body.stationary-page .members-anchor-btn {
+            animation: harborNeonSign 3.2s infinite !important;
+            will-change: transform, box-shadow, opacity;
+        }
+        body.stationary-page .twin-buttons .twin-btn-pill-rich,
+        body.stationary-page .twin-buttons button {
+            animation: harborButtonFlash 2.2s ease-in-out infinite !important;
+            will-change: transform, box-shadow;
+        }
+body.stationary-page .members-anchor-btn {
             animation: harborMembersDrift 3.6s ease-in-out infinite;
             will-change: transform;
         }
