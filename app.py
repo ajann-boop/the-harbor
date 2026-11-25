@@ -121,6 +121,7 @@ init_db()
 
 
 def send_harbor_email(to_email, subject, html_body):
+    import re
     if not SMTP_APP_PASSWORD:
         print(f"[DEV EMAIL] Missing MAIL_APP_PASSWORD / SMTP_APP_PASSWORD for To: {to_email} | Subject: {subject}")
         return False
