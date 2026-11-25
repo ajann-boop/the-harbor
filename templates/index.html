@@ -22,6 +22,21 @@
             max-height: 100dvh;
             overflow: hidden;
         }
+
+        @keyframes harborWelcomeEnter {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes harborAnchorFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+        body.stationary-page .app-container > * {
+            animation: harborWelcomeEnter 0.65s ease-out both;
+        }
+        body.stationary-page .members-anchor-btn {
+            animation: harborAnchorFloat 4.2s ease-in-out infinite;
+        }
         body.stationary-page .app-container {
             height: 100dvh;
             min-height: 100dvh;
