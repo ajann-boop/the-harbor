@@ -145,6 +145,7 @@ def send_harbor_email(to_email, subject, html_body):
                 headers={
                     "Authorization": f"Bearer {resend_key}",
                     "Content-Type": "application/json",
+                    "User-Agent": "TheHarbor/1.0 (+https://www.shareyourwalk.com)",
                 },
                 method="POST",
             )
