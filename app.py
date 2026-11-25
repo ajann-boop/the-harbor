@@ -66,7 +66,8 @@ def init_db():
                 cur.execute("ALTER TABLE harbor_members ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;")
                 cur.execute("ALTER TABLE harbor_members ADD COLUMN IF NOT EXISTS is_moderator BOOLEAN DEFAULT FALSE;")
                 cur.execute("ALTER TABLE harbor_members ADD COLUMN IF NOT EXISTS bio TEXT;")
-                
+                cur.execute("ALTER TABLE harbor_members ALTER COLUMN display_name DROP NOT NULL;")
+               
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS serious_wall_posts (
                         id SERIAL PRIMARY KEY,
