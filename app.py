@@ -11,6 +11,7 @@ from flask import Flask, render_template, request, jsonify, session
 from flask_compress import Compress
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from supabase import create_client
 
 app = Flask(__name__)
 Compress(app)
@@ -27,6 +28,9 @@ ADMIN_OWNER_PINS = {"0722", "4321", ADMIN_PIN_PRIMARY}
 
 UPLOAD_CONTEST_DIR = os.path.join("static", "uploads", "contest")
 os.makedirs(UPLOAD_CONTEST_DIR, exist_ok=True)
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+supabase_client = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
 
 
 def get_db_connection():
@@ -719,11 +723,19 @@ def api_contest_upload():
 
     sched = get_contest_schedule_context()
     round_code = "TUE" if sched["weekday"] in (6, 0, 1) else "THU"
-
-    safe_name = secure_filename(f"{sched['week_key']}_{round_code}_{random.randint(1000,9999)}_{photo.filename}")
-    save_path = os.path.join(UPLOAD_CONTEST_DIR, safe_name)
-    photo.save(save_path)
-    image_url = f"/static/uploads/contest/{safe_name}"
+    if supabase_client:
+        file_bytes = photo.read()
+        content_type = photo.mimetype or "image/jpeg"
+        supabase_client.storage.from_("contest-uploads").upload(
+            path=safe_name,
+            file=file_bytes,
+            file_options={"content-type": content_type}
+        )
+        image_url = supabase_client.storage.from_("contest-uploads").get_public_url(safe_name)
+    else:
+        save_path = os.path.join(UPLOAD_CONTEST_DIR, safe_name)
+        photo.save(save_path)
+        image_url = f"/static/uploads/contest/{safe_name}"
 
     conn = get_db_connection()
     if not conn:
