@@ -327,6 +327,32 @@
         body.stationary-page .fb-post-btn {
             display: none !important;
         }
+
+        /* === CENTER WELCOME TITLE & HIDE NON-WELCOME LEAKS ON STATIONARY PAGE === */
+        body.stationary-page .title-wrapper {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+        }
+        body.stationary-page .title-wrapper .welcome-text,
+        body.stationary-page .title-wrapper .to-text {
+            width: 100% !important;
+            text-align: center !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+        body.stationary-page #appContainer > *:not(#mainGatewayView):not(.view-screen.hidden) {
+            display: none !important;
+        }
+        body.stationary-page [id*="composer" i],
+        body.stationary-page [class*="composer" i],
+        body.stationary-page [id*="vote" i][id*="opt" i],
+        body.stationary-page [class*="vote" i][class*="opt" i],
+        body.stationary-page input[type="file"] {
+            display: none !important;
+        }
 </style>
 </head>
 <body>
