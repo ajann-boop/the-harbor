@@ -859,7 +859,71 @@ body.stationary-page .members-anchor-btn {
             object-fit: cover !important;
         }
 
-    </style>
+    
+        /* === EXACT RULER PLACEMENT: TOP BORDER 25-50PX, ANCHOR ~700PX, BOTTOM BUTTONS ~850PX === */
+        body.stationary-page #appContainer,
+        body.stationary-page .app-container {
+            padding-top: clamp(28px, 4dvh, 42px) !important;
+            padding-bottom: clamp(48px, 7dvh, 66px) !important;
+            padding-left: 14px !important;
+            padding-right: 14px !important;
+            height: 100dvh !important;
+            min-height: 100dvh !important;
+            max-height: 100dvh !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            box-sizing: border-box !important;
+        }
+
+        body.stationary-page #mainGatewayView.gateway-section:not(.hidden) {
+            width: 100% !important;
+            max-width: 680px !important;
+            height: 100% !important;
+            margin: 0 auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            gap: 0 !important;
+            box-sizing: border-box !important;
+        }
+
+        body.stationary-page .title-wrapper {
+            margin: 0 !important;
+            background: rgba(7, 34, 38, 0.24) !important;
+            backdrop-filter: blur(2px) !important;
+            -webkit-backdrop-filter: blur(2px) !important;
+        }
+
+        body.stationary-page .sanctuary-quote-banner {
+            margin: 0 !important;
+            background: rgba(7, 34, 38, 0.16) !important;
+            backdrop-filter: blur(2px) !important;
+            -webkit-backdrop-filter: blur(2px) !important;
+        }
+
+        body.stationary-page .learn-more-pill,
+        body.stationary-page .members-anchor-wrap,
+        body.stationary-page .twin-buttons {
+            margin: 0 !important;
+        }
+
+        @media (max-width: 600px) {
+            body.stationary-page #appContainer,
+            body.stationary-page .app-container {
+                padding-top: 36px !important;
+                padding-bottom: 64px !important;
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+            }
+            body.stationary-page .members-anchor-btn svg {
+                width: 186px !important;
+                height: 202px !important;
+            }
+        }
+</style>
 </head>
 <body>
     {% set first_mosaic = mosaic_images[0] if mosaic_images and mosaic_images|length > 0 else '' %}
