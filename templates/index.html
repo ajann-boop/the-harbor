@@ -273,6 +273,20 @@
             visibility: visible !important;
             opacity: 1 !important;
         }
+
+        /* === KEEP INNER VIEW-SCREENS HIDDEN ON WELCOME & CONSTRAIN TOUR VIDEO === */
+        body.stationary-page .view-screen,
+        .view-screen.hidden {
+            display: none !important;
+        }
+        #harborTourPlayer {
+            width: 100% !important;
+            max-width: 100% !important;
+            max-height: 420px !important;
+            aspect-ratio: 16 / 9 !important;
+            object-fit: cover !important;
+            display: block !important;
+        }
 </style>
 </head>
 <body>
@@ -697,7 +711,7 @@
         </div>
 
         <!-- 4. LEARN MORE ABOUT US & PLATFORM TOUR VIEW -->
-        <div id="tourView" class="view-screen" style="max-width: 760px;">
+        <div id="tourView" class="view-screen hidden" style="max-width: 760px;">
             <div class="screen-header">
                 <div>
                     <div class="screen-title">🧭 Learn More About Us &amp; Platform Tour</div>
