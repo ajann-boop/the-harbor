@@ -4,3 +4,4 @@ gunicorn==21.2.0
 supabase==2.34.1
 python-dotenv
 tzdata
+Flask-Compress
