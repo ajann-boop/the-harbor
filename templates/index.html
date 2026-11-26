@@ -923,6 +923,50 @@ body.stationary-page .members-anchor-btn {
                 height: 202px !important;
             }
         }
+
+        /* === LIGHT-UP DRAWING BOARD GLOW (QUOTE BOX 2 & ANCHOR) + BRIGHTER ENTER/HERE === */
+        body.stationary-page .sanctuary-quote-banner {
+            background: radial-gradient(
+                circle at 50% 50%,
+                rgba(224, 248, 255, 0.22) 0%,
+                rgba(103, 232, 249, 0.12) 60%,
+                rgba(14, 116, 144, 0.16) 100%
+            ) !important;
+            border: 1.5px solid rgba(186, 243, 255, 0.72) !important;
+            border-radius: 16px !important;
+            box-shadow:
+                0 0 18px rgba(103, 232, 249, 0.42),
+                0 0 36px rgba(56, 189, 248, 0.22),
+                inset 0 0 22px rgba(224, 248, 255, 0.28) !important;
+            backdrop-filter: blur(3px) !important;
+            -webkit-backdrop-filter: blur(3px) !important;
+        }
+
+        body.stationary-page .members-anchor-wrap {
+            position: relative !important;
+            padding: 10px 18px !important;
+            border-radius: 24px !important;
+            background: radial-gradient(
+                circle at 50% 48%,
+                rgba(224, 248, 255, 0.24) 0%,
+                rgba(103, 232, 249, 0.12) 62%,
+                rgba(14, 116, 144, 0.14) 100%
+            ) !important;
+            border: 1.5px solid rgba(186, 243, 255, 0.72) !important;
+            box-shadow:
+                0 0 22px rgba(103, 232, 249, 0.48),
+                0 0 44px rgba(56, 189, 248, 0.24),
+                inset 0 0 26px rgba(224, 248, 255, 0.32) !important;
+            backdrop-filter: blur(3px) !important;
+            -webkit-backdrop-filter: blur(3px) !important;
+        }
+
+        body.stationary-page .members-anchor-btn text {
+            filter:
+                drop-shadow(0 0 4px rgba(255, 255, 255, 0.9))
+                drop-shadow(0 0 10px rgba(255, 77, 109, 0.95))
+                drop-shadow(0 0 18px rgba(255, 45, 85, 0.85)) !important;
+        }
 </style>
 </head>
 <body>
@@ -1048,9 +1092,9 @@ body.stationary-page .members-anchor-btn {
                         <text x="110" y="165" text-anchor="middle" fill="#fde047" font-size="13.5" font-weight="900" letter-spacing="1">S</text>
                         <text x="110" y="216" text-anchor="middle" fill="#ffffff" font-size="17" font-weight="900" letter-spacing="4">ONLY</text>
                         <rect x="28" y="96" width="61" height="30" rx="6" fill="rgba(15, 10, 20, 0.88)" stroke="#fb7185" stroke-width="2"/>
-                        <text x="58.5" y="115.5" text-anchor="middle" class="neon-click-flash" font-size="11.5" font-weight="900" letter-spacing="1.4">ENTER</text>
+                        <text x="58.5" y="115.5" text-anchor="middle" class="neon-click-flash" font-size="11.5" font-weight="900" letter-spacing="1.4" fill="#ff5c7c">ENTER</text>
                         <rect x="131" y="96" width="61" height="30" rx="6" fill="rgba(15, 10, 20, 0.88)" stroke="#fb7185" stroke-width="2"/>
-                        <text x="161.5" y="115.5" text-anchor="middle" class="neon-here-pulse" font-size="11.5" font-weight="900" letter-spacing="1.4">HERE</text>
+                        <text x="161.5" y="115.5" text-anchor="middle" class="neon-here-pulse" font-size="11.5" font-weight="900" letter-spacing="1.4" fill="#ff5c7c">HERE</text>
                     </svg>
                 </button>
             </div>
