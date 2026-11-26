@@ -968,23 +968,17 @@ body.stationary-page .members-anchor-btn {
                 drop-shadow(0 0 18px rgba(255, 45, 85, 0.85)) !important;
         }
 
-        /* === BRIGHT NEON ENTER / HERE SIGNS ON ANCHOR === */
+        /* === CLEAN ENTER / HERE TEXT WITHOUT PINK WASH === */
         body.stationary-page .members-anchor-wrap text,
         body.stationary-page .members-anchor-wrap tspan,
         body.stationary-page .anchor-enter-text,
-        body.stationary-page .anchor-here-text,
-        body.stationary-page [class*="enter" i],
-        body.stationary-page [class*="here" i] {
-            fill: #ff6b8b !important;
-            color: #ff7b98 !important;
-            filter:
-                drop-shadow(0 0 3px #ffffff)
-                drop-shadow(0 0 8px #ff2a55)
-                drop-shadow(0 0 16px #ff1e56) !important;
-            text-shadow:
-                0 0 4px #ffffff,
-                0 0 10px #ff2a55,
-                0 0 18px #ff1e56 !important;
+        body.stationary-page .anchor-here-text {
+            filter: none !important;
+            text-shadow: 0 0 6px rgba(255, 255, 255, 0.75), 0 0 12px rgba(255, 59, 92, 0.7) !important;
+        }
+        body.stationary-page .twin-buttons [class*="here" i] {
+            filter: none !important;
+            text-shadow: none !important;
         }
 </style>
 </head>
