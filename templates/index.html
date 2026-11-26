@@ -61,7 +61,36 @@
         }
 
 
-        /* === PROPORTIONAL WELCOME SPACING & PHOTO-CLEAR GLASS CARDS === */
+        /* === CLEAN WELCOME LAYOUT, MOSAIC TILE LOCK & PHOTO-CLEAR GLASS CARDS === */
+        #mosaicBg,
+        .mosaic-bg {
+            position: fixed !important;
+            inset: 0 !important;
+            width: 100vw !important;
+            height: 100dvh !important;
+            overflow: hidden !important;
+            z-index: 0 !important;
+            pointer-events: none !important;
+        }
+        #mosaicBg .mosaic-tile,
+        .mosaic-bg .mosaic-tile {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
+            object-fit: cover !important;
+            display: block !important;
+        }
+        #mosaicOverlay,
+        .mosaic-overlay {
+            position: fixed !important;
+            inset: 0 !important;
+            width: 100vw !important;
+            height: 100dvh !important;
+            z-index: 1 !important;
+            pointer-events: none !important;
+        }
+
         html:has(body.stationary-page),
         body.stationary-page {
             height: 100dvh !important;
@@ -70,68 +99,75 @@
             overflow: hidden !important;
         }
 
+        body.stationary-page #appContainer,
         body.stationary-page .app-container {
+            position: relative !important;
+            z-index: 2 !important;
+            width: 100% !important;
             height: 100dvh !important;
             min-height: 100dvh !important;
             max-height: 100dvh !important;
-            padding: 24px 20px 28px !important;
+            padding: 18px 18px 24px !important;
             overflow: hidden !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center !important;
-            align-items: center !important;
+            box-sizing: border-box !important;
         }
 
-        body.stationary-page .gateway-section {
-            height: 100% !important;
-            max-height: 820px !important;
+        body.stationary-page #mainGatewayView.gateway-section:not(.hidden) {
+            position: relative !important;
+            z-index: 2 !important;
             width: 100% !important;
+            max-width: 680px !important;
+            height: 100% !important;
+            margin: 0 auto !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: space-between !important;
             align-items: center !important;
             gap: 10px !important;
-            padding: 0 !important;
-            margin: 0 auto !important;
+            box-sizing: border-box !important;
         }
 
         body.stationary-page .title-wrapper {
+            width: 100% !important;
             margin: 0 !important;
-            padding: 14px 20px 13px !important;
-            background: rgba(7, 34, 38, 0.22) !important;
+            padding: 12px 18px 11px !important;
+            background: rgba(7, 34, 38, 0.24) !important;
             backdrop-filter: blur(2px) !important;
             -webkit-backdrop-filter: blur(2px) !important;
-            border: 1px solid rgba(94, 234, 212, 0.34) !important;
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28) !important;
+            border: 1px solid rgba(94, 234, 212, 0.35) !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28) !important;
+            box-sizing: border-box !important;
         }
 
         body.stationary-page .title-wrapper .welcome-text,
         body.stationary-page .title-wrapper .to-text,
         body.stationary-page .title-wrapper .catty-the,
         body.stationary-page .title-wrapper .harbor-subtitle {
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85), 0 0 16px rgba(0, 0, 0, 0.65) !important;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.88), 0 0 14px rgba(0, 0, 0, 0.7) !important;
         }
 
         body.stationary-page .sanctuary-quote-banner {
-            height: 98px !important;
-            min-height: 98px !important;
-            max-height: 98px !important;
+            width: 100% !important;
+            height: 96px !important;
+            min-height: 96px !important;
+            max-height: 96px !important;
             margin: 0 !important;
-            padding: 10px 18px !important;
+            padding: 8px 16px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
             align-items: center !important;
-            background: rgba(7, 34, 38, 0.14) !important;
+            background: rgba(7, 34, 38, 0.16) !important;
             backdrop-filter: blur(2px) !important;
             -webkit-backdrop-filter: blur(2px) !important;
             border: 1px solid rgba(94, 234, 212, 0.28) !important;
             overflow: hidden !important;
+            box-sizing: border-box !important;
         }
 
         body.stationary-page .sanctuary-quote-text,
         body.stationary-page .sanctuary-quote-author {
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9), 0 0 14px rgba(0, 0, 0, 0.7) !important;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9), 0 0 14px rgba(0, 0, 0, 0.72) !important;
         }
 
         body.stationary-page .learn-more-pill,
@@ -141,41 +177,31 @@
         }
 
         @media (max-width: 600px) {
+            body.stationary-page #appContainer,
             body.stationary-page .app-container {
-                padding: 14px 12px 22px !important;
+                padding: 12px 10px 20px !important;
             }
-            body.stationary-page .gateway-section {
-                max-height: 100% !important;
+            body.stationary-page #mainGatewayView.gateway-section:not(.hidden) {
                 gap: 8px !important;
             }
             body.stationary-page .title-wrapper {
-                padding: 11px 14px 10px !important;
+                padding: 10px 12px 9px !important;
             }
             body.stationary-page .sanctuary-quote-banner {
-                height: 110px !important;
-                min-height: 110px !important;
-                max-height: 110px !important;
-                padding: 8px 12px !important;
+                height: 104px !important;
+                min-height: 104px !important;
+                max-height: 104px !important;
+                padding: 6px 10px !important;
             }
             body.stationary-page .members-anchor-btn svg {
-                width: 176px !important;
-                height: 192px !important;
+                width: 170px !important;
+                height: 184px !important;
             }
             body.stationary-page .twin-buttons {
-                gap: 10px !important;
+                gap: 8px !important;
             }
             body.stationary-page .twin-btn-pill-rich {
-                padding: 10px 8px !important;
-            }
-        }
-
-        @media (max-height: 680px) {
-            html:has(body.stationary-page),
-            body.stationary-page,
-            body.stationary-page .app-container {
-                height: auto !important;
-                max-height: none !important;
-                overflow-y: auto !important;
+                padding: 9px 8px !important;
             }
         }
 </style>
