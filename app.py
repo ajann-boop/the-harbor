@@ -510,9 +510,9 @@ def api_admin_members():
     try:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT id, username, first_name, last_name, caregiver_role, email, bio, created_at
+                SELECT id, username, first_name, last_name, caregiver_role, email, bio, email_verified, created_at
                 FROM harbor_members
-                WHERE is_approved = FALSE AND email_verified = TRUE
+                WHERE is_approved = FALSE
                 ORDER BY created_at DESC;
             """)
             members = [dict(r) for r in cur.fetchall()]
