@@ -13,6 +13,7 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "the-harbor-share-your-walk-secret-2026")
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 86400
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 SMTP_EMAIL = os.environ.get("SMTP_EMAIL") or os.environ.get("MAIL_USERNAME") or "theharborshareyourwalk@gmail.com"
