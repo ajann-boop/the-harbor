@@ -705,13 +705,6 @@ body.stationary-page .members-anchor-btn {
             }
         }
 
-        body.stationary-page .harbor-main-text {
-            display: inline-block;
-            animation: harborTitlePulse 2.8s ease-in-out infinite !important;
-            transform-origin: center center;
-            will-change: transform, text-shadow;
-        }
-
         .members-anchor-btn svg .neon-click-flash,
         .members-anchor-btn svg .neon-here-pulse {
             transform-box: fill-box;
@@ -738,6 +731,45 @@ body.stationary-page .members-anchor-btn {
             animation: twinClickAlternate 1.8s ease-in-out 0.9s infinite !important;
             will-change: opacity, transform;
         }
+
+        @keyframes harborLetterArrivePulse {
+            0% {
+                opacity: 0;
+                transform: translateY(14px) scale(0.75);
+                text-shadow: 0 0 0 rgba(94, 234, 212, 0);
+            }
+            22% {
+                opacity: 1;
+                transform: translateY(0) scale(1.08);
+                text-shadow: 0 0 18px rgba(94, 234, 212, 0.9), 0 0 32px rgba(56, 189, 248, 0.65);
+            }
+            55%, 100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                text-shadow: 0 0 10px rgba(94, 234, 212, 0.45), 0 4px 16px rgba(0, 0, 0, 0.45);
+            }
+        }
+
+        .harbor-main-text {
+            display: inline-flex;
+            align-items: baseline;
+            justify-content: center;
+        }
+
+        .harbor-main-text .harbor-letter {
+            display: inline-block;
+            opacity: 0;
+            animation: harborLetterArrivePulse 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+            transform-origin: center bottom;
+            will-change: transform, opacity, text-shadow;
+        }
+
+        .harbor-main-text .harbor-letter:nth-child(1) { animation-delay: 0s; }
+        .harbor-main-text .harbor-letter:nth-child(2) { animation-delay: 0.12s; }
+        .harbor-main-text .harbor-letter:nth-child(3) { animation-delay: 0.24s; }
+        .harbor-main-text .harbor-letter:nth-child(4) { animation-delay: 0.36s; }
+        .harbor-main-text .harbor-letter:nth-child(5) { animation-delay: 0.48s; }
+        .harbor-main-text .harbor-letter:nth-child(6) { animation-delay: 0.60s; }
 </style>
 </head>
 <body>
@@ -815,7 +847,7 @@ body.stationary-page .members-anchor-btn {
                     <div class="catty-the">
                         <span class="letter-t">T</span><span class="letter-h-the">h</span><span class="letter-e-the">e</span>
                     </div>
-                    <div class="harbor-main-text">Harbor</div>
+                    <div class="harbor-main-text" aria-label="Harbor"><span class="harbor-letter">H</span><span class="harbor-letter">a</span><span class="harbor-letter">r</span><span class="harbor-letter">b</span><span class="harbor-letter">o</span><span class="harbor-letter">r</span></div>
                 </div>
                 <div class="harbor-subtitle">A caregiver sanctuary where lived experiences and survived struggles light the way for someone else.</div>
             </div>
