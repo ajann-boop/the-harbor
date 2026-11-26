@@ -61,26 +61,38 @@
         }
 
 
-        /* === CLEAN WELCOME LAYOUT, MOSAIC TILE LOCK & PHOTO-CLEAR GLASS CARDS === */
-        #mosaicBg,
-        .mosaic-bg {
+        /* === 3-LAYER HARBOR WELCOME: HARBOR BG + TRANSLUCENT MOSAIC + FOREGROUND GATEWAY === */
+        #colorWashBg,
+        .color-wash-bg {
             position: fixed !important;
             inset: 0 !important;
-            width: 100vw !important;
-            height: 100dvh !important;
-            overflow: hidden !important;
-            z-index: 1 !important;
+            z-index: 0 !important;
             pointer-events: none !important;
         }
-        #mosaicBg,
-        .mosaic-bg {
+
+        #mosaicBg:not(.hidden-bg),
+        .mosaic-bg:not(.hidden-bg) {
+            position: fixed !important;
+            top: -18px !important;
+            left: -18px !important;
+            width: calc(100vw + 36px) !important;
+            height: calc(100dvh + 36px) !important;
             display: grid !important;
-            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-            grid-auto-rows: 132px !important;
-            gap: 4px !important;
-            align-content: start !important;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+            grid-auto-rows: 112px !important;
+            gap: 6px !important;
+            padding: 6px !important;
+            z-index: 1 !important;
+            opacity: 0.56 !important;
+            pointer-events: none !important;
+            overflow: hidden !important;
         }
-        #mosaicBg .mosaic-tile,
+
+        .mosaic-bg.hidden-bg,
+        .mosaic-overlay.hidden-bg {
+            display: none !important;
+        }
+
         .mosaic-bg .mosaic-tile {
             width: 100% !important;
             height: 100% !important;
@@ -88,23 +100,15 @@
             max-width: 100% !important;
             max-height: 100% !important;
             object-fit: cover !important;
+            border-radius: 6px !important;
             display: block !important;
         }
-        @media (max-width: 600px) {
-            #mosaicBg,
-            .mosaic-bg {
-                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-                grid-auto-rows: 122px !important;
-                gap: 3px !important;
-            }
-        }
-        #mosaicOverlay,
-        .mosaic-overlay {
+
+        #mosaicOverlay:not(.hidden-bg),
+        .mosaic-overlay:not(.hidden-bg) {
             position: fixed !important;
             inset: 0 !important;
-            width: 100vw !important;
-            height: 100dvh !important;
-            z-index: 1 !important;
+            z-index: 2 !important;
             pointer-events: none !important;
         }
 
@@ -119,7 +123,7 @@
         body.stationary-page #appContainer,
         body.stationary-page .app-container {
             position: relative !important;
-            z-index: 5 !important;
+            z-index: 10 !important;
             width: 100% !important;
             height: 100dvh !important;
             min-height: 100dvh !important;
@@ -127,22 +131,26 @@
             padding: 18px 18px 24px !important;
             overflow: hidden !important;
             box-sizing: border-box !important;
-        }
-
-        body.stationary-page #mainGatewayView.gateway-section:not(.hidden) {
-            position: relative !important;
-            z-index: 10 !important;
             display: flex !important;
             flex-direction: column !important;
-            justify-content: space-between !important;
+            justify-content: center !important;
             align-items: center !important;
-            visibility: visible !important;
-            opacity: 1 !important;
+        }
+
+        body.stationary-page #mainGatewayView:not(.hidden) {
+            position: relative !important;
+            z-index: 10 !important;
             width: 100% !important;
             max-width: 680px !important;
             height: 100% !important;
             margin: 0 auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            align-items: center !important;
             gap: 10px !important;
+            visibility: visible !important;
+            opacity: 1 !important;
             box-sizing: border-box !important;
         }
 
@@ -150,7 +158,7 @@
             width: 100% !important;
             margin: 0 !important;
             padding: 12px 18px 11px !important;
-            background: rgba(7, 34, 38, 0.24) !important;
+            background: rgba(7, 34, 38, 0.22) !important;
             backdrop-filter: blur(2px) !important;
             -webkit-backdrop-filter: blur(2px) !important;
             border: 1px solid rgba(94, 234, 212, 0.35) !important;
@@ -162,7 +170,7 @@
         body.stationary-page .title-wrapper .to-text,
         body.stationary-page .title-wrapper .catty-the,
         body.stationary-page .title-wrapper .harbor-subtitle {
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.88), 0 0 14px rgba(0, 0, 0, 0.7) !important;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9), 0 0 14px rgba(0, 0, 0, 0.72) !important;
         }
 
         body.stationary-page .sanctuary-quote-banner {
@@ -176,7 +184,7 @@
             flex-direction: column !important;
             justify-content: center !important;
             align-items: center !important;
-            background: rgba(7, 34, 38, 0.16) !important;
+            background: rgba(7, 34, 38, 0.14) !important;
             backdrop-filter: blur(2px) !important;
             -webkit-backdrop-filter: blur(2px) !important;
             border: 1px solid rgba(94, 234, 212, 0.28) !important;
@@ -186,7 +194,7 @@
 
         body.stationary-page .sanctuary-quote-text,
         body.stationary-page .sanctuary-quote-author {
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9), 0 0 14px rgba(0, 0, 0, 0.72) !important;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.92), 0 0 14px rgba(0, 0, 0, 0.75) !important;
         }
 
         body.stationary-page .learn-more-pill,
@@ -196,11 +204,17 @@
         }
 
         @media (max-width: 600px) {
+            #mosaicBg:not(.hidden-bg),
+            .mosaic-bg:not(.hidden-bg) {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                grid-auto-rows: 118px !important;
+                gap: 4px !important;
+            }
             body.stationary-page #appContainer,
             body.stationary-page .app-container {
                 padding: 12px 10px 20px !important;
             }
-            body.stationary-page #mainGatewayView.gateway-section:not(.hidden) {
+            body.stationary-page #mainGatewayView:not(.hidden) {
                 gap: 8px !important;
             }
             body.stationary-page .title-wrapper {
