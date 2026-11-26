@@ -287,6 +287,20 @@
             object-fit: cover !important;
             display: block !important;
         }
+
+        /* === FINAL FIX: HIDE TOURVIEW ON LOAD & LOCK VIDEO DIMENSIONS === */
+        #tourView.hidden,
+        .view-screen.hidden {
+            display: none !important;
+        }
+        #harborTourPlayer {
+            width: 100% !important;
+            max-width: 100% !important;
+            max-height: 420px !important;
+            aspect-ratio: 16 / 9 !important;
+            object-fit: cover !important;
+            display: block !important;
+        }
 </style>
 </head>
 <body>
@@ -729,7 +743,7 @@
 
             <div class="video-container" style="margin-bottom: 12px;">
                 <video id="harborTourPlayer" controls playsinline preload="metadata"
-                       {% if first_mosaic %}poster="{{ url_for('static', filename='images/mosaic/' + first_mosaic) }}"{% endif %}
+                       {% if first_mosaic %}{% endif %}
                        onerror="this.style.display='none'; document.getElementById('tourVideoFallback').style.display='flex';">
                     <source src="{{ url_for('static', filename='videos/harbor_tour.mp4') }}" type="video/mp4">
                     <source src="{{ url_for('static', filename='videos/mission_intro.mp4') }}" type="video/mp4">
