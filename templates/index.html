@@ -770,6 +770,47 @@ body.stationary-page .members-anchor-btn {
         .harbor-main-text .harbor-letter:nth-child(4) { animation-delay: 0.36s; }
         .harbor-main-text .harbor-letter:nth-child(5) { animation-delay: 0.48s; }
         .harbor-main-text .harbor-letter:nth-child(6) { animation-delay: 0.60s; }
+
+        @media (max-width: 600px) {
+            body.stationary-page .app-container {
+                padding-top: 58px !important;
+                padding-bottom: 10px !important;
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+            }
+            body.stationary-page .gateway-section {
+                gap: 8px !important;
+                padding-bottom: 4px !important;
+            }
+            body.stationary-page .title-wrapper {
+                padding: 12px 12px 10px !important;
+            }
+            body.stationary-page .sanctuary-quote-banner {
+                height: auto !important;
+                min-height: 0 !important;
+                padding: 10px 12px !important;
+            }
+            body.stationary-page .members-anchor-btn svg {
+                width: 176px !important;
+                height: 192px !important;
+            }
+            body.stationary-page .twin-buttons {
+                gap: 8px !important;
+            }
+            body.stationary-page .twin-btn-pill-rich {
+                padding: 9px 8px !important;
+            }
+        }
+
+        @media (max-height: 680px) {
+            html:has(body.stationary-page),
+            body.stationary-page,
+            body.stationary-page .app-container {
+                height: auto !important;
+                max-height: none !important;
+                overflow-y: auto !important;
+            }
+        }
 </style>
 </head>
 <body>
