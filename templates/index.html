@@ -301,6 +301,32 @@
             object-fit: cover !important;
             display: block !important;
         }
+
+        /* === KEEP HARBOR TITLE HORIZONTAL & HIDE FEED COMPOSER ON WELCOME === */
+        body.stationary-page .harbor-title-container {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: baseline !important;
+            justify-content: center !important;
+            flex-wrap: nowrap !important;
+            gap: 8px !important;
+        }
+        body.stationary-page .harbor-main-text {
+            display: inline-flex !important;
+            flex-direction: row !important;
+            align-items: baseline !important;
+            justify-content: center !important;
+            white-space: nowrap !important;
+        }
+        body.stationary-page .harbor-letter {
+            display: inline-block !important;
+        }
+        body.stationary-page .fb-composer,
+        body.stationary-page .fb-composer-bottom,
+        body.stationary-page .paperclip-icon-btn,
+        body.stationary-page .fb-post-btn {
+            display: none !important;
+        }
 </style>
 </head>
 <body>
