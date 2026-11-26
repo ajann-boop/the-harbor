@@ -13,6 +13,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+Compress(app)
 app.secret_key = os.environ.get("SECRET_KEY", "the-harbor-share-your-walk-secret-2026")
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 86400
 
