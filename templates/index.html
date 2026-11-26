@@ -237,6 +237,42 @@
                 padding: 9px 8px !important;
             }
         }
+
+        /* === HIDE INNER-VIEW BACKDROPS ON WELCOME & KEEP GATEWAY ON TOP === */
+        body.stationary-page #guestBg,
+        body.stationary-page #distanceBg,
+        body.stationary-page #joinBg,
+        .guest-bg.hidden-bg,
+        .distance-bg.hidden-bg,
+        .join-bg.hidden-bg {
+            display: none !important;
+        }
+
+        .guest-bg-grid img,
+        .distance-bg-grid img,
+        .join-bg-grid img {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
+            object-fit: cover !important;
+        }
+
+        body.stationary-page #appContainer {
+            position: relative !important;
+            z-index: 20 !important;
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        body.stationary-page #mainGatewayView {
+            position: relative !important;
+            z-index: 21 !important;
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
 </style>
 </head>
 <body>
@@ -248,7 +284,7 @@
     <!-- Welcome & Learn More Mosaic Background -->
     <div id="mosaicBg" class="mosaic-bg">
         {% for img in mosaic_images %}
-        <img src="{{ url_for('static', filename='images/mosaic/' + img) }}" onerror="this.style.display='none';" class="mosaic-tile" alt="Caregiver community moment">
+        <img src="{{ url_for('static', filename='images/mosaic/' + img) }}" onerror="this.remove();" class="mosaic-tile" alt="Caregiver community moment">
         {% endfor %}
     </div>
     <div id="mosaicOverlay" class="mosaic-overlay"></div>
@@ -299,7 +335,7 @@
     <div id="guestBg" class="guest-bg">
         <div class="guest-bg-grid">
             {% for img in mosaic_images %}
-            <img src="{{ url_for('static', filename='images/mosaic/' + img) }}" onerror="this.style.display='none';" alt="Community activity">
+            <img src="{{ url_for('static', filename='images/mosaic/' + img) }}" onerror="this.remove();" alt="Community activity">
             {% endfor %}
         </div>
     </div>
