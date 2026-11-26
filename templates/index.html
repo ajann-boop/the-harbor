@@ -72,14 +72,31 @@
             z-index: 0 !important;
             pointer-events: none !important;
         }
+        #mosaicBg,
+        .mosaic-bg {
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            grid-auto-rows: 132px !important;
+            gap: 4px !important;
+            align-content: start !important;
+        }
         #mosaicBg .mosaic-tile,
         .mosaic-bg .mosaic-tile {
             width: 100% !important;
             height: 100% !important;
+            min-height: 0 !important;
             max-width: 100% !important;
             max-height: 100% !important;
             object-fit: cover !important;
             display: block !important;
+        }
+        @media (max-width: 600px) {
+            #mosaicBg,
+            .mosaic-bg {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                grid-auto-rows: 122px !important;
+                gap: 3px !important;
+            }
         }
         #mosaicOverlay,
         .mosaic-overlay {
@@ -102,7 +119,7 @@
         body.stationary-page #appContainer,
         body.stationary-page .app-container {
             position: relative !important;
-            z-index: 2 !important;
+            z-index: 5 !important;
             width: 100% !important;
             height: 100dvh !important;
             min-height: 100dvh !important;
@@ -114,7 +131,7 @@
 
         body.stationary-page #mainGatewayView.gateway-section:not(.hidden) {
             position: relative !important;
-            z-index: 2 !important;
+            z-index: 5 !important;
             width: 100% !important;
             max-width: 680px !important;
             height: 100% !important;
