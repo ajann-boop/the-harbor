@@ -69,7 +69,7 @@
             width: 100vw !important;
             height: 100dvh !important;
             overflow: hidden !important;
-            z-index: 0 !important;
+            z-index: 1 !important;
             pointer-events: none !important;
         }
         #mosaicBg,
@@ -131,15 +131,17 @@
 
         body.stationary-page #mainGatewayView.gateway-section:not(.hidden) {
             position: relative !important;
-            z-index: 5 !important;
-            width: 100% !important;
-            max-width: 680px !important;
-            height: 100% !important;
-            margin: 0 auto !important;
+            z-index: 10 !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: space-between !important;
             align-items: center !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            width: 100% !important;
+            max-width: 680px !important;
+            height: 100% !important;
+            margin: 0 auto !important;
             gap: 10px !important;
             box-sizing: border-box !important;
         }
