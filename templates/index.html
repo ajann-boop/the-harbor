@@ -967,6 +967,25 @@ body.stationary-page .members-anchor-btn {
                 drop-shadow(0 0 10px rgba(255, 77, 109, 0.95))
                 drop-shadow(0 0 18px rgba(255, 45, 85, 0.85)) !important;
         }
+
+        /* === BRIGHT NEON ENTER / HERE SIGNS ON ANCHOR === */
+        body.stationary-page .members-anchor-wrap text,
+        body.stationary-page .members-anchor-wrap tspan,
+        body.stationary-page .anchor-enter-text,
+        body.stationary-page .anchor-here-text,
+        body.stationary-page [class*="enter" i],
+        body.stationary-page [class*="here" i] {
+            fill: #ff6b8b !important;
+            color: #ff7b98 !important;
+            filter:
+                drop-shadow(0 0 3px #ffffff)
+                drop-shadow(0 0 8px #ff2a55)
+                drop-shadow(0 0 16px #ff1e56) !important;
+            text-shadow:
+                0 0 4px #ffffff,
+                0 0 10px #ff2a55,
+                0 0 18px #ff1e56 !important;
+        }
 </style>
 </head>
 <body>
@@ -1190,7 +1209,7 @@ body.stationary-page .members-anchor-btn {
 
             <div id="sundayChampionSpotlight" {% if not weekly_champion %}hidden{% endif %} style="width: 100%; background: linear-gradient(145deg, rgba(15, 23, 42, 0.45), rgba(30, 27, 75, 0.45)); border: 1.5px solid #fde047; border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; backdrop-filter: blur(14px); box-shadow: 0 0 22px rgba(253, 224, 71, 0.2); text-align: center;">
                 <div style="font-size: 0.72rem; font-weight: 900; letter-spacing: 0.9px; color: #fde047; text-transform: uppercase; margin-bottom: 6px;">👑 Sunday Winner Acknowledgement • Photo Champion</div>
-                <img id="loginChampImg" src="{{ weekly_champion.image_url if weekly_champion else '' }}" onerror="this.style.display='none'" alt="Sunday Photo Champion" style="width: 100%; max-height: 185px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(253, 224, 71, 0.4); margin-bottom: 6px;">
+                <img id="loginChampImg" src="{{ weekly_champion.image_url if weekly_champion else '' }}" onerror="this.remove();" alt="Sunday Photo Champion" style="width: 100%; max-height: 185px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(253, 224, 71, 0.4); margin-bottom: 6px;">
                 <div id="loginChampCaption" style="font-size: 0.86rem; font-weight: 800; color: #ffffff;">{{ weekly_champion.caption if weekly_champion else '' }}</div>
                 <div id="loginChampMeta" style="font-size: 0.74rem; color: #5eead4; margin-top: 2px;">
                     {% if weekly_champion %}Captured by <strong>{{ weekly_champion.author_name }}</strong> • {{ weekly_champion.votes }} Votes{% endif %}
@@ -2077,7 +2096,7 @@ body.stationary-page .members-anchor-btn {
 
             <div id="passItOnChampionSpotlight" {% if not weekly_champion %}hidden{% endif %} style="width: 100%; background: linear-gradient(145deg, rgba(15, 23, 42, 0.45), rgba(30, 27, 75, 0.45)); border: 1.5px solid #fde047; border-radius: 14px; padding: 12px 14px; text-align: center;">
                 <div style="font-size: 0.72rem; font-weight: 900; letter-spacing: 0.9px; color: #fde047; text-transform: uppercase; margin-bottom: 6px;">👑 Weekly Favorite Picture Winner</div>
-                <img id="passItOnChampImg" src="{{ weekly_champion.image_url if weekly_champion else '' }}" onerror="this.style.display='none'" alt="Weekly Photo Champion" style="width: 100%; max-height: 185px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(253, 224, 71, 0.4); margin-bottom: 6px;">
+                <img id="passItOnChampImg" src="{{ weekly_champion.image_url if weekly_champion else '' }}" onerror="this.remove();" alt="Weekly Photo Champion" style="width: 100%; max-height: 185px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(253, 224, 71, 0.4); margin-bottom: 6px;">
                 <div id="passItOnChampCaption" style="font-size: 0.86rem; font-weight: 800; color: #ffffff;">{{ weekly_champion.caption if weekly_champion else '' }}</div>
                 <div id="passItOnChampMeta" style="font-size: 0.74rem; color: #5eead4; margin-top: 2px;">
                     {% if weekly_champion %}Captured by <strong>{{ weekly_champion.author_name }}</strong> • {{ weekly_champion.votes }} Votes{% endif %}
@@ -3583,7 +3602,7 @@ body.stationary-page .members-anchor-btn {
             }
             box.innerHTML = `
                 <div style="font-size:0.72rem; font-weight:900; color:${accentColor}; text-transform:uppercase;">${dayLabel}</div>
-                <img src="${escapeHtmlSafe(pick.image_url)}" onerror="this.style.display='none'" alt="${escapeHtmlSafe(pick.caption)}" style="width:100%; height:130px; object-fit:cover; border-radius:9px; border:1px solid rgba(255,255,255,0.22);">
+                <img src="${escapeHtmlSafe(pick.image_url)}" onerror="this.remove();" alt="${escapeHtmlSafe(pick.caption)}" style="width:100%; height:130px; object-fit:cover; border-radius:9px; border:1px solid rgba(255,255,255,0.22);">
                 <div style="font-size:0.78rem; font-weight:800; color:#ffffff; line-height:1.25;">${escapeHtmlSafe(pick.caption)}</div>
                 <div style="font-size:0.68rem; color:#cbd5e1;">by ${escapeHtmlSafe(pick.author_name)}</div>
                 <div style="font-size:0.8rem; font-weight:900; color:#fde047;">🗳️ ${pick.votes} ${pick.votes === 1 ? 'Vote' : 'Votes'}</div>
