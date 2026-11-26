@@ -353,6 +353,23 @@
         body.stationary-page input[type="file"] {
             display: none !important;
         }
+
+        /* === FINAL MOBILE SPACING TUNE ON STATIONARY WELCOME === */
+        @media (max-width: 600px) {
+            body.stationary-page #mainGatewayView:not(.hidden) {
+                justify-content: space-evenly !important;
+                gap: 6px !important;
+            }
+            body.stationary-page .sanctuary-quote-banner {
+                height: 92px !important;
+                min-height: 92px !important;
+                max-height: 92px !important;
+            }
+            body.stationary-page .members-anchor-btn svg {
+                width: 158px !important;
+                height: 172px !important;
+            }
+        }
 </style>
 </head>
 <body>
