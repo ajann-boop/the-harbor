@@ -1,0 +1,8 @@
+name = "the-harbor"
+main = "worker.py"
+compatibility_date = "2026-11-28"
+compatibility_flags = ["python_workers"]
+
+[assets]
+directory = "./static"
+binding = "ASSETS"
