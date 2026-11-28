@@ -1,7 +1,0 @@
-Flask==3.0.2
-psycopg2-binary==2.9.10
-gunicorn==21.2.0
-supabase==2.34.1
-python-dotenv
-tzdata
-Flask-Compress
