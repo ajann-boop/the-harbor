@@ -5,8 +5,8 @@ import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-import psycopg2
-from psycopg2.extras import RealDictCursor
+from urllib.parse import urlparse, unquote
+import pg8000.dbapi
 from flask import Flask, render_template, request, jsonify, session
 from flask_compress import Compress
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -32,12 +32,71 @@ SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 supabase_client = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
 
-
 def get_db_connection():
     if not DATABASE_URL:
         return None
-    return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+    parsed = urlparse(DATABASE_URL)
+    conn = pg8000.dbapi.connect(
+        user=unquote(parsed.username or ""),
+        password=unquote(parsed.password or ""),
+        host=parsed.hostname,
+        port=parsed.port or 5432,
+        database=(parsed.path or "/postgres").lstrip("/"),
+        ssl_context=True,
+    )
 
+    class DictCursor:
+        def __init__(self, cursor):
+            self._cursor = cursor
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            self._cursor.close()
+
+        def _row_to_dict(self, row):
+            if row is None or not self._cursor.description:
+                return row
+            cols = [col[0] for col in self._cursor.description]
+            return dict(zip(cols, row))
+
+        def execute(self, operation, parameters=None):
+            if parameters is not None:
+                self._cursor.execute(operation, parameters)
+            else:
+                self._cursor.execute(operation)
+            return self
+
+        def fetchone(self):
+            return self._row_to_dict(self._cursor.fetchone())
+
+        def fetchall(self):
+            return [self._row_to_dict(r) for r in self._cursor.fetchall()]
+
+        def __getattr__(self, name):
+            return getattr(self._cursor, name)
+
+    class DictConnection:
+        def __init__(self, raw_conn):
+            self._conn = raw_conn
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            if exc_type:
+                self._conn.rollback()
+            else:
+                self._conn.commit()
+
+        def cursor(self):
+            return DictCursor(self._conn.cursor())
+
+        def __getattr__(self, name):
+            return getattr(self._conn, name)
+
+    return DictConnection(conn)
 
 def init_db():
     conn = get_db_connection()
